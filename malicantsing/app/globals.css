@@ -1,26 +1,672 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* =========================================================================
+   MALI — design tokens (Direction A: "Cold Window")
+   Extracted from docs/designs/malicantsing home.html
+   ========================================================================= */
+@theme {
+  /* Palette */
+  --color-bg:        #F4F2EE;
+  --color-bg-2:      #ECE8E1;
+  --color-ink:       #15161A;
+  --color-ink-2:     #55534E;
+  --color-ink-3:     #6A6359;   /* WCAG AA: 5.30:1 on bg, 4.86:1 on bg-2 */
+  --color-rule:      #DAD5CC;
+  --color-accent:    #7A4E5E;   /* dusty plum */
+  --color-accent-2:  #5D3A48;
+  --color-cream:     #EFE6D6;   /* on-dark wordmark color used in hero */
+
+  /* Container width */
+  --container-page: 1480px;
+
+  /* Page gutter (used as px-gutter md:px-gutter-md lg:px-gutter-lg) */
+  --spacing-gutter:     1.5rem;    /* 24px */
+  --spacing-gutter-md:  2.5rem;    /* 40px */
+  --spacing-gutter-lg:  3.5rem;    /* 56px */
+
+  /* Vertical section rhythm */
+  --spacing-section:     6rem;     /* 96px  — mobile */
+  --spacing-section-md:  8rem;     /* 128px — tablet */
+  --spacing-section-lg:  10rem;    /* 160px — desktop */
+  --spacing-section-xl:  11rem;    /* 176px — generous */
+
+  /* Type — display fluid scale */
+  --text-display-xl:     clamp(140px, 26vw, 460px);  /* hero wordmark */
+  --text-display-xl--line-height: 0.82;
+  --text-display-l:      clamp(80px, 11vw, 168px);   /* about lead */
+  --text-display-l--line-height: 0.86;
+  --text-display-m:      clamp(64px, 8vw, 132px);    /* release title */
+  --text-display-m--line-height: 0.95;
+  --text-display-s:      clamp(56px, 7vw, 108px);    /* capture H */
+  --text-display-s--line-height: 0.95;
+  --text-display-xs:     clamp(40px, 6.2vw, 92px);
+  --text-display-xs--line-height: 1.05;
+  --text-display-2xs:    clamp(28px, 4.6vw, 44px);   /* about prose */
+  --text-display-2xs--line-height: 1.15;
+
+  /* Type — mono captions */
+  --text-mono-xs:   10px;
+  --text-mono-xs--line-height: 1.6;
+  --text-mono-sm:   11px;
+  --text-mono-sm--line-height: 1.6;
+
+  /* Letter-spacing */
+  --tracking-display:    -0.02em;
+  --tracking-mark:       -0.01em;
+  --tracking-caps-sm:    0.18em;
+  --tracking-caps:       0.22em;
+  --tracking-caps-md:    0.24em;
+  --tracking-caps-lg:    0.28em;
+  --tracking-caps-xl:    0.32em;
 }
 
+/* Map next/font CSS variables into the theme. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans:    var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  --font-mono:    var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* =========================================================================
+   Base — minimal, only what utilities can't easily do
+   ========================================================================= */
+html {
+  scroll-behavior: smooth;
+  /* Prevent iOS auto-text inflation. */
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+/* Visible, on-brand focus ring for keyboard users only. */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* =========================================================================
+   .ulink — typographic hover underline-reveal used across Nav, Footer, links
+   ========================================================================= */
+.ulink {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 2px;
+}
+.ulink::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 600ms cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+.ulink:hover::after,
+.ulink:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+/* Persistent underline (e.g. current-page nav item). Hover contracts it. */
+.ulink-on::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.ulink-on:hover::after,
+.ulink-on:focus-visible::after {
+  transform: scaleX(0);
+  transform-origin: right;
+}
+
+/* =========================================================================
+   Skip-to-content link — visible only when keyboard-focused.
+   ========================================================================= */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--color-ink);
+  color: var(--color-cream);
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  z-index: 100;
+  transition: top 200ms ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  top: 0;
+  outline: none;
+}
+
+/* =========================================================================
+   .reveal — fade-and-rise on viewport entry (Reveal.tsx toggles .reveal-in)
+   ========================================================================= */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 900ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.reveal.reveal-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* =========================================================================
+   Hero "field" — placeholder photograph composed of layered gradients +
+   grain. Drop-in: replace .hero-field's background-image with a real photo
+   via <picture> / next/image while keeping the grain overlay.
+   ========================================================================= */
+.field {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.field::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+}
+.field-light::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 18% 22%, rgba(255, 247, 236, 0.35), transparent 70%),
+    radial-gradient(80% 70% at 95% 100%, rgba(0, 0, 0, 0.45), transparent 70%);
+}
+.hero-field {
+  background:
+    radial-gradient(70% 55% at 22% 18%, #b9a593 0%, #8a7d70 32%, transparent 65%),
+    radial-gradient(90% 80% at 85% 105%, #18181c 0%, #2a2622 38%, transparent 72%),
+    linear-gradient(160deg, #5f534a 0%, #3a322d 55%, #1c1a18 100%);
+}
+.art-strange {
+  background:
+    radial-gradient(75% 60% at 25% 20%, #6b7281 0%, #3b4150 40%, transparent 70%),
+    linear-gradient(155deg, #2c2f3a 0%, #1a1c24 100%);
+}
+.art-who {
+  background:
+    radial-gradient(70% 60% at 70% 25%, #a37684 0%, #6f4a58 45%, transparent 75%),
+    linear-gradient(155deg, #4a2e39 0%, #2a1b22 100%);
+}
+.art-lastyear {
+  background:
+    radial-gradient(65% 55% at 30% 30%, #c89c7c 0%, #8a614a 45%, transparent 75%),
+    linear-gradient(160deg, #6a4232 0%, #2f1f18 100%);
+}
+
+/* =========================================================================
+   Release-detail dark hero scrim + grain
+   ========================================================================= */
+.hero-scrim {
+  background:
+    radial-gradient(80% 70% at 50% 35%, #3b2330 0%, #1f121a 60%, #120a10 100%);
+}
+.hero-grain {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.45 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
+}
+.art-cast {
+  box-shadow:
+    0 30px 60px -20px rgba(0, 0, 0, 0.65),
+    0 60px 120px -40px rgba(0, 0, 0, 0.65);
+}
+
+/* =========================================================================
+   Track + lyrics drawer (open/close animation)
+   ========================================================================= */
+.track-row .track-chev {
+  transition: transform 400ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.track-row.open .track-chev {
+  transform: rotate(45deg);
+}
+.lyrics-drawer {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition:
+    max-height 700ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 500ms ease;
+}
+.lyrics-drawer.open {
+  max-height: 1400px;
+  opacity: 1;
+}
+
+/* =========================================================================
+   Video-still color fields + film overlay (used by /videos thumbnails)
+   ========================================================================= */
+.still-who {
+  background:
+    radial-gradient(55% 80% at 30% 55%, #a37684 0%, #6f4a58 45%, transparent 75%),
+    radial-gradient(40% 70% at 82% 50%, rgba(80, 40, 60, 0.45) 0%, transparent 70%),
+    linear-gradient(180deg, #3e2630 0%, #1f1218 100%);
+}
+.still-strange {
+  background:
+    radial-gradient(50% 85% at 72% 42%, #6b7281 0%, #3b4150 45%, transparent 75%),
+    radial-gradient(35% 60% at 18% 60%, rgba(40, 55, 80, 0.5) 0%, transparent 70%),
+    linear-gradient(180deg, #1f2330 0%, #0e1018 100%);
+}
+.still-lastyear {
+  background:
+    radial-gradient(55% 80% at 35% 55%, #c89c7c 0%, #8a614a 50%, transparent 75%),
+    radial-gradient(35% 60% at 85% 40%, rgba(200, 120, 80, 0.35) 0%, transparent 70%),
+    linear-gradient(180deg, #4a2c1f 0%, #20120c 100%);
+}
+.still-session {
+  background:
+    radial-gradient(45% 75% at 50% 50%, #a89e91 0%, #6a625a 45%, transparent 75%),
+    radial-gradient(30% 60% at 18% 30%, rgba(255, 240, 210, 0.18) 0%, transparent 70%),
+    linear-gradient(180deg, #2f2b27 0%, #14110f 100%);
+}
+.scan::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0 1px,
+    transparent 1px 3px
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.7;
+}
+.vig::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(110% 90% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* =========================================================================
+   /about — lead-photo scrim + gallery-placeholder fields + dropcap
+   ========================================================================= */
+.lead-scrim {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 10, 12, 0.55) 0%,
+    rgba(15, 10, 12, 0.05) 20%,
+    rgba(15, 10, 12, 0) 40%,
+    rgba(15, 10, 12, 0.05) 70%,
+    rgba(244, 242, 238, 0.95) 100%
+  );
+}
+.lead-ar {
+  aspect-ratio: 3 / 4;
+}
+@media (min-width: 768px) {
+  .lead-ar { aspect-ratio: 16 / 9; }
+}
+@media (min-width: 1280px) {
+  .lead-ar { aspect-ratio: 21 / 9; }
+}
+
+.ph-studio {
+  background:
+    radial-gradient(60% 80% at 30% 30%, #7e8a93 0%, #3a4148 50%, transparent 75%),
+    linear-gradient(180deg, #2c3138 0%, #15171c 100%);
+}
+.ph-room {
+  background:
+    radial-gradient(60% 80% at 70% 50%, #b5a292 0%, #6a594b 50%, transparent 75%),
+    linear-gradient(180deg, #3c2f25 0%, #1c1610 100%);
+}
+.ph-mirror {
+  background:
+    radial-gradient(60% 80% at 50% 35%, #9b8a92 0%, #5f4a55 50%, transparent 75%),
+    linear-gradient(180deg, #34252d 0%, #18101a 100%);
+}
+
+.dropcap > p:first-of-type::first-letter,
+.dropcap::first-letter {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 5.4em;
+  line-height: 0.78;
+  float: left;
+  padding: 0.06em 0.12em 0 0;
+  color: var(--color-ink);
+}
+
+/* =========================================================================
+   /shows — breathing-rule animation under the empty-state title
+   ========================================================================= */
+@keyframes breath {
+  0%, 100% { transform: scaleX(0.2); opacity: 0.4; }
+  50%      { transform: scaleX(1);   opacity: 1; }
+}
+.breath {
+  animation: breath 4.5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* =========================================================================
+   Lightbox (about gallery)
+   ========================================================================= */
+.lb-back {
+  background: rgba(15, 10, 12, 0.92);
+  backdrop-filter: blur(6px);
+}
+.lb-anim { opacity: 0; transition: opacity 400ms ease; }
+.lb-anim.in { opacity: 1; }
+
+/* =========================================================================
+   Store — placeholder field gradients (used when no Shopify image exists)
+   ========================================================================= */
+.ls-hero {
+  background:
+    radial-gradient(60% 50% at 70% 28%, #d8c2a8 0%, #a48a72 35%, transparent 70%),
+    radial-gradient(80% 70% at 12% 100%, #14110e 0%, #2a2520 38%, transparent 72%),
+    linear-gradient(155deg, #6a5a4c 0%, #3a322d 55%, #1c1a18 100%);
+}
+.ls-featured {
+  background:
+    radial-gradient(70% 60% at 28% 22%, #b89784 0%, #7a5b54 38%, transparent 72%),
+    radial-gradient(60% 60% at 95% 95%, #1f1a1b 0%, #2e2826 40%, transparent 70%),
+    linear-gradient(150deg, #523e3d 0%, #2b2222 100%);
+}
+.ls-onbody { background:
+  radial-gradient(60% 55% at 28% 22%, #b89784 0%, #7a5b54 38%, transparent 72%),
+  radial-gradient(60% 60% at 95% 95%, #1f1a1b 0%, #2e2826 40%, transparent 70%),
+  linear-gradient(150deg, #523e3d 0%, #2b2222 100%);
+}
+.ls-detail { background:
+  radial-gradient(55% 50% at 60% 35%, #a87a8a 0%, #6b4554 50%, transparent 78%),
+  linear-gradient(160deg, #3a2530 0%, #1e1218 100%);
+}
+.ls-cassette { background: radial-gradient(50% 45% at 50% 30%, #9a8294 0%, #5e445a 50%, transparent 78%), linear-gradient(155deg, #3a2934 0%, #1e1418 100%); }
+.ls-poster   { background: radial-gradient(55% 55% at 50% 50%, #c4b59c 0%, #8a7864 50%, transparent 80%), linear-gradient(150deg, #5a4d3e 0%, #2a2218 100%); }
+.ls-pair-1   { background: radial-gradient(65% 55% at 70% 25%, #c9a07c 0%, #7e5b46 45%, transparent 75%), linear-gradient(155deg, #5a3a2a 0%, #2a1c16 100%); }
+.ls-pair-2   { background: radial-gradient(50% 45% at 50% 30%, #9a8294 0%, #5e445a 50%, transparent 78%), linear-gradient(155deg, #3a2934 0%, #1e1418 100%); }
+.ls-pair-3   { background: radial-gradient(55% 55% at 50% 50%, #c4b59c 0%, #8a7864 50%, transparent 80%), linear-gradient(150deg, #5a4d3e 0%, #2a2218 100%); }
+
+/* Lookbook frames */
+.lb-1 { background: radial-gradient(60% 50% at 30% 30%, #c8a888, #6a4e3a 50%, transparent 75%), linear-gradient(160deg, #4a3326 0%, #1e140e 100%); }
+.lb-2 { background: radial-gradient(70% 60% at 70% 25%, #9a7d8a, #5b3e4c 45%, transparent 75%), linear-gradient(155deg, #3a2530 0%, #1a1014 100%); }
+.lb-3 { background: radial-gradient(60% 50% at 25% 60%, #8a8e9a, #4a4e5a 45%, transparent 70%), linear-gradient(150deg, #2e3240 0%, #14161e 100%); }
+.lb-4 { background: radial-gradient(70% 55% at 60% 35%, #b89884, #6a4e44 45%, transparent 75%), linear-gradient(160deg, #3e2a26 0%, #1c120e 100%); }
+.lb-5 { background: radial-gradient(60% 50% at 35% 25%, #d8c4a4, #8a7458 50%, transparent 80%), linear-gradient(155deg, #4a3a26 0%, #20180e 100%); }
+.lb-6 { background: radial-gradient(70% 55% at 70% 60%, #8a7a8c, #4e3e54 45%, transparent 75%), linear-gradient(150deg, #322230 0%, #161018 100%); }
+
+.flat-warm { background: linear-gradient(160deg, #efe9dd 0%, #e6dfd0 100%); }
+.flat-cool { background: linear-gradient(160deg, #ece9e3 0%, #ddd9d0 100%); }
+
+/* Hide scrollbar on horizontal lookbook strip. */
+.no-bar::-webkit-scrollbar { display: none; }
+.no-bar { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* Product card hover-swap (lifestyle <-> flat). */
+.pc-swap .pc-flat { opacity: 0; transition: opacity 500ms ease; }
+.pc-swap:hover .pc-flat { opacity: 1; }
+.pc-swap .pc-ls { transition: transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+.pc-swap:hover .pc-ls { transform: scale(1.015); }
+
+/* Size pill — typographic underline (not a chunky chip). */
+.size-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink-2);
+  padding: 6px 2px;
+  position: relative;
+  transition: color 250ms ease;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  min-width: 36px;
+}
+.size-btn::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: var(--color-ink);
+  transform: scaleX(0); transform-origin: right;
+  transition: transform 350ms cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+.size-btn:hover { color: var(--color-ink); }
+.size-btn:hover::after { transform: scaleX(1); transform-origin: left; }
+.size-btn.is-on { color: var(--color-ink); }
+.size-btn.is-on::after { transform: scaleX(1); }
+.size-btn.is-out { color: var(--color-ink-3); text-decoration: line-through; cursor: not-allowed; }
+.size-btn.is-out:hover::after { transform: scaleX(0); }
+
+/* Color swatch — circular w/ inset ring + outer ring when selected. */
+.swatch {
+  width: 28px; height: 28px; border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(21, 22, 26, 0.10);
+  cursor: pointer;
+  transition: box-shadow 250ms ease;
+  border: 0;
+  padding: 0;
+}
+.swatch.is-on {
+  box-shadow:
+    inset 0 0 0 1px rgba(21, 22, 26, 0.10),
+    0 0 0 1px var(--color-ink),
+    0 0 0 3px var(--color-bg);
+}
+
+/* Add-to-cart button — plum, full-width tracked-uppercase mono. */
+.atc {
+  width: 100%;
+  padding: 18px 24px;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  border: 0;
+  cursor: pointer;
+  transition: background 350ms ease, color 350ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.atc:hover { background: var(--color-accent-2); }
+.atc:disabled { opacity: 0.5; cursor: not-allowed; }
+.atc.is-added { background: var(--color-ink); }
+
+/* Native <details> disclosure: rotate the plus when open. */
+.disc summary { list-style: none; cursor: pointer; }
+.disc summary::-webkit-details-marker { display: none; }
+.disc[open] .disc-icon { transform: rotate(45deg); }
+.disc-icon { transition: transform 350ms ease; display: inline-flex; }
+
+/* Thumbnail border state for the product gallery thumbnails. */
+.thumb {
+  position: relative;
+  transition: opacity 250ms ease;
+}
+.thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 1px var(--color-ink);
+  opacity: 0;
+  transition: opacity 250ms ease;
+  pointer-events: none;
+}
+.thumb.is-on::after { opacity: 1; }
+.thumb:not(.is-on) { opacity: 0.75; }
+.thumb:hover { opacity: 1; }
+
+/* Slow ambient pulse — used by "limited" tag dot on /shop. */
+@keyframes shopPulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+.shop-pulse { animation: shopPulse 2.4s ease-in-out infinite; }
+
+/* =========================================================================
+   Cart drawer — slides in from the right; backdrop fades. Body gets a
+   `drawer-open` class so the page underneath can blur softly.
+   ========================================================================= */
+.drawer-root {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+.drawer-root.is-open {
+  pointer-events: auto;
+}
+.drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(21, 22, 26, 0.35);
+  opacity: 0;
+  transition: opacity 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  border: 0;
+  cursor: pointer;
+}
+.drawer-root.is-open .drawer-backdrop {
+  opacity: 1;
+}
+.drawer-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(440px, 100vw);
+  background: var(--color-bg);
+  box-shadow: -24px 0 60px -20px rgba(21, 22, 26, 0.18);
+  transform: translateX(100%);
+  transition: transform 600ms cubic-bezier(0.2, 0.75, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+.drawer-root.is-open .drawer-panel {
+  transform: translateX(0);
+}
+@media (max-width: 640px) {
+  .drawer-panel {
+    width: 100vw;
+    box-shadow: none;
+  }
+}
+
+/* Per-row remove animation. */
+.li-row {
+  transition:
+    opacity 350ms ease,
+    transform 350ms ease,
+    max-height 450ms ease,
+    padding 350ms ease,
+    margin 350ms ease;
+  overflow: hidden;
+}
+.li-row.is-removing {
+  opacity: 0;
+  transform: translateX(20px);
+  max-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin: 0 !important;
+}
+
+/* Empty-state fade-up. Scoped + named to avoid colliding with .fade-up
+   anywhere else. */
+@keyframes cartFadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.cart-fade-up {
+  animation: cartFadeUp 550ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Background blur while the drawer is open. The (store) layout's wrapper
+   carries `.bg-page`; the cart context toggles `body.drawer-open`. */
+.bg-page {
+  transition: filter 500ms ease;
+}
+body.drawer-open .bg-page {
+  filter: blur(1px);
+}
+
+/* =========================================================================
+   Nav-on-dark — flips Nav colors while a dark hero is in view
+   (NavThemeSentinel toggles `body.nav-on-dark`).
+   ========================================================================= */
+body.nav-on-dark .nav-wordmark {
+  color: var(--color-cream);
+}
+body.nav-on-dark .nav-wordmark-2 {
+  color: rgba(232, 226, 214, 0.55);
+}
+body.nav-on-dark .nav-link {
+  color: rgba(232, 226, 214, 0.7);
+}
+body.nav-on-dark .nav-link-active {
+  color: var(--color-cream);
+}
+body.nav-on-dark .nav-bg {
+  background: linear-gradient(
+    180deg,
+    rgba(20, 12, 16, 0.55),
+    rgba(20, 12, 16, 0)
+  );
+}
+
+/* Slow ambient drift used in the hero. */
+@keyframes drift {
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(-6px, -10px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+.drift { animation: drift 18s ease-in-out infinite; }
+
+/* Vertical caption type. */
+.vtype {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+/* Honor reduced motion — disable smooth scroll, animations, transitions. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
