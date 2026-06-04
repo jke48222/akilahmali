@@ -5,6 +5,7 @@
    ========================================================================= */
 
 import Link from "next/link";
+import { Wordmark } from "@/components/Logo";
 
 export function GridHUD() {
   return (
@@ -16,8 +17,12 @@ export function GridHUD() {
           <span className="sm:hidden">Rec · Live</span>
         </span>
         <span className="text-white/90">Who Really Won?</span>
-        <Link href="/" className="pointer-events-auto transition-opacity hover:text-white hover:opacity-100">
-          Akilah Mali
+        <Link
+          href="/"
+          aria-label="Akilah Mali · home"
+          className="pointer-events-auto transition-opacity hover:text-white hover:opacity-100"
+        >
+          <Wordmark className="text-[13px] sm:text-[15px]" />
         </Link>
       </div>
 
