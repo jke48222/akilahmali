@@ -165,8 +165,10 @@ function InkMark({ animate }: { animate: boolean }) {
   );
 }
 
-/** The printed cover face — reused by the live intro and the torn halves. */
-function LandingFace({ animateInk }: { animateInk: boolean }) {
+/** The printed cover face — reused by the live intro and the torn halves.
+   When `onTitleClick` is given, the "Who Really Won?" signature is a button that
+   enters the room — the same action as the "[ let's find out ]" prompt. */
+function LandingFace({ animateInk, onTitleClick }: { animateInk: boolean; onTitleClick?: () => void }) {
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#e9e3d6]">
       {/* faint duotone frame of the artist */}
@@ -193,7 +195,18 @@ function LandingFace({ animateInk }: { animateInk: boolean }) {
       />
       {/* the ink signature */}
       <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 justify-center">
-        <InkMark animate={animateInk} />
+        {onTitleClick ? (
+          <button
+            type="button"
+            onClick={onTitleClick}
+            aria-label="Who Really Won? — enter"
+            className="cursor-pointer border-0 bg-transparent p-0"
+          >
+            <InkMark animate={animateInk} />
+          </button>
+        ) : (
+          <InkMark animate={animateInk} />
+        )}
       </div>
     </div>
   );
@@ -243,7 +256,7 @@ export function Landing({ onEnter, onDone }: { onEnter: () => void; onDone: () =
 
       {!tear ? (
         <>
-          <LandingFace animateInk />
+          <LandingFace animateInk onTitleClick={handleEnter} />
           {/* UI chrome */}
           <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
             <nav className="pointer-events-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-2 px-4 pt-7 text-[10px] uppercase tracking-[0.28em] sm:gap-x-7 sm:text-[11px]">

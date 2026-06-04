@@ -16,11 +16,16 @@ export function Tilt({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  // measure once on enter so each move is a pure style write (no forced layout)
+  const rect = useRef<DOMRect | null>(null);
 
+  function onEnter() {
+    rect.current = ref.current?.getBoundingClientRect() ?? null;
+  }
   function onMove(e: React.PointerEvent) {
     const el = ref.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
+    const r = rect.current;
+    if (!el || !r) return;
     const px = (e.clientX - r.left) / r.width;
     const py = (e.clientY - r.top) / r.height;
     el.style.setProperty("--ry", `${(px - 0.5) * max * 2}deg`);
@@ -39,6 +44,7 @@ export function Tilt({
     <div
       ref={ref}
       className={`tilt ${className}`}
+      onPointerEnter={onEnter}
       onPointerMove={onMove}
       onPointerLeave={reset}
     >

@@ -17,11 +17,16 @@ export function Magnetic({
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
+  // measure once on enter so each move is a pure style write (no forced layout)
+  const rect = useRef<DOMRect | null>(null);
 
+  function onEnter() {
+    rect.current = ref.current?.getBoundingClientRect() ?? null;
+  }
   function onMove(e: React.PointerEvent) {
     const el = ref.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
+    const r = rect.current;
+    if (!el || !r) return;
     const x = (e.clientX - (r.left + r.width / 2)) * strength;
     const y = (e.clientY - (r.top + r.height / 2)) * strength;
     el.style.transform = `translate(${x}px, ${y}px)`;
@@ -34,6 +39,7 @@ export function Magnetic({
     <span
       ref={ref}
       className={`magnetic ${className}`}
+      onPointerEnter={onEnter}
       onPointerMove={onMove}
       onPointerLeave={reset}
     >
