@@ -14,6 +14,19 @@ export function HeroVideo() {
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
+    // Respect Save-Data / reduced-data: on metered or low-bandwidth (mobile)
+    // connections, don't pull the multi-MB film — the scrimmed dark hero stands
+    // in fine. Otherwise force the muted autoplay across browsers.
+    const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    const saveData =
+      conn?.saveData === true ||
+      window.matchMedia?.("(prefers-reduced-data: reduce)").matches === true;
+    if (saveData) {
+      v.preload = "none";
+      v.removeAttribute("autoplay");
+      v.pause();
+      return;
+    }
     v.muted = true;
     const p = v.play();
     if (p && typeof p.catch === "function") p.catch(() => {});
@@ -27,7 +40,9 @@ export function HeroVideo() {
       muted
       loop
       playsInline
-      preload="auto"
+      // metadata (not auto) so the heavy film doesn't block first paint / other
+      // critical resources; autoplay still buffers & starts a beat later.
+      preload="metadata"
       aria-hidden="true"
     >
       <source src="/video/who-really-won.mp4" type="video/mp4" />

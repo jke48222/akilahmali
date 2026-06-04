@@ -225,7 +225,7 @@ function LineRow({ line }: { line: CartLine }) {
 
         <div className="mt-auto pt-3 flex items-center justify-between">
           <div
-            className="inline-flex items-center border border-rule h-7"
+            className="inline-flex items-center border border-rule h-9"
             aria-label="Quantity"
           >
             <button
@@ -233,7 +233,7 @@ function LineRow({ line }: { line: CartLine }) {
               onClick={dec}
               disabled={line.quantity <= 1 || isPending}
               aria-label="Decrease quantity"
-              className="w-[26px] h-[26px] inline-flex items-center justify-center text-ink-2 hover:text-ink disabled:text-ink-3 disabled:cursor-not-allowed transition-colors"
+              className="w-9 h-9 inline-flex items-center justify-center text-ink-2 hover:text-ink disabled:text-ink-3 disabled:cursor-not-allowed transition-colors"
             >
               <Minus size={12} strokeWidth={1.4} aria-hidden="true" />
             </button>
@@ -248,7 +248,7 @@ function LineRow({ line }: { line: CartLine }) {
               onClick={inc}
               disabled={isPending}
               aria-label="Increase quantity"
-              className="w-[26px] h-[26px] inline-flex items-center justify-center text-ink-2 hover:text-ink disabled:text-ink-3 disabled:cursor-not-allowed transition-colors"
+              className="w-9 h-9 inline-flex items-center justify-center text-ink-2 hover:text-ink disabled:text-ink-3 disabled:cursor-not-allowed transition-colors"
             >
               <Plus size={12} strokeWidth={1.4} aria-hidden="true" />
             </button>

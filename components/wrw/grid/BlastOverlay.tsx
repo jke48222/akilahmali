@@ -100,11 +100,34 @@ export function BlastOverlay({
     go(e.deltaY + e.deltaX > 0 ? 1 : -1);
   };
 
+  // touch swipe (mobile): a horizontal/vertical flick changes feed, so phones
+  // get the same navigation the wheel/arrows give desktop.
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const s = touchStart.current;
+    touchStart.current = null;
+    if (!s) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - s.x;
+    const dy = t.clientY - s.y;
+    // only act on a deliberate flick; ignore taps and tiny drags
+    if (Math.abs(dx) < 45 && Math.abs(dy) < 45) return;
+    // swipe left / up → next; swipe right / down → previous
+    const horizontal = Math.abs(dx) >= Math.abs(dy);
+    go(horizontal ? (dx < 0 ? 1 : -1) : dy < 0 ? 1 : -1);
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 overflow-hidden bg-black font-mono text-white transition-opacity duration-700 ease-out"
       style={{ opacity: shown ? 1 : 0 }}
       onWheel={onWheel}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
     >
       {/* the matching feed — photo, or the music video */}
       {feed.kind === "video" ? (

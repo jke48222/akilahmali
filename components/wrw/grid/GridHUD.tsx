@@ -5,7 +5,7 @@
    ========================================================================= */
 
 import Link from "next/link";
-import { Wordmark } from "@/components/Logo";
+import { WordmarkLogo } from "@/components/Logo";
 
 export function GridHUD() {
   return (
@@ -22,7 +22,7 @@ export function GridHUD() {
           aria-label="Akilah Mali · home"
           className="pointer-events-auto transition-opacity hover:text-white hover:opacity-100"
         >
-          <Wordmark className="text-[13px] sm:text-[15px]" />
+          <WordmarkLogo className="text-[15px] sm:text-[17px]" />
         </Link>
       </div>
 
