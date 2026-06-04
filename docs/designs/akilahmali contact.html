@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MALI — videos</title>
+<title>MALI — contact</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500&family=Geist+Mono:wght@400&display=swap" rel="stylesheet" />
@@ -21,82 +21,12 @@
     --ink-3:     #8a857d;
     --rule:      #DAD5CC;
     --accent:    #7A4E5E;
-    --accent-2:  #5d3a48;
   }
   html, body { background: var(--bg); color: var(--ink); }
   body { font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; font-weight: 400; -webkit-font-smoothing: antialiased; }
   .font-display { font-family: 'Instrument Serif', serif; font-weight: 400; }
   .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
 
-  /* Grain + field shared */
-  .field { position: relative; overflow: hidden; isolation: isolate; }
-  .field::after {
-    content: '';
-    position: absolute; inset: 0; pointer-events: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-    opacity: .22;
-    mix-blend-mode: overlay;
-  }
-  /* Cinema scan lines — very faint horizontal stripes */
-  .scan::before {
-    content:''; position:absolute; inset:0; pointer-events:none;
-    background: repeating-linear-gradient(180deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 3px);
-    mix-blend-mode: overlay;
-    opacity: .7;
-  }
-
-  /* 16:9 video-still color fields, cinematic vs the square album fields */
-  .still-who {
-    background:
-      radial-gradient(55% 80% at 30% 55%, #a37684 0%, #6f4a58 45%, transparent 75%),
-      radial-gradient(40% 70% at 82% 50%, rgba(80,40,60,0.45) 0%, transparent 70%),
-      linear-gradient(180deg, #3e2630 0%, #1f1218 100%);
-  }
-  .still-strange {
-    background:
-      radial-gradient(50% 85% at 72% 42%, #6b7281 0%, #3b4150 45%, transparent 75%),
-      radial-gradient(35% 60% at 18% 60%, rgba(40,55,80,0.5) 0%, transparent 70%),
-      linear-gradient(180deg, #1f2330 0%, #0e1018 100%);
-  }
-  .still-lastyear {
-    background:
-      radial-gradient(55% 80% at 35% 55%, #c89c7c 0%, #8a614a 50%, transparent 75%),
-      radial-gradient(35% 60% at 85% 40%, rgba(200,120,80,0.35) 0%, transparent 70%),
-      linear-gradient(180deg, #4a2c1f 0%, #20120c 100%);
-  }
-  .still-session {
-    background:
-      radial-gradient(45% 75% at 50% 50%, #a89e91 0%, #6a625a 45%, transparent 75%),
-      radial-gradient(30% 60% at 18% 30%, rgba(255,240,210,0.18) 0%, transparent 70%),
-      linear-gradient(180deg, #2f2b27 0%, #14110f 100%);
-  }
-
-  /* Vignette overlay for stills */
-  .vig::before {
-    content:''; position:absolute; inset:0; pointer-events:none;
-    background: radial-gradient(110% 90% at 50% 50%, transparent 55%, rgba(0,0,0,0.55) 100%);
-  }
-
-  /* Card hover scale on the still */
-  .still-wrap { overflow: hidden; }
-  .still { transition: transform 900ms cubic-bezier(.2,.7,.2,1), filter .5s ease; }
-  .group:hover .still { transform: scale(1.015); filter: brightness(1.05); }
-
-  /* Play affordance (typographic, hairline) — fades in on hover */
-  .play-aff {
-    opacity: 0;
-    transform: translateY(6px);
-    transition: opacity .5s ease, transform .5s cubic-bezier(.2,.7,.2,1);
-  }
-  .group:hover .play-aff { opacity: 1; transform: none; }
-
-  /* Title burn in lower-third */
-  .burn {
-    color: rgba(232,226,214,0.75);
-    text-shadow: 0 1px 0 rgba(0,0,0,0.25);
-  }
-
-  /* Links */
   .ulink { position: relative; display: inline-block; padding-bottom: 2px; }
   .ulink::after {
     content:''; position:absolute; left:0; right:0; bottom:0;
@@ -108,20 +38,22 @@
   .ulink-on::after { transform: scaleX(1); }
   .ulink-on:hover::after { transform: scaleX(0); transform-origin: right; }
 
-  /* Reveal */
-  .reveal { opacity: 0; transform: translateY(18px); transition: opacity 900ms cubic-bezier(.2,.7,.2,1), transform 900ms cubic-bezier(.2,.7,.2,1); }
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity 800ms cubic-bezier(.2,.7,.2,1), transform 800ms cubic-bezier(.2,.7,.2,1); }
   .reveal.in { opacity: 1; transform: none; }
 
   ::selection { background: var(--accent); color: #fff; }
 
+  .bucket { transition: background .35s ease; }
+  .bucket:hover { background: rgba(122,78,94,0.025); }
+  .bucket .arrow { transition: transform .5s cubic-bezier(.2,.7,.2,1), opacity .35s ease; opacity: 0; }
+  .bucket:hover .arrow { opacity: 1; transform: translateX(8px); }
+
   @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1; transform: none; transition: none; }
-    .still { transition: none; }
-    .play-aff { transition: none; }
   }
 </style>
 </head>
-<body data-screen-label="01 Videos">
+<body data-screen-label="01 Contact">
 <div id="root"></div>
 
 <script type="text/babel">
@@ -136,7 +68,6 @@ const Icon = {
   TikTok: (p)=>(<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M16.6 5.82A4.28 4.28 0 0 1 14.85 3h-3.04v12.36a2.56 2.56 0 0 1-2.56 2.56 2.56 2.56 0 0 1-2.56-2.56 2.56 2.56 0 0 1 2.56-2.56c.28 0 .54.05.79.13V9.83a5.6 5.6 0 0 0-.79-.06A5.6 5.6 0 0 0 3.65 15.36 5.6 5.6 0 0 0 9.25 21a5.6 5.6 0 0 0 5.6-5.6V9.1a7.32 7.32 0 0 0 4.28 1.38V7.44a4.28 4.28 0 0 1-2.53-1.62z"/></svg>),
   Arrow: (p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" {...p}><path d="M5 12h14M13 6l6 6-6 6"/></svg>),
   ArrowDiag: (p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" {...p}><path d="M7 17 17 7M9 7h8v8"/></svg>),
-  Play: (p)=>(<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M7 5v14l12-7z"/></svg>),
 };
 
 /* ---------- Reveal ---------- */
@@ -160,20 +91,20 @@ const Reveal = ({ as: As = 'div', className = '', children, delay = 0 }) => {
 /* ---------- Nav ---------- */
 function Nav() {
   const links = [
-    { id: 'music', label: 'music', href: 'malicantsing music.html' },
-    { id: 'videos', label: 'videos', active: true },
-    { id: 'about', label: 'about' },
+    { id: 'music', label: 'music', href: 'akilahmali music.html' },
+    { id: 'videos', label: 'videos', href: 'akilahmali videos.html' },
+    { id: 'about', label: 'about', href: 'akilahmali about.html' },
     { id: 'shop', label: 'shop' },
-    { id: 'contact', label: 'contact' },
+    { id: 'contact', label: 'contact', active: true },
   ];
   return (
     <header className="fixed top-0 inset-x-0 z-50" style={{ background: 'linear-gradient(180deg, rgba(244,242,238,0.85), rgba(244,242,238,0))', backdropFilter: 'blur(6px)' }}>
       <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14 pt-5 md:pt-7 pb-4 flex items-baseline justify-between">
-        <a href="malicantsing home.html" className="font-display tracking-[-0.01em] text-[19px] md:text-[22px] leading-none">
+        <a href="akilahmali home.html" className="font-display tracking-[-0.01em] text-[19px] md:text-[22px] leading-none">
           mali<span style={{color:'var(--ink-3)'}}>cantsing</span>
         </a>
         <nav className="hidden md:flex items-baseline gap-7 lg:gap-9 font-mono text-[11px] uppercase tracking-[0.18em]" style={{color:'var(--ink-2)'}}>
-          {links.map((l)=>(
+          {links.map((l) => (
             <a key={l.id} href={l.href || `#${l.id}`}
                className={`ulink ${l.active ? 'ulink-on text-[color:var(--ink)]' : 'hover:text-[color:var(--ink)]'} transition-colors`}>
               {l.label}
@@ -216,10 +147,10 @@ function Footer() {
           <div className="col-span-6 md:col-span-2">
             <div className="font-mono text-[10px] uppercase tracking-[0.24em] mb-3" style={{ color: 'var(--ink-3)' }}>site</div>
             <ul className="space-y-2 text-[14px]">
-              <li><a className="ulink" href="malicantsing home.html">home</a></li>
-              <li><a className="ulink" href="malicantsing music.html">music</a></li>
-              <li><a className="ulink" href="#about">about</a></li>
-              <li><a className="ulink" href="#contact">contact</a></li>
+              <li><a className="ulink" href="akilahmali home.html">home</a></li>
+              <li><a className="ulink" href="akilahmali music.html">music</a></li>
+              <li><a className="ulink" href="akilahmali videos.html">videos</a></li>
+              <li><a className="ulink" href="akilahmali about.html">about</a></li>
             </ul>
           </div>
           <div className="col-span-6 md:col-span-2">
@@ -241,104 +172,7 @@ function Footer() {
   );
 }
 
-/* ---------- Data ---------- */
-const videos = [
-  {
-    title: 'Who Really Won?',
-    kind: 'official video',
-    release: 'Who Really Won?',
-    releaseHref: 'malicantsing release — who really won.html',
-    date: 'july 2025',
-    runtime: '04:21',
-    still: 'still-who',
-    director: 'dir. [director]',
-    note: 'shot on 16mm · brooklyn',
-  },
-  {
-    title: 'Strange',
-    kind: 'visualizer',
-    release: 'Strange',
-    releaseHref: 'malicantsing music.html#strange',
-    date: 'march 2025',
-    runtime: '03:24',
-    still: 'still-strange',
-    director: 'visuals by mali',
-    note: 'one take · long window',
-  },
-  {
-    title: 'Last Year',
-    kind: 'lyric film',
-    release: 'Last Year',
-    releaseHref: 'malicantsing music.html#last-year',
-    date: 'february 2025',
-    runtime: '03:07',
-    still: 'still-lastyear',
-    director: 'visuals by mali · [editor]',
-    note: 'handwritten · super-8 transfer',
-  },
-  {
-    title: 'Been There Once',
-    kind: 'live · the long room',
-    release: 'Who Really Won?',
-    releaseHref: 'malicantsing release — who really won.html',
-    date: 'august 2025',
-    runtime: '03:51',
-    still: 'still-session',
-    director: 'live session',
-    note: 'one mic · one chair · one take',
-  },
-];
-
-/* ---------- Video card ---------- */
-function VideoCard({ v, i }) {
-  return (
-    <Reveal delay={(i % 2) * 80} className="group">
-      <a href="#" className="block">
-        {/* Still */}
-        <div className="relative still-wrap" style={{ aspectRatio: '16 / 9' }}>
-          <div className={`still absolute inset-0 field scan vig ${v.still}`}>
-            {/* corner ticks */}
-            <span className="burn absolute top-4 left-4 font-mono text-[10px] uppercase tracking-[0.26em]">{v.kind}</span>
-            <span className="burn absolute top-4 right-4 font-mono text-[10px] uppercase tracking-[0.26em] tabular-nums">{v.runtime}</span>
-            <span className="burn absolute bottom-4 left-4 font-mono text-[10px] uppercase tracking-[0.26em]">{v.director}</span>
-            <span className="burn absolute bottom-4 right-4 font-mono text-[10px] uppercase tracking-[0.26em]">{v.date}</span>
-
-            {/* center play affordance — hairline, fades in on hover */}
-            <div className="play-aff absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-full"
-                    style={{ border: '1px solid rgba(232,226,214,0.85)', color: 'rgba(232,226,214,0.95)' }}>
-                <Icon.Play width="16" height="16" />
-              </span>
-              <span className="mt-3 font-mono text-[10px] uppercase tracking-[0.32em]" style={{ color: 'rgba(232,226,214,0.85)' }}>
-                press play
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* hairline */}
-        <div className="h-px w-full mt-5" style={{ background: 'var(--rule)' }} />
-
-        {/* Caption */}
-        <div className="mt-5 grid grid-cols-12 gap-3 items-baseline">
-          <div className="col-span-12 md:col-span-8">
-            <h3 className="font-display italic leading-[0.95] tracking-[-0.01em]" style={{ fontSize: 'clamp(28px, 2.6vw, 38px)' }}>
-              {v.title}
-            </h3>
-            <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: 'var(--ink-3)' }}>
-              from <span className="ulink" style={{ color: 'var(--ink-2)' }}>{v.release}</span> &nbsp;·&nbsp; {v.note}
-            </div>
-          </div>
-          <div className="col-span-12 md:col-span-4 md:text-right font-mono text-[10px] uppercase tracking-[0.24em] tabular-nums" style={{ color: 'var(--ink-3)' }}>
-            {v.date} &nbsp;·&nbsp; {v.runtime}
-          </div>
-        </div>
-      </a>
-    </Reveal>
-  );
-}
-
-/* ---------- Page header ---------- */
+/* ---------- Header ---------- */
 function PageHeader() {
   return (
     <section className="relative pt-32 md:pt-40 lg:pt-44">
@@ -347,7 +181,7 @@ function PageHeader() {
           <div className="flex items-baseline gap-4 font-mono text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--ink-3)' }}>
             <span>00 / index</span>
             <span className="block h-px flex-1" style={{ background: 'var(--rule)' }} />
-            <span>{videos.length} films · 2025</span>
+            <span>four channels · one inbox, for now</span>
           </div>
         </Reveal>
 
@@ -355,13 +189,13 @@ function PageHeader() {
           <Reveal className="col-span-12 md:col-span-8">
             <h1 className="font-display leading-[0.9] tracking-[-0.02em]"
                 style={{ fontSize: 'clamp(96px, 14vw, 220px)' }}>
-              Videos
+              Contact
             </h1>
           </Reveal>
           <Reveal delay={120} className="col-span-12 md:col-span-4 md:pb-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.24em] leading-[1.8]" style={{ color: 'var(--ink-2)' }}>
-              one official video, two visualizers,<br />
-              one live take. each one stays where it is.
+              pick the right line.<br />
+              email only &mdash; replies within 48 hours.
             </p>
           </Reveal>
         </div>
@@ -370,14 +204,88 @@ function PageHeader() {
   );
 }
 
-/* ---------- Grid ---------- */
-function Grid() {
+/* ---------- Buckets ---------- */
+const buckets = [
+  {
+    label: 'general',
+    sub: 'fan mail · everything else',
+    email: 'realmalimusic@gmail.com',
+  },
+  {
+    label: 'booking',
+    sub: 'shows, festivals, support slots',
+    email: null,
+    tbd: 'not yet represented',
+    fallback: 'realmalimusic@gmail.com',
+  },
+  {
+    label: 'sync / licensing',
+    sub: 'film, tv, ad placement',
+    email: null,
+    tbd: 'roles tbd',
+    fallback: 'realmalimusic@gmail.com',
+  },
+  {
+    label: 'press',
+    sub: 'features, interviews, reviews',
+    email: 'realmalimusic@gmail.com',
+  },
+];
+
+function Bucket({ b, i }) {
   return (
-    <section className="relative mt-20 md:mt-32">
-      <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 lg:gap-16">
-          {videos.map((v, i) => <VideoCard key={v.title} v={v} i={i} />)}
+    <Reveal>
+      <div className="bucket border-t" style={{ borderColor: 'var(--rule)' }}>
+        <div className="grid grid-cols-12 gap-4 md:gap-8 py-10 md:py-14 lg:py-16 items-start">
+          {/* label column */}
+          <div className="col-span-12 md:col-span-3 lg:col-span-3">
+            <div className="font-mono text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--ink-3)' }}>
+              <span>{String(i+1).padStart(2,'0')}</span> &nbsp;·&nbsp; <span style={{ color: 'var(--ink-2)' }}>{b.label}</span>
+            </div>
+            <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.22em]" style={{ color: 'var(--ink-3)' }}>
+              {b.sub}
+            </div>
+          </div>
+
+          {/* email column */}
+          <div className="col-span-12 md:col-span-9">
+            {b.email ? (
+              <a href={`mailto:${b.email}`} className="group block">
+                <div className="font-display italic leading-[0.92] tracking-[-0.01em] break-words flex items-baseline gap-4 flex-wrap"
+                     style={{ fontSize: 'clamp(38px, 6vw, 96px)' }}>
+                  <span className="ulink ulink-on">{b.email}</span>
+                  <span className="arrow inline-flex items-baseline" style={{ color: 'var(--ink-2)' }}>
+                    <Icon.Arrow width="36" height="36" />
+                  </span>
+                </div>
+              </a>
+            ) : (
+              <div>
+                <div className="font-display italic leading-[0.92] tracking-[-0.01em]"
+                     style={{ fontSize: 'clamp(38px, 6vw, 96px)', color: 'var(--ink-3)' }}>
+                  &#91; {b.tbd} &#93;
+                </div>
+                <div className="mt-4 font-mono text-[11px] uppercase tracking-[0.22em] flex items-baseline gap-3" style={{ color: 'var(--ink-2)' }}>
+                  <span style={{ color: 'var(--ink-3)' }}>for now &mdash;</span>
+                  <a href={`mailto:${b.fallback}`} className="ulink" style={{ color: 'var(--ink)' }}>
+                    {b.fallback}
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
+      </div>
+    </Reveal>
+  );
+}
+
+function Buckets() {
+  return (
+    <section className="relative">
+      <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14 mt-16 md:mt-24 lg:mt-28">
+        {buckets.map((b, i) => <Bucket key={b.label} b={b} i={i} />)}
+        <div className="border-t" style={{ borderColor: 'var(--rule)' }} />
       </div>
     </section>
   );
@@ -386,25 +294,23 @@ function Grid() {
 /* ---------- End note ---------- */
 function EndNote() {
   return (
-    <section className="relative mt-28 md:mt-44">
-      <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14">
-        <div className="h-px w-full" style={{ background: 'var(--rule)' }} />
-        <div className="grid grid-cols-12 gap-6 md:gap-10 py-12 md:py-16">
-          <Reveal className="col-span-12 md:col-span-5">
-            <div className="font-mono text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--ink-3)' }}>
-              end of reel — for now
-            </div>
-            <p className="mt-4 font-display italic text-[28px] md:text-[36px] leading-[1.15]" style={{ maxWidth: '22ch' }}>
-              more, when there&rsquo;s more.
+    <section className="relative">
+      <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14 pt-20 md:pt-28">
+        <div className="grid grid-cols-12 gap-6 md:gap-10">
+          <Reveal className="col-span-12 md:col-span-7">
+            <p className="font-display italic text-[24px] md:text-[30px] leading-[1.35] max-w-[36ch]" style={{ color: 'var(--ink-2)' }}>
+              no contact form. no agent yet. roles fill in as they do &mdash; this page updates when they do.
             </p>
           </Reveal>
-          <Reveal delay={120} className="col-span-12 md:col-span-5 md:col-start-8 md:pt-2">
-            <p className="text-[15px] leading-[1.65]" style={{ color: 'var(--ink-2)' }}>
-              follow on youtube for visualizers and short loops in between releases. they go up quietly.
-            </p>
-            <a href="#" className="mt-5 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.24em] ulink" style={{ color: 'var(--accent)' }}>
-              follow on youtube <Icon.ArrowDiag width="14" height="14" />
-            </a>
+          <Reveal delay={120} className="col-span-12 md:col-span-4 md:col-start-9 md:pt-2">
+            <div className="font-mono text-[11px] uppercase tracking-[0.24em] leading-[2]" style={{ color: 'var(--ink-2)' }}>
+              <div><span style={{ color: 'var(--ink-3)' }}>elsewhere &mdash;</span></div>
+              <div className="mt-1 flex flex-wrap gap-x-5 gap-y-2">
+                <a href="#" className="ulink inline-flex items-center gap-2"><Icon.Instagram width="14" height="14" /> @akilahmali</a>
+                <a href="#" className="ulink inline-flex items-center gap-2"><Icon.TikTok width="14" height="14" /> @akilahmali</a>
+                <a href="#" className="ulink inline-flex items-center gap-2"><Icon.YouTube width="14" height="14" /> youtube</a>
+              </div>
+            </div>
           </Reveal>
         </div>
       </div>
@@ -418,7 +324,7 @@ function App() {
     <main className="w-full overflow-x-clip">
       <Nav />
       <PageHeader />
-      <Grid />
+      <Buckets />
       <EndNote />
       <Footer />
     </main>

@@ -1,8 +1,8 @@
 # PRD — MALI Official Website + Companion Merch Store
 
 **Prepared for:** Claude (design + build agent)
-**Subject:** Akilah Mali / @malicantsing — emerging alt-R&B / introspective pop artist
-**Domains (proposed):** `malicantsing.com` (main site) + `shop.malicantsing.com` (store)
+**Subject:** Akilah Mali / @akilahmali — emerging alt-R&B / introspective pop artist
+**Domains (proposed):** `akilahmali.com` (main site) + `shop.akilahmali.com` (store)
 **Status:** Brief v1 — ready for design exploration
 
 ---
@@ -30,7 +30,7 @@ This isn't a Billie Eilish-tier site. MALI has roughly 220 monthly Spotify liste
 - **Avoid empty-shelf syndrome.** With only three releases and no tour dates, conventional artist-site templates (huge "TOUR" sections, multi-album discography grids) leave dead zones. Design for *density of mood*, not density of content.
 - **Build for growth.** The system has to absorb new releases, tour dates, press, and merch drops without redesign.
 
-**Tone of voice — the "malicantsing" insight:** her handle is a wink — she can clearly sing, and the irony is the point. The site copy should carry that same dry, slightly self-aware register. Not cute. Not winky. Just confident enough to undersell.
+**Tone of voice — the "akilahmali" insight:** her handle is a wink — she can clearly sing, and the irony is the point. The site copy should carry that same dry, slightly self-aware register. Not cute. Not winky. Just confident enough to undersell.
 
 **Lyrical/thematic register (from track titles and the linktree subhead "we've all been in relationships that didn't last"):** retrospective, post-relationship, quietly devastating, past-tense. Identity, loneliness, interpersonal loss — not romance.
 
@@ -103,7 +103,7 @@ Designer should treat photography as a primary content type — not as decoratio
 
 ## 5. Information Architecture
 
-### 5.1 Main site — `malicantsing.com`
+### 5.1 Main site — `akilahmali.com`
 
 ```
 /                  Home (hero + latest release + about-snippet + signup + footer)
@@ -118,7 +118,7 @@ Designer should treat photography as a primary content type — not as decoratio
 
 Footer everywhere: streaming platform icons, social icons, email capture, copyright, "Shop" link.
 
-### 5.2 Store — `shop.malicantsing.com`
+### 5.2 Store — `shop.akilahmali.com`
 
 ```
 /                  Shop home — featured drop + collection grid
@@ -129,7 +129,7 @@ Footer everywhere: streaming platform icons, social icons, email capture, copyri
 /policies/*        Shipping, returns, FAQ
 ```
 
-The store header includes a persistent "← back to malicantsing.com" link.
+The store header includes a persistent "← back to akilahmali.com" link.
 
 ---
 
@@ -398,7 +398,7 @@ Store:
 
 ## 14. Open Questions (need answers before build)
 
-1. **Domain.** `malicantsing.com` available? Alternatives: `akilahmali.com`, `mali-music.com`. Confirm before any work.
+1. **Domain.** `akilahmali.com` available? Alternatives: `akilahmali.com`, `mali-music.com`. Confirm before any work.
 2. **Wordmark decision.** Set in chosen display serif (free, fast), or commission a custom logo (slower, ~$1k–3k)? Recommend the former for v1.
 3. **Photography.** Does she have a finished photo library, or does this need a shoot first? If a shoot is needed, that's a 2–3 week prerequisite blocker.
 4. **Booking / management.** Is there a real booking contact, or solo-managed right now? Determines how /contact routes.

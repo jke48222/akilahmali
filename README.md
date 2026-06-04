@@ -26,7 +26,7 @@ deploying to Vercel, connecting the domain, and configuring each integration
 
 - **Next.js** (App Router) on **Vercel** (auto-deploys from `main`)
 - **Sanity** for optional content management (`/studio`)
-- **Shopify** Storefront API for the store (`shop.malicantsing.com`)
+- **Shopify** Storefront API for the store (`shop.akilahmali.com`)
 - **Klaviyo** for the mailing list, **Upstash Redis** for rate limiting
 - **Curator.io** widget for the live Instagram feed
 - Type: **Fraunces** + **Space Grotesk** + **Space Mono**

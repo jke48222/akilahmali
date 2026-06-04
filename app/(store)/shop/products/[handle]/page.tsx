@@ -147,9 +147,9 @@ export default async function ProductDetailPage({
                     pieces · drop a note to{" "}
                     <a
                       className="ulink ulink-on"
-                      href="mailto:shop@malicantsing.com"
+                      href="mailto:shop@akilahmali.com"
                     >
-                      shop@malicantsing.com
+                      shop@akilahmali.com
                     </a>
                     . Limited drops are final sale once they sell through.
                   </p>
@@ -252,7 +252,7 @@ function ProductJsonLd({
       availability: v.availableForSale
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
-      url: `https://shop.malicantsing.com/shop/products/${product.handle}`,
+      url: `https://shop.akilahmali.com/shop/products/${product.handle}`,
     })),
   };
   return (

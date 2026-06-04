@@ -2,6 +2,7 @@ import NextLink from "next/link";
 import { ArrowDown } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 import { NavThemeSentinel } from "@/components/NavThemeSentinel";
+import { Wordmark } from "@/components/Logo";
 import { HeroVideo } from "./HeroVideo";
 
 /**
@@ -34,14 +35,14 @@ export function Hero() {
         <div className="mx-auto max-w-page px-gutter md:px-gutter-md lg:px-gutter-lg pb-10 md:pb-14 lg:pb-16">
           <Reveal as="h1">
             <span
-              className="font-display block whitespace-nowrap leading-[0.9] tracking-display select-none"
+              className="block select-none"
               style={{
                 fontSize: "clamp(40px, 11vw, 200px)",
                 color: "var(--color-cream)",
-                textShadow: "0 2px 30px rgba(0,0,0,0.45)",
+                filter: "drop-shadow(0 2px 30px rgba(0,0,0,0.45))",
               }}
             >
-              Akilah Mali
+              <Wordmark />
             </span>
           </Reveal>
           <Reveal delay={160}>

@@ -1,10 +1,10 @@
 import NextLink from "next/link";
 import { CartButton } from "./CartButton";
 
-const SITE_URL = "https://malicantsing.com";
+const SITE_URL = "https://akilahmali.com";
 
 /**
- * Fixed nav for the store. Wordmark + ← malicantsing.com on the left,
+ * Fixed nav for the store. Wordmark + ← akilahmali.com on the left,
  * shop / about / cart on the right. Cart button is a tiny client component
  * that reads the cart context for the live count badge.
  */
@@ -26,7 +26,7 @@ export function StoreNav() {
             href={SITE_URL}
             className="hidden sm:inline-flex items-center gap-1.5 font-mono text-mono-xs uppercase tracking-caps-md ulink text-ink-3"
           >
-            ← malicantsing.com
+            ← akilahmali.com
           </a>
           <NextLink
             href="/shop"

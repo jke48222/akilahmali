@@ -219,8 +219,8 @@ function BgPage({ cartCount, onOpenCart }) {
       <header className="fixed top-0 inset-x-0 z-40" style={{ background: 'linear-gradient(180deg, rgba(244,242,238,0.9) 0%, rgba(244,242,238,0) 100%)', backdropFilter: 'blur(6px)' }}>
         <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14 pt-5 md:pt-7 pb-4 flex items-baseline justify-between">
           <div className="flex items-baseline gap-5 md:gap-7">
-            <a href="https://malicantsing.com" className="hidden sm:inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.24em] ulink" style={{ color: 'var(--ink-3)' }}>
-              ← malicantsing.com
+            <a href="https://akilahmali.com" className="hidden sm:inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.24em] ulink" style={{ color: 'var(--ink-3)' }}>
+              ← akilahmali.com
             </a>
             <a href="shop home.html" className="font-display tracking-[-0.01em] text-[19px] md:text-[22px] leading-none">
               MALI<span className="font-mono text-[10px] uppercase tracking-[0.24em] ml-2 align-middle" style={{ color: 'var(--ink-3)' }}>/ shop</span>

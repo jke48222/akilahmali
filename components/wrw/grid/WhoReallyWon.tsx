@@ -22,7 +22,7 @@ import { BlastOverlay } from "@/components/wrw/grid/BlastOverlay";
 import { GridHUD } from "@/components/wrw/grid/GridHUD";
 import { Landing } from "@/components/wrw/grid/Landing";
 import { WrwCRT } from "@/components/wrw/WrwCRT";
-import { FEEDS } from "@/lib/wrw/grid";
+import { FEEDS, feedIndexForReleaseSlug } from "@/lib/wrw/grid";
 
 // 1-sample silent wav — played once on ENTER to unlock the audio element so
 // the later, post-zoom play() (outside the click's gesture window) is allowed.
@@ -36,6 +36,22 @@ export function WhoReallyWon() {
   const apiRef = useRef<GridApi | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const router = useRouter();
+
+  // Deep link: /music/who-really-won?song=last-year (or ?feed=N) opens straight
+  // into that blast once the visitor has entered (so audio is unlocked first).
+  const bootFeedRef = useRef<number | null>(null);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const song = params.get("song");
+    const feedParam = params.get("feed");
+    let idx: number | null = null;
+    if (song) idx = feedIndexForReleaseSlug(song);
+    else if (feedParam !== null) {
+      const n = Number.parseInt(feedParam, 10);
+      if (Number.isInteger(n) && n >= 0 && n < FEEDS.length) idx = n;
+    }
+    bootFeedRef.current = idx;
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -61,17 +77,20 @@ export function WhoReallyWon() {
     router.push("/music/who-really-won/turntable");
   }
 
-  // called inside the ENTER click gesture: unlock audio + go live
+  // called inside the ENTER click gesture: unlock audio + go live.
+  // Play the silent clip UNMUTED within the gesture so the element is blessed
+  // for later unmuted programmatic playback (when a feed is zoomed/scrolled to,
+  // outside a direct gesture). A muted unlock only permits muted autoplay, which
+  // is why the songs were coming up silent.
   function handleEnter() {
     const a = new Audio();
     a.loop = true;
     a.preload = "auto";
-    a.muted = true;
+    a.muted = false;
     a.src = SILENT;
     a.play()
       .then(() => {
         a.pause();
-        a.muted = false;
         a.currentTime = 0;
       })
       .catch(() => {});
@@ -91,6 +110,15 @@ export function WhoReallyWon() {
 
   const live = entered && !showLanding;
   const blastOpen = active !== null;
+
+  // Once live (tear finished, audio unlocked), jump straight to the deep-linked
+  // blast — consuming it so "Back to Feed" returns to the grid as normal.
+  useEffect(() => {
+    if (live && bootFeedRef.current !== null && active === null) {
+      setActive(bootFeedRef.current);
+      bootFeedRef.current = null;
+    }
+  }, [live, active]);
 
   return (
     <div className="fixed inset-0 z-[60] h-[100dvh] w-screen overflow-hidden bg-black text-white">

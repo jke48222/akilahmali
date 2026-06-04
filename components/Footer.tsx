@@ -1,4 +1,5 @@
 import NextLink from "next/link";
+import { Wordmark } from "./Logo";
 import {
   AppleIcon,
   ArrowDiagIcon,
@@ -19,7 +20,7 @@ const LISTEN = [
 
 const FOLLOW = [
   { label: "Instagram", href: "https://www.instagram.com/akilah.mali", Icon: InstagramIcon },
-  { label: "TikTok", href: "https://www.tiktok.com/@malicantsing", Icon: TikTokIcon },
+  { label: "TikTok", href: "https://www.tiktok.com/@akilahmali", Icon: TikTokIcon },
   { label: "YouTube", href: "https://www.youtube.com/@akilahmali", Icon: YouTubeIcon },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/akilah-brown-069b24341/", Icon: LinkedInIcon },
 ];
@@ -41,9 +42,7 @@ export function Footer() {
         <div className="h-px w-full bg-rule" />
         <div className="grid grid-cols-12 gap-6 md:gap-10 py-10 md:py-14">
           <div className="col-span-12 md:col-span-4">
-            <div className="font-display text-[44px] md:text-[64px] leading-[0.85] tracking-display">
-              Akilah Mali
-            </div>
+            <Wordmark className="text-[44px] md:text-[64px] text-ink" title="Akilah Mali" />
             <p className="mt-3 font-mono text-mono-xs uppercase tracking-caps-md text-ink-3">
               akilah mali · b. 2005 · est. 2025
             </p>
@@ -97,7 +96,7 @@ export function Footer() {
             <ul className="space-y-2 text-[14px]">
               <li>
                 <a
-                  href="https://shop.malicantsing.com"
+                  href="https://shop.akilahmali.com"
                   rel="noopener"
                   className="ulink inline-flex items-center gap-1"
                 >

@@ -32,6 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: `${page?.title ?? "Press"} · Akilah Mali`,
       description,
       url: "/press",
+      images: ["/opengraph-image"],
     },
   };
 }

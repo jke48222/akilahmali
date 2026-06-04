@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { isImmersive } from "@/lib/immersive";
+import { Wordmark } from "@/components/Logo";
 
 const SESSION_KEY = "mali-intro-seen";
 
@@ -77,10 +78,10 @@ export function Intro() {
       <div className="relative px-gutter text-center">
         <div ref={markRef} className="intro-mark" style={{ transition: "transform 300ms ease-out" }}>
           <span
-            className="font-display block whitespace-nowrap leading-[0.9] tracking-display select-none"
+            className="block select-none"
             style={{ fontSize: "clamp(40px, 12vw, 180px)", color: "var(--color-ink)" }}
           >
-            Akilah Mali
+            <Wordmark />
           </span>
         </div>
 

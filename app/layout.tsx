@@ -33,7 +33,7 @@ const spaceMono = Space_Mono({
   display: "swap",
 });
 
-const SITE_URL = "https://malicantsing.com";
+const SITE_URL = "https://akilahmali.com";
 const SITE_NAME = "Akilah Mali";
 const SITE_DESCRIPTION =
   "akilah mali writes songs about people she used to know, and the rooms she left them in. atlanta, ga · est. 2025.";
@@ -48,6 +48,25 @@ export const metadata: Metadata = {
   applicationName: SITE_NAME,
   authors: [{ name: "Akilah Mali" }],
   creator: "Akilah Mali",
+  publisher: "Akilah Mali",
+  keywords: [
+    "Akilah Mali",
+    "akilah mali",
+    "Akilah Brown-Pagan",
+    "singer songwriter",
+    "Atlanta musician",
+    "indie pop",
+    "alternative R&B",
+    "Who Really Won",
+    "new music",
+  ],
+  category: "music",
+  formatDetection: { telephone: false, address: false, email: false },
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: "black-translucent",
+  },
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
@@ -84,6 +103,22 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${spaceMono.variable} ${fraunces.variable} antialiased`}
     >
       <body className="min-h-screen flex flex-col overflow-x-clip bg-bg text-ink font-sans">
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: SITE_NAME,
+              alternateName: "akilah mali",
+              url: SITE_URL,
+              description: SITE_DESCRIPTION,
+              inLanguage: "en-US",
+              publisher: { "@type": "Person", name: SITE_NAME },
+            }),
+          }}
+        />
         <a href="#main" className="skip-link">
           skip to content
         </a>

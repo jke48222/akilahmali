@@ -24,6 +24,7 @@ export const metadata: Metadata = {
       "akilah mali writes songs about people she used to know, and the rooms she left them in.",
     url: "/",
     type: "website",
+    images: ["/opengraph-image"],
   },
 };
 
@@ -54,13 +55,13 @@ function HomeJsonLd() {
     "@type": "MusicGroup",
     name: "Akilah Mali",
     alternateName: "Akilah Brown-Pagan",
-    url: "https://malicantsing.com",
-    image: "https://malicantsing.com/images/mali-portrait.jpg",
+    url: "https://akilahmali.com",
+    image: "https://akilahmali.com/images/mali-portrait.jpg",
     genre: ["Pop", "Alternative R&B"],
     foundingDate: "2025",
     sameAs: [
       "https://www.instagram.com/akilah.mali",
-      "https://www.tiktok.com/@malicantsing",
+      "https://www.tiktok.com/@akilahmali",
       "https://www.youtube.com/@akilahmali",
       "https://open.spotify.com/artist/13CrflPMkTb5mmizdGYL2i",
       "https://music.apple.com/us/artist/mali/1815283080",

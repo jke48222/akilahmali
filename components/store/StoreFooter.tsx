@@ -7,7 +7,7 @@ const POLICIES = [
   { label: "terms", href: "/shop/policies/terms" },
 ];
 
-const SUPPORT_EMAIL = "shop@malicantsing.com";
+const SUPPORT_EMAIL = "shop@akilahmali.com";
 
 export function StoreFooter() {
   return (
@@ -58,8 +58,8 @@ export function StoreFooter() {
           <FooterCol title="back" className="col-span-12 md:col-span-2">
             <ul className="space-y-2 text-[14px]">
               <li>
-                <a className="ulink" href="https://malicantsing.com">
-                  ← malicantsing.com
+                <a className="ulink" href="https://akilahmali.com">
+                  ← akilahmali.com
                 </a>
               </li>
             </ul>

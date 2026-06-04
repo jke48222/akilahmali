@@ -21,6 +21,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { wrwPhoto } from "@/lib/wrw/tracks";
+import { Wordmark } from "@/components/Logo";
 
 /* The handwritten "Who Really Won?" mark — one <path> per stroke. */
 const INK_PATHS = [
@@ -246,7 +247,7 @@ export function Landing({ onEnter, onDone }: { onEnter: () => void; onDone: () =
           {/* UI chrome */}
           <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
             <nav className="pointer-events-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-2 px-4 pt-7 text-[10px] uppercase tracking-[0.28em] sm:gap-x-7 sm:text-[11px]">
-              <span className="font-display text-[13px] normal-case tracking-normal">Akilah Mali</span>
+              <Wordmark className="text-[15px]" />
               {NAV.map((n) => (
                 <a key={n.href} href={n.href} className="opacity-70 transition-opacity hover:opacity-100">
                   {n.label}
