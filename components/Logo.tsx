@@ -41,6 +41,43 @@ export function Wordmark({
 }
 
 /**
+ * The real Akilah Mali logo art (`/logo/akilah-mali-wordmark-ink.svg`, which
+ * bakes in the Fraunces-italic outlines + the embedded font) rendered so it
+ * still inherits the surrounding text color. The file hardcodes its own ink
+ * fill, so instead of drawing it we use it as a CSS mask and paint the shape
+ * with `currentColor` — the SVG's alpha gives the letterforms, `currentColor`
+ * recolors them to match the header text exactly (ink on the cover, white in
+ * the surveillance HUD).
+ *
+ * Size it like the text it sits beside: a font-size on `className` sets the
+ * height (1em) and the width follows the 1000×280 artwork aspect ratio.
+ */
+export function WordmarkLogo({
+  className,
+  title = "Akilah Mali",
+}: {
+  className?: string;
+  title?: string;
+}) {
+  const mask = "url(/logo/akilah-mali-wordmark-ink.svg) center / contain no-repeat";
+  return (
+    <span
+      role="img"
+      aria-label={title}
+      className={className}
+      style={{
+        display: "block",
+        height: "1em",
+        width: "calc(1em * 1000 / 280)",
+        backgroundColor: "currentColor",
+        WebkitMask: mask,
+        mask,
+      }}
+    />
+  );
+}
+
+/**
  * Compact "am" monogram mark (matches app/icon.svg) — for tight spots where the
  * full wordmark won't fit. Inherits color via currentColor; transparent bg.
  */
