@@ -13,6 +13,7 @@ import {
   isShopifyConfigured,
 } from "@/lib/shopify";
 import { formatMoney } from "@/lib/shopify/format";
+import { FORCE_PORTRAIT_OG, OG_PORTRAIT } from "@/lib/og";
 
 export const revalidate = 60;
 
@@ -38,7 +39,19 @@ export async function generateMetadata(
   try {
     const product = await getProductByHandle(handle);
     if (!product) return { title: "Product not found" };
-    const image = product.featuredImage?.url;
+    const productImage = product.featuredImage?.url;
+    // While the portrait policy is on, product links share the portrait too;
+    // flip FORCE_PORTRAIT_OG (lib/og.ts) to fall back to the product photo.
+    const ogImages = FORCE_PORTRAIT_OG
+      ? [{ url: OG_PORTRAIT, width: 1200, height: 630, alt: "Akilah Mali" }]
+      : productImage
+        ? [{ url: productImage, width: 1200, height: 1500, alt: product.title }]
+        : undefined;
+    const twitterImages = FORCE_PORTRAIT_OG
+      ? [OG_PORTRAIT]
+      : productImage
+        ? [productImage]
+        : undefined;
     return {
       title: product.title,
       description: product.description?.slice(0, 200) ?? `${product.title} · Akilah Mali shop.`,
@@ -48,15 +61,13 @@ export async function generateMetadata(
         description: product.description?.slice(0, 200) ?? `${product.title} · Akilah Mali shop.`,
         url: `/shop/products/${handle}`,
         type: "website",
-        images: image
-          ? [{ url: image, width: 1200, height: 1500, alt: product.title }]
-          : undefined,
+        images: ogImages,
       },
       twitter: {
         card: "summary_large_image",
         title: `${product.title} · Akilah Mali`,
         description: product.description?.slice(0, 200) ?? `${product.title} · Akilah Mali shop.`,
-        images: image ? [image] : undefined,
+        images: twitterImages,
       },
     };
   } catch {
