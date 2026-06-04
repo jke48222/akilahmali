@@ -24,6 +24,7 @@ import {
 } from "@/lib/queries";
 import { urlForImage } from "@/lib/sanity";
 import { feedIndexForReleaseSlug } from "@/lib/wrw/grid";
+import { FORCE_PORTRAIT_OG, OG_PORTRAIT } from "@/lib/og";
 import {
   portableTextToCredits,
   portableTextToPlain,
@@ -67,9 +68,14 @@ export async function generateMetadata(
   const description =
     live ? portableTextToPlain(live.description) || `Akilah Mali · ${title}` : fallback!.blurb;
 
-  const ogImage = live?.artwork
-    ? urlForImage(live.artwork).width(1200).height(630).fit("crop").url()
-    : "/opengraph-image";
+  // While the portrait policy is on, every release link shares the portrait too;
+  // flip FORCE_PORTRAIT_OG (lib/og.ts) to fall back to the release cover artwork.
+  const ogImage = FORCE_PORTRAIT_OG
+    ? OG_PORTRAIT
+    : live?.artwork
+      ? urlForImage(live.artwork).width(1200).height(630).fit("crop").url()
+      : OG_PORTRAIT;
+  const ogAlt = FORCE_PORTRAIT_OG ? "Akilah Mali" : `${title} · cover artwork`;
 
   return {
     title,
@@ -80,7 +86,7 @@ export async function generateMetadata(
       description,
       url: `/music/${slug}`,
       type: "music.album",
-      images: [{ url: ogImage, width: 1200, height: 630, alt: `${title} · cover artwork` }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: ogAlt }],
     },
     twitter: {
       card: "summary_large_image",
