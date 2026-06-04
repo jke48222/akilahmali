@@ -1,8 +1,13 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-const url = process.env.UPSTASH_REDIS_REST_URL ?? "";
-const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? "";
+// Accept either the native Upstash names or the KV_* names that Vercel's
+// Upstash/KV integration auto-injects. Use the read-write token (NOT the
+// read-only one) — the sliding-window limiter writes counters.
+const url =
+  process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL ?? "";
+const token =
+  process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN ?? "";
 
 export const isRateLimitConfigured = url.length > 0 && token.length > 0;
 

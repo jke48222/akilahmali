@@ -4,12 +4,12 @@
     {
       "source": "/",
       "destination": "/shop",
-      "has": [{ "type": "host", "value": "shop.malicantsing.com" }]
+      "has": [{ "type": "host", "value": "shop.akilahmali.com" }]
     },
     {
       "source": "/((?!shop/|api/|_next/|sitemap.xml|robots.txt|monitoring).*)",
       "destination": "/shop/$1",
-      "has": [{ "type": "host", "value": "shop.malicantsing.com" }]
+      "has": [{ "type": "host", "value": "shop.akilahmali.com" }]
     }
   ],
   "headers": [
