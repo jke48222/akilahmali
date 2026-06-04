@@ -39,10 +39,10 @@ export function Intro() {
       /* ignore */
     }
     setLeaving(true);
-    window.setTimeout(() => {
-      setShow(false);
-      document.body.style.overflow = "";
-    }, 1000);
+    // Unlock scroll right away — the overlay still covers the page while it
+    // animates out, so the page no longer feels frozen for the full second.
+    document.body.style.overflow = "";
+    window.setTimeout(() => setShow(false), 1000);
   }
 
   function onAura(e: React.PointerEvent) {
