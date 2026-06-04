@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MALI — about</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500&family=Geist+Mono:wght@400&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+  :root{
+    --bg:        #F4F2EE;
+    --bg-2:      #ECE8E1;
+    --ink:       #15161A;
+    --ink-2:     #55534E;
+    --ink-3:     #8a857d;
+    --rule:      #DAD5CC;
+    --accent:    #7A4E5E;
+    --accent-2:  #5d3a48;
+    --dark-ink:  #EFE6D6;
+    --dark-ink-2:#C7BDB0;
+    --dark-ink-3:#8d8378;
+  }
+  html, body { background: var(--bg); color: var(--ink); }
+  body { font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; font-weight: 400; -webkit-font-smoothing: antialiased; }
+  .font-display { font-family: 'Instrument Serif', serif; font-weight: 400; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+
+  .field { position: relative; overflow: hidden; isolation: isolate; }
+  .field::after {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: .22;
+    mix-blend-mode: overlay;
+  }
+  /* gallery placeholder fields */
+  .ph-studio {
+    background:
+      radial-gradient(60% 80% at 30% 30%, #7e8a93 0%, #3a4148 50%, transparent 75%),
+      linear-gradient(180deg, #2c3138 0%, #15171c 100%);
+  }
+  .ph-room {
+    background:
+      radial-gradient(60% 80% at 70% 50%, #b5a292 0%, #6a594b 50%, transparent 75%),
+      linear-gradient(180deg, #3c2f25 0%, #1c1610 100%);
+  }
+  .ph-mirror {
+    background:
+      radial-gradient(60% 80% at 50% 35%, #9b8a92 0%, #5f4a55 50%, transparent 75%),
+      linear-gradient(180deg, #34252d 0%, #18101a 100%);
+  }
+
+  /* Photo treatment — slight desaturate + grain shared with the design language */
+  .photo {
+    filter: saturate(0.9) contrast(1.02);
+  }
+
+  /* Lead photo darkening for nav legibility */
+  .lead-scrim {
+    background: linear-gradient(180deg, rgba(15,10,12,0.55) 0%, rgba(15,10,12,0.05) 20%, rgba(15,10,12,0) 40%, rgba(15,10,12,0.05) 70%, rgba(244,242,238,0.95) 100%);
+  }
+
+  /* Links */
+  .ulink { position: relative; display: inline-block; padding-bottom: 2px; }
+  .ulink::after {
+    content:''; position:absolute; left:0; right:0; bottom:0;
+    height:1px; background: currentColor;
+    transform: scaleX(0); transform-origin: right;
+    transition: transform .6s cubic-bezier(.2,.75,.2,1);
+  }
+  .ulink:hover::after { transform: scaleX(1); transform-origin: left; }
+  .ulink-on::after { transform: scaleX(1); }
+  .ulink-on:hover::after { transform: scaleX(0); transform-origin: right; }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity 900ms cubic-bezier(.2,.7,.2,1), transform 900ms cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  ::selection { background: var(--accent); color: #fff; }
+
+  /* Nav (light by default; flip cream when over lead) */
+  .nav-wrap { background: linear-gradient(180deg, rgba(244,242,238,0.85), rgba(244,242,238,0)); transition: background .5s ease; }
+  .nav-mark { color: var(--ink); transition: color .5s ease; }
+  .nav-mark .nav-mark-2 { color: var(--ink-3); transition: color .5s ease; }
+  .nav-link { color: var(--ink-2); transition: color .5s ease; }
+  .nav-link.active { color: var(--ink); }
+  body.nav-on-dark .nav-wrap { background: linear-gradient(180deg, rgba(20,12,16,0.5), rgba(20,12,16,0)); }
+  body.nav-on-dark .nav-mark { color: var(--dark-ink); }
+  body.nav-on-dark .nav-mark .nav-mark-2 { color: var(--dark-ink-3); }
+  body.nav-on-dark .nav-link { color: var(--dark-ink-2); }
+  body.nav-on-dark .nav-link.active { color: var(--dark-ink); }
+
+  /* Lead aspect ratios */
+  .lead-ar { aspect-ratio: 3 / 4; }
+  @media (min-width: 768px) { .lead-ar { aspect-ratio: 16 / 9; } }
+  @media (min-width: 1280px) { .lead-ar { aspect-ratio: 21 / 9; } }
+
+  /* Lightbox */
+  .lb-back {
+    background: rgba(15,10,12,0.92);
+    backdrop-filter: blur(6px);
+  }
+  .lb-anim { opacity: 0; transition: opacity .4s ease; }
+  .lb-anim.in { opacity: 1; }
+
+  /* Drop cap on first bio para */
+  .dropcap::first-letter {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 5.4em;
+    line-height: 0.78;
+    float: left;
+    padding: 0.06em 0.12em 0 0;
+    color: var(--ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .lb-anim { transition: none; }
+  }
+</style>
+</head>
+<body data-screen-label="01 About">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ---------- Icons ---------- */
+const Icon = {
+  Spotify: (p)=>(<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.586 14.424a.622.622 0 0 1-.857.207c-2.348-1.434-5.304-1.758-8.785-.964a.622.622 0 1 1-.277-1.213c3.809-.87 7.077-.496 9.713 1.114a.622.622 0 0 1 .206.856zm1.223-2.722a.778.778 0 0 1-1.07.257c-2.687-1.652-6.785-2.13-9.964-1.166a.778.778 0 1 1-.45-1.49c3.633-1.1 8.147-.568 11.226 1.328a.778.778 0 0 1 .258 1.071zm.105-2.835c-3.223-1.914-8.54-2.09-11.617-1.156a.933.933 0 1 1-.541-1.786c3.531-1.072 9.404-.865 13.115 1.342a.933.933 0 1 1-.957 1.6z"/></svg>),
+  Apple: (p)=>(<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M17.05 12.04c-.03-2.92 2.39-4.33 2.5-4.4-1.36-1.99-3.48-2.27-4.24-2.3-1.81-.18-3.53 1.06-4.44 1.06-.92 0-2.34-1.03-3.84-1-.99.01-1.91.58-2.42 1.46-1.04 1.79-.26 4.44.75 5.9.49.72 1.08 1.52 1.85 1.49.75-.03 1.03-.48 1.93-.48.91 0 1.16.48 1.96.46.81-.01 1.32-.73 1.81-1.45.57-.83.81-1.64.82-1.68-.02-.01-1.57-.6-1.58-2.36zM14.36 4.36c.41-.5.69-1.19.61-1.88-.59.02-1.31.39-1.74.88-.38.43-.72 1.14-.63 1.81.66.05 1.34-.33 1.76-.81z"/></svg>),
+  YouTube: (p)=>(<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M21.6 7.2a2.5 2.5 0 0 0-1.76-1.77C18.2 5 12 5 12 5s-6.2 0-7.84.43A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.76 1.77C5.8 19 12 19 12 19s6.2 0 7.84-.43a2.5 2.5 0 0 0 1.76-1.77A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8zM10 15V9l5.2 3z"/></svg>),
+  Instagram: (p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" {...p}><rect x="3" y="3" width="18" height="18" rx="4.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.6" r=".9" fill="currentColor" stroke="none"/></svg>),
+  TikTok: (p)=>(<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M16.6 5.82A4.28 4.28 0 0 1 14.85 3h-3.04v12.36a2.56 2.56 0 0 1-2.56 2.56 2.56 2.56 0 0 1-2.56-2.56 2.56 2.56 0 0 1 2.56-2.56c.28 0 .54.05.79.13V9.83a5.6 5.6 0 0 0-.79-.06A5.6 5.6 0 0 0 3.65 15.36 5.6 5.6 0 0 0 9.25 21a5.6 5.6 0 0 0 5.6-5.6V9.1a7.32 7.32 0 0 0 4.28 1.38V7.44a4.28 4.28 0 0 1-2.53-1.62z"/></svg>),
+  Arrow: (p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" {...p}><path d="M5 12h14M13 6l6 6-6 6"/></svg>),
+  ArrowDiag: (p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" {...p}><path d="M7 17 17 7M9 7h8v8"/></svg>),
+  Close: (p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" {...p}><path d="M6 6l12 12M18 6L6 18"/></svg>),
+  Expand: (p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" {...p}><path d="M4 4h6M4 4v6M20 4h-6M20 4v6M4 20h6M4 20v-6M20 20h-6M20 20v-6"/></svg>),
+};
+
+/* ---------- Reveal ---------- */
+function useReveal() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { el.classList.add('in'); io.unobserve(el); }
+    }, { threshold: 0.12 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return ref;
+}
+const Reveal = ({ as: As = 'div', className = '', children, delay = 0 }) => {
+  const r = useReveal();
+  return <As ref={r} className={`reveal ${className}`} style={{ transitionDelay: `${delay}ms` }}>{children}</As>;
+};
+
+/* ---------- Nav ---------- */
+function Nav() {
+  const links = [
+    { id: 'music', label: 'music', href: 'malicantsing music.html' },
+    { id: 'videos', label: 'videos', href: 'malicantsing videos.html' },
+    { id: 'about', label: 'about', active: true },
+    { id: 'shop', label: 'shop' },
+    { id: 'contact', label: 'contact' },
+  ];
+  return (
+    <header className="nav-wrap fixed top-0 inset-x-0 z-50" style={{ backdropFilter: 'blur(6px)' }}>
+      <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14 pt-5 md:pt-7 pb-4 flex items-baseline justify-between">
+        <a href="malicantsing home.html" className="nav-mark font-display tracking-[-0.01em] text-[19px] md:text-[22px] leading-none">
+          mali<span className="nav-mark-2">cantsing</span>
+        </a>
+        <nav className="hidden md:flex items-baseline gap-7 lg:gap-9 font-mono text-[11px] uppercase tracking-[0.18em]">
+          {links.map((l) => (
+            <a key={l.id} href={l.href || `#${l.id}`}
+               className={`nav-link ulink ${l.active ? 'ulink-on active' : ''}`}>
+              {l.label}
+            </a>
+          ))}
+        </nav>
+        <button aria-label="menu" className="nav-link md:hidden font-mono text-[11px] uppercase tracking-[0.18em]">menu</button>
+      </div>
+    </header>
+  );
+}
+
+/* ---------- Footer ---------- */
+function Footer() {
+  return (
+    <footer className="relative mt-28 md:mt-40">
+      <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14">
+        <div className="h-px w-full" style={{ background: 'var(--rule)' }} />
+        <div className="grid grid-cols-12 gap-6 md:gap-10 py-10 md:py-14">
+          <div className="col-span-12 md:col-span-4">
+            <div className="font-display text-[44px] md:text-[64px] leading-[0.85] tracking-[-0.02em]">MALI</div>
+            <div className="mt-3 font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: 'var(--ink-3)' }}>akilah mali · b. 2001 · est. 2025</div>
+          </div>
+          <div className="col-span-6 md:col-span-2">
+            <div className="font-mono text-[10px] uppercase tracking-[0.24em] mb-3" style={{ color: 'var(--ink-3)' }}>listen</div>
+            <ul className="space-y-2 text-[14px]">
+              <li><a className="ulink inline-flex items-center gap-2" href="#"><Icon.Spotify width="14" height="14" /> Spotify</a></li>
+              <li><a className="ulink inline-flex items-center gap-2" href="#"><Icon.Apple width="14" height="14" /> Apple Music</a></li>
+              <li><a className="ulink inline-flex items-center gap-2" href="#"><Icon.YouTube width="14" height="14" /> YouTube Music</a></li>
+            </ul>
+          </div>
+          <div className="col-span-6 md:col-span-2">
+            <div className="font-mono text-[10px] uppercase tracking-[0.24em] mb-3" style={{ color: 'var(--ink-3)' }}>follow</div>
+            <ul className="space-y-2 text-[14px]">
+              <li><a className="ulink inline-flex items-center gap-2" href="#"><Icon.Instagram width="14" height="14" /> Instagram</a></li>
+              <li><a className="ulink inline-flex items-center gap-2" href="#"><Icon.TikTok width="14" height="14" /> TikTok</a></li>
+              <li><a className="ulink inline-flex items-center gap-2" href="#"><Icon.YouTube width="14" height="14" /> YouTube</a></li>
+            </ul>
+          </div>
+          <div className="col-span-6 md:col-span-2">
+            <div className="font-mono text-[10px] uppercase tracking-[0.24em] mb-3" style={{ color: 'var(--ink-3)' }}>site</div>
+            <ul className="space-y-2 text-[14px]">
+              <li><a className="ulink" href="malicantsing home.html">home</a></li>
+              <li><a className="ulink" href="malicantsing music.html">music</a></li>
+              <li><a className="ulink" href="malicantsing videos.html">videos</a></li>
+              <li><a className="ulink" href="#contact">contact</a></li>
+            </ul>
+          </div>
+          <div className="col-span-6 md:col-span-2">
+            <div className="font-mono text-[10px] uppercase tracking-[0.24em] mb-3" style={{ color: 'var(--ink-3)' }}>store</div>
+            <ul className="space-y-2 text-[14px]">
+              <li><a className="ulink inline-flex items-center gap-1" href="#shop">shop <Icon.ArrowDiag width="12" height="12" /></a></li>
+              <li className="font-mono text-[10px] uppercase tracking-[0.22em]" style={{ color: 'var(--ink-3)' }}>small batch. when it&rsquo;s gone it&rsquo;s gone.</li>
+            </ul>
+          </div>
+        </div>
+        <div className="h-px w-full" style={{ background: 'var(--rule)' }} />
+        <div className="py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: 'var(--ink-3)' }}>
+          <div>© 2025 akilah mali — all songs &amp; images</div>
+          <div>brooklyn, n.y. · site v.01</div>
+          <div>press &amp; sync &nbsp;·&nbsp; <a className="ulink" href="mailto:realmalimusic@gmail.com">realmalimusic@gmail.com</a></div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ---------- Lead ---------- */
+function Lead() {
+  return (
+    <section className="relative w-full">
+      <div className="relative lead-ar w-full field">
+        <img src="images/strange.jpg" alt="" className="photo absolute inset-0 w-full h-full object-cover" style={{ objectPosition: '50% 35%' }} />
+        <div className="absolute inset-0 lead-scrim pointer-events-none" />
+
+        {/* corner mono lower-third */}
+        <div className="absolute inset-x-0 bottom-0 pb-8 md:pb-12 lg:pb-14">
+          <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14 grid grid-cols-12 gap-3 items-end">
+            <div className="col-span-7 md:col-span-6 font-mono text-[10px] uppercase tracking-[0.28em]" style={{ color: 'rgba(232,226,214,0.78)' }}>
+              akilah mali · b. 2001
+            </div>
+            <div className="col-span-5 md:col-span-6 md:text-right font-mono text-[10px] uppercase tracking-[0.28em]" style={{ color: 'rgba(232,226,214,0.6)' }}>
+              photo · ll, 2025 · brooklyn
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Title block ---------- */
+function TitleBlock() {
+  return (
+    <section className="relative">
+      <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14 pt-20 md:pt-28">
+        <Reveal>
+          <div className="mx-auto" style={{ maxWidth: '620px' }}>
+            <div className="flex items-baseline gap-4 font-mono text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--ink-3)' }}>
+              <span>00 / a short bio</span>
+              <span className="block h-px flex-1" style={{ background: 'var(--rule)' }} />
+              <span>~ 90 seconds</span>
+            </div>
+
+            <h1 className="font-display leading-[0.86] tracking-[-0.02em] mt-8" style={{ fontSize: 'clamp(80px, 11vw, 168px)' }}>
+              A girl, <br />
+              <span className="italic" style={{ color: 'var(--ink-2)' }}>and a few songs</span>
+              <span style={{ color: 'var(--ink-3)' }}>.</span>
+            </h1>
+
+            <div className="mt-5 font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: 'var(--ink-3)' }}>
+              about &nbsp;·&nbsp; mali &nbsp;·&nbsp; v.01
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Bio ---------- */
+function Bio() {
+  return (
+    <section className="relative">
+      <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14 pt-14 md:pt-20">
+        <div className="mx-auto" style={{ maxWidth: '620px' }}>
+          <Reveal>
+            <p className="dropcap text-[17px] md:text-[18px] leading-[1.7]" style={{ color: 'var(--ink)' }}>
+              mali is a singer and songwriter from <span style={{ color: 'var(--accent)' }}>[city]</span>. she writes about people she used to know, places she used to live, and the difference between what happened and what she thought happened.
+            </p>
+          </Reveal>
+
+          <Reveal delay={120}>
+            <p className="mt-7 text-[17px] md:text-[18px] leading-[1.7]" style={{ color: 'var(--ink-2)' }}>
+              her first releases &mdash; <em className="font-display italic" style={{ color: 'var(--ink)' }}>last year</em>, <em className="font-display italic" style={{ color: 'var(--ink)' }}>who really won?</em>, and <em className="font-display italic" style={{ color: 'var(--ink)' }}>strange</em> &mdash; came out in 2025. she records mostly at night.
+            </p>
+          </Reveal>
+
+          <Reveal delay={220}>
+            <p className="mt-7 text-[17px] md:text-[18px] leading-[1.7]" style={{ color: 'var(--ink-2)' }}>
+              malicantsing is the handle. the joke is on the people who took it seriously.
+            </p>
+          </Reveal>
+
+          <Reveal delay={280}>
+            <div className="mt-10 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: 'var(--ink-3)' }}>
+              <span className="inline-block h-px w-10" style={{ background: 'var(--rule)' }} />
+              <span>written by mali</span>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Pull quote ---------- */
+function PullQuote() {
+  return (
+    <section className="relative">
+      <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14 pt-24 md:pt-36">
+        <div className="mx-auto text-center" style={{ maxWidth: '920px' }}>
+          <Reveal>
+            <p className="font-display italic leading-[1.05] tracking-[-0.01em]" style={{ fontSize: 'clamp(40px, 6.2vw, 92px)' }}>
+              <span style={{ color: 'var(--ink-3)' }}>&ldquo;</span>i&rsquo;ve been there once.<br />
+              i don&rsquo;t need to go again<span style={{ color: 'var(--ink-3)' }}>.&rdquo;</span>
+            </p>
+          </Reveal>
+          <Reveal delay={140}>
+            <div className="mt-8 font-mono text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--ink-3)' }}>
+              &mdash; from &ldquo;been there once,&rdquo; <span className="text-[color:var(--ink-2)]">who really won?</span>, 2025
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Gallery ---------- */
+const gallery = [
+  { kind: 'photo', src: 'images/strange.jpg', label: 'still · strange', caption: 'still · strange · 2025', pos: '50% 30%' },
+  { kind: 'photo', src: 'images/who-really-won.jpg', label: 'set · who really won?', caption: 'set · who really won?', pos: '50% 50%' },
+  { kind: 'photo', src: 'images/last-year.jpg', label: 'porch · baltimore', caption: 'porch · baltimore, 2024', pos: '50% 50%' },
+  { kind: 'field', cls: 'ph-studio', label: 'studio · brooklyn', caption: 'studio · brooklyn, 2025 — placeholder' },
+  { kind: 'field', cls: 'ph-room', label: 'the long room', caption: 'the long room — placeholder' },
+  { kind: 'field', cls: 'ph-mirror', label: 'self · mirror', caption: 'self · mirror — placeholder' },
+];
+
+function Gallery({ onOpen }) {
+  return (
+    <section className="relative">
+      <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14 pt-24 md:pt-36">
+        <Reveal>
+          <div className="flex items-baseline gap-4 font-mono text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--ink-3)' }}>
+            <span>02 / gallery</span>
+            <span className="block h-px flex-1" style={{ background: 'var(--rule)' }} />
+            <span>six frames · click to expand</span>
+          </div>
+        </Reveal>
+
+        <div className="mt-10 md:mt-14 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5 lg:gap-6">
+          {gallery.map((g, i) => (
+            <Reveal key={i} delay={(i % 3) * 80}>
+              <button onClick={() => onOpen(i)} className="group block w-full text-left">
+                <div className="relative aspect-square field overflow-hidden">
+                  {g.kind === 'photo' ? (
+                    <img src={g.src} alt={g.label} className="photo absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                         style={{ objectPosition: g.pos }} />
+                  ) : (
+                    <div className={`absolute inset-0 ${g.cls} transition-transform duration-700 group-hover:scale-[1.02]`} />
+                  )}
+                  {/* hover expand affordance */}
+                  <span className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 inline-flex items-center justify-center w-7 h-7 rounded-full"
+                        style={{ background: 'rgba(15,10,12,0.55)', color: 'rgba(232,226,214,0.95)' }}>
+                    <Icon.Expand width="12" height="12" />
+                  </span>
+                  {/* burn label */}
+                  <span className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.26em]"
+                        style={{ color: 'rgba(232,226,214,0.78)' }}>
+                    {String(i+1).padStart(2,'0')} · {g.label}
+                  </span>
+                </div>
+              </button>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={200}>
+          <div className="mt-6 font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: 'var(--ink-3)' }}>
+            photos: mali + collaborators. all images &copy; 2025 akilah mali.
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Lightbox ---------- */
+function Lightbox({ index, onClose }) {
+  const [active, setActive] = useState(index);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowRight') setActive(a => (a + 1) % gallery.length);
+      if (e.key === 'ArrowLeft') setActive(a => (a - 1 + gallery.length) % gallery.length);
+    };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+  }, [onClose]);
+
+  const g = gallery[active];
+
+  return (
+    <div className={`fixed inset-0 z-[100] lb-back lb-anim ${mounted ? 'in' : ''}`} onClick={onClose}>
+      <div className="absolute inset-0 flex flex-col">
+        {/* top bar */}
+        <div className="flex items-center justify-between px-6 md:px-10 lg:px-14 pt-5 md:pt-7 pb-4" onClick={e=>e.stopPropagation()}>
+          <div className="font-mono text-[10px] uppercase tracking-[0.28em]" style={{ color: 'rgba(232,226,214,0.7)' }}>
+            {String(active+1).padStart(2,'0')} / {String(gallery.length).padStart(2,'0')} &nbsp;·&nbsp; {g.caption}
+          </div>
+          <button onClick={onClose} aria-label="close"
+                  className="font-mono text-[11px] uppercase tracking-[0.24em] inline-flex items-center gap-2 ulink"
+                  style={{ color: 'rgba(232,226,214,0.85)' }}>
+            close <Icon.Close width="14" height="14" />
+          </button>
+        </div>
+        {/* content */}
+        <div className="flex-1 flex items-center justify-center px-6 md:px-10 pb-10" onClick={e=>e.stopPropagation()}>
+          <div className="relative w-full h-full flex items-center justify-center">
+            {g.kind === 'photo' ? (
+              <img src={g.src} alt="" className="photo max-h-full max-w-full object-contain"
+                   style={{ maxHeight: '78vh', boxShadow: '0 30px 60px -20px rgba(0,0,0,0.7)' }} />
+            ) : (
+              <div className={`field ${g.cls}`} style={{ width: 'min(78vh, 92vw)', height: 'min(78vh, 92vw)' }} />
+            )}
+          </div>
+        </div>
+        {/* bottom bar */}
+        <div className="flex items-center justify-between px-6 md:px-10 lg:px-14 pb-6" onClick={e=>e.stopPropagation()}>
+          <button onClick={() => setActive(a => (a - 1 + gallery.length) % gallery.length)}
+                  className="font-mono text-[11px] uppercase tracking-[0.24em] inline-flex items-center gap-2 ulink"
+                  style={{ color: 'rgba(232,226,214,0.85)' }}>
+            <span style={{ transform: 'scaleX(-1)', display: 'inline-block' }}><Icon.Arrow width="14" height="14" /></span> prev
+          </button>
+          <div className="font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: 'rgba(232,226,214,0.55)' }}>
+            esc to close &nbsp;·&nbsp; ← → to flip
+          </div>
+          <button onClick={() => setActive(a => (a + 1) % gallery.length)}
+                  className="font-mono text-[11px] uppercase tracking-[0.24em] inline-flex items-center gap-2 ulink"
+                  style={{ color: 'rgba(232,226,214,0.85)' }}>
+            next <Icon.Arrow width="14" height="14" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Closing line ---------- */
+function Closing() {
+  return (
+    <section className="relative">
+      <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14 pt-24 md:pt-36">
+        <div className="mx-auto" style={{ maxWidth: '620px' }}>
+          <Reveal>
+            <div className="font-mono text-[11px] uppercase tracking-[0.24em] leading-[2.1]" style={{ color: 'var(--ink-2)' }}>
+              <div>
+                <span style={{ color: 'var(--ink-3)' }}>say hi —</span> &nbsp;
+                <a href="mailto:realmalimusic@gmail.com" className="ulink" style={{ color: 'var(--ink)' }}>realmalimusic@gmail.com</a>
+              </div>
+              <div>
+                <span style={{ color: 'var(--ink-3)' }}>elsewhere —</span> &nbsp;
+                <a href="#" className="ulink">instagram</a> &nbsp;·&nbsp;
+                <a href="#" className="ulink">tiktok</a> &nbsp;·&nbsp;
+                <a href="#" className="ulink">youtube</a> &nbsp;·&nbsp;
+                <a href="#" className="ulink">spotify</a>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- App ---------- */
+function App() {
+  const [lbIndex, setLbIndex] = useState(null);
+
+  // Toggle nav-on-dark while the lead is in view
+  const leadRef = useRef(null);
+  useEffect(() => {
+    if (!leadRef.current) return;
+    const io = new IntersectionObserver(([e]) => {
+      document.body.classList.toggle('nav-on-dark', e.isIntersecting && e.intersectionRatio > 0.25);
+    }, { threshold: [0, 0.25, 0.6, 1] });
+    io.observe(leadRef.current);
+    return () => { io.disconnect(); document.body.classList.remove('nav-on-dark'); };
+  }, []);
+
+  return (
+    <main className="w-full overflow-x-clip">
+      <Nav />
+      <div ref={leadRef}><Lead /></div>
+      <TitleBlock />
+      <Bio />
+      <PullQuote />
+      <Gallery onOpen={setLbIndex} />
+      <Closing />
+      <Footer />
+      {lbIndex !== null && <Lightbox index={lbIndex} onClose={() => setLbIndex(null)} />}
+    </main>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
