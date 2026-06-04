@@ -13,6 +13,7 @@ import { type ThreeEvent } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import { FEEDS, type Feed } from "@/lib/wrw/grid";
+import { isCoarsePointer } from "@/lib/device";
 
 const MODEL = "/wrw-assets/models/wrw.glb";
 useGLTF.preload(MODEL);
@@ -82,7 +83,9 @@ function FeedImage({ src, size }: { src: string; size: [number, number] }) {
   const tex = useTexture(src, (t) => {
     const tt = t as THREE.Texture;
     tt.colorSpace = THREE.SRGBColorSpace;
-    tt.anisotropy = 8;
+    // anisotropic filtering is cheap on desktop GPUs but adds up on mobile —
+    // the monitors are viewed near head-on, so a lower value is imperceptible.
+    tt.anisotropy = isCoarsePointer() ? 2 : 8;
     const img = tt.image as { width?: number; height?: number } | undefined;
     cover(tt, size[0], size[1], img?.width ?? 0, img?.height ?? 0);
   });
