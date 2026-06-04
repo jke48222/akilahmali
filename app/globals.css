@@ -413,9 +413,13 @@ section {
 .no-bar { scrollbar-width: none; -ms-overflow-style: none; }
 
 .pc-swap .pc-flat { opacity: 0; transition: opacity 500ms ease; }
-.pc-swap:hover .pc-flat { opacity: 1; }
 .pc-swap .pc-ls { transition: transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1); }
-.pc-swap:hover .pc-ls { transform: scale(1.015); }
+/* Hover-driven image swap is desktop-only — on touch, :hover can latch after a
+   tap and leave the flat image stuck on, which reads as broken. */
+@media (hover: hover) and (pointer: fine) {
+  .pc-swap:hover .pc-flat { opacity: 1; }
+  .pc-swap:hover .pc-ls { transform: scale(1.015); }
+}
 
 .size-btn {
   font-family: var(--font-mono);
@@ -789,7 +793,7 @@ body.wrw-cursor button:hover {
   top: 0;
   right: 0;
   bottom: 0;
-  width: min(440px, 100vw);
+  width: min(440px, 100%);
   background: var(--color-bg);
   box-shadow: -24px 0 60px -20px rgba(21, 22, 26, 0.18);
   transform: translateX(100%);
@@ -802,7 +806,9 @@ body.wrw-cursor button:hover {
 }
 @media (max-width: 640px) {
   .drawer-panel {
-    width: 100vw;
+    /* 100% of the full-width fixed drawer-root, not 100vw — vw includes the
+       scrollbar gutter and was nudging a sliver of horizontal scroll. */
+    width: 100%;
     box-shadow: none;
   }
 }
