@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAllReleases, getAllVideos } from "@/lib/queries";
 import { getAllProducts, isShopifyConfigured } from "@/lib/shopify";
 
-const SITE_URL = "https://malicantsing.com";
+const SITE_URL = "https://akilahmali.com";
 
 /**
  * Sitemap · emits every public URL. Static routes always; release/video/

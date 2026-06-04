@@ -28,6 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       url: "/about",
       type: "profile",
+      images: ["/opengraph-image"],
     },
   };
 }

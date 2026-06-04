@@ -40,8 +40,8 @@ function Nav({ cartCount = 0 }) {
     <header className="fixed top-0 inset-x-0 z-50" style={{ background: 'linear-gradient(180deg, rgba(244,242,238,0.85) 0%, rgba(244,242,238,0) 100%)', backdropFilter: 'blur(6px)' }}>
       <div className="mx-auto max-w-[1480px] px-6 md:px-10 lg:px-14 pt-5 md:pt-7 pb-4 flex items-baseline justify-between">
         <div className="flex items-baseline gap-5 md:gap-7">
-          <a href="https://malicantsing.com" className="hidden sm:inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.24em] ulink" style={{ color: 'var(--ink-3)' }}>
-            <span style={{ display: 'inline-block', transform: 'translateY(-1px)' }}>←</span> malicantsing.com
+          <a href="https://akilahmali.com" className="hidden sm:inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.24em] ulink" style={{ color: 'var(--ink-3)' }}>
+            <span style={{ display: 'inline-block', transform: 'translateY(-1px)' }}>←</span> akilahmali.com
           </a>
           <a href="#top" className="font-display tracking-[-0.01em] text-[19px] md:text-[22px] leading-none">
             MALI<span className="font-mono text-[10px] uppercase tracking-[0.24em] ml-2 align-middle" style={{ color: 'var(--ink-3)' }}>/ shop</span>
@@ -480,8 +480,8 @@ function Footer() {
             <div className="mt-3 font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: 'var(--ink-3)' }}>
               small batch. when it&rsquo;s gone it&rsquo;s gone.
             </div>
-            <a href="https://malicantsing.com" className="mt-6 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.24em] ulink" style={{ color: 'var(--ink-2)' }}>
-              ← back to malicantsing.com
+            <a href="https://akilahmali.com" className="mt-6 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.24em] ulink" style={{ color: 'var(--ink-2)' }}>
+              ← back to akilahmali.com
             </a>
           </div>
 
@@ -507,7 +507,7 @@ function Footer() {
           <div className="col-span-12 md:col-span-2">
             <div className="font-mono text-[10px] uppercase tracking-[0.24em] mb-3" style={{ color: 'var(--ink-3)' }}>contact</div>
             <ul className="space-y-2 text-[14px]">
-              <li><a className="ulink" href="mailto:shop@malicantsing.com">shop@malicantsing.com</a></li>
+              <li><a className="ulink" href="mailto:shop@akilahmali.com">shop@akilahmali.com</a></li>
               <li className="font-mono text-[10px] uppercase tracking-[0.22em]" style={{ color: 'var(--ink-3)' }}>orders ship mon · thu</li>
             </ul>
           </div>

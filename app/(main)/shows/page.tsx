@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     title: "Shows · Akilah Mali",
     description: "Live dates from Akilah Mali.",
     url: "/shows",
+    images: ["/opengraph-image"],
   },
 };
 

@@ -10,7 +10,7 @@ import { isValidSignature, SIGNATURE_HEADER_NAME } from "@sanity/webhook";
  *   Body:   { _type: "release", slug: "strange" }   // etc.
  *
  * Configure in Sanity: Project → API → Webhooks. Set HTTP method POST, URL to
- * https://malicantsing.com/api/revalidate, set the secret to SANITY_REVALIDATE_SECRET,
+ * https://akilahmali.com/api/revalidate, set the secret to SANITY_REVALIDATE_SECRET,
  * and the projection so the body contains exactly: { _type, slug } (or whatever
  * each document type needs).
  */

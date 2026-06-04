@@ -6,7 +6,7 @@ import { SOCIAL_PROFILES } from "@/lib/social";
 
 const LINKS = [
   { label: "@akilah.mali", href: SOCIAL_PROFILES.instagram, Icon: InstagramIcon },
-  { label: "@malicantsing", href: SOCIAL_PROFILES.tiktok, Icon: TikTokIcon },
+  { label: "@akilahmali", href: SOCIAL_PROFILES.tiktok, Icon: TikTokIcon },
   { label: "youtube", href: SOCIAL_PROFILES.youtube, Icon: YouTubeIcon },
 ];
 

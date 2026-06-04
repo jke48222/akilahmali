@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = "https://malicantsing.com";
+const SITE_URL = "https://akilahmali.com";
 
 /**
  * Production allows all crawlers; preview and development disallow everything.

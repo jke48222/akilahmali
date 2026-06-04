@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import NextLink from "next/link";
 import { CloseIcon } from "./icons";
+import { Wordmark } from "./Logo";
 
 type NavLink = {
   label: string;
@@ -16,7 +17,7 @@ const LINKS: NavLink[] = [
   { label: "videos", href: "/videos" },
   { label: "about", href: "/about" },
   { label: "shows", href: "/shows" },
-  { label: "shop", href: "https://shop.malicantsing.com", external: true },
+  { label: "shop", href: "https://shop.akilahmali.com", external: true },
   { label: "contact", href: "/contact" },
 ];
 
@@ -60,9 +61,9 @@ export function Nav() {
         <NextLink
           href="/"
           aria-label="akilah mali · home"
-          className="nav-wordmark font-display tracking-mark text-[19px] md:text-[22px] leading-none text-ink transition-colors duration-500"
+          className="nav-wordmark text-[19px] md:text-[22px] leading-none text-ink transition-colors duration-500"
         >
-          akilah mali
+          <Wordmark className="text-[19px] md:text-[22px]" />
         </NextLink>
 
         <nav aria-label="Primary" className="hidden md:block">
@@ -119,9 +120,7 @@ export function Nav() {
       >
         <div className="flex flex-col h-full px-gutter pt-5">
           <div className="flex items-baseline justify-between">
-            <span className="font-display tracking-mark text-[19px] leading-none">
-              akilah mali
-            </span>
+            <Wordmark className="text-[19px] leading-none text-ink" />
             <button
               type="button"
               aria-label="Close menu"

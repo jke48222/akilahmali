@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     description: "Music videos, visualizers, and live takes from Akilah Mali.",
     url: "/videos",
     type: "website",
+    images: ["/opengraph-image"],
   },
 };
 
@@ -175,7 +176,7 @@ function VideosJsonLd({ videos }: { videos: DisplayVideo[] }) {
       publisher: {
         "@type": "MusicGroup",
         name: "Akilah Mali",
-        url: "https://malicantsing.com",
+        url: "https://akilahmali.com",
       },
     })),
   };

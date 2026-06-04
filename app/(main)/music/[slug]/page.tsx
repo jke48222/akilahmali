@@ -23,6 +23,7 @@ import {
   type VideoCard,
 } from "@/lib/queries";
 import { urlForImage } from "@/lib/sanity";
+import { feedIndexForReleaseSlug } from "@/lib/wrw/grid";
 import {
   portableTextToCredits,
   portableTextToPlain,
@@ -68,7 +69,7 @@ export async function generateMetadata(
 
   const ogImage = live?.artwork
     ? urlForImage(live.artwork).width(1200).height(630).fit("crop").url()
-    : "/og-default.jpg";
+    : "/opengraph-image";
 
   return {
     title,
@@ -202,6 +203,10 @@ export default async function ReleaseDetailPage({
   if (!live && !fallback) notFound();
 
   const release = mergeWithStatic(live, fallback!);
+
+  // If this release has a matching blast in the Who Really Won? control room,
+  // offer a deep link straight into it.
+  const wrwFeed = feedIndexForReleaseSlug(slug);
 
   // Adjacent releases.
   const liveAdj = live ? await getAdjacentReleases(release.releaseDate) : null;
@@ -510,6 +515,60 @@ export default async function ReleaseDetailPage({
         </div>
       </section>
 
+      {/* SECURITY GRID · deep link into this song's blast */}
+      {wrwFeed !== null ? (
+        <section className="relative">
+          <div className="mx-auto max-w-page px-gutter md:px-gutter-md lg:px-gutter-lg pt-section md:pt-section-xl">
+            <Reveal>
+              <NextLink
+                href={`/music/who-really-won?song=${release.slug}`}
+                className="group block overflow-hidden"
+                data-cursor="hover"
+                style={{
+                  background:
+                    release.vibe === "lastyear"
+                      ? "radial-gradient(120% 140% at 18% 8%, #3a2a1e 0%, #1d130b 58%, #0c0805 100%)"
+                      : "radial-gradient(120% 140% at 18% 8%, #3b2230 0%, #1f121a 58%, #0a0608 100%)",
+                }}
+              >
+                <div className="hero-grain pointer-events-none absolute inset-0 opacity-60" />
+                <div className="relative z-10 px-7 py-10 md:px-12 md:py-16">
+                  <div
+                    className="font-mono text-mono-xs uppercase tracking-caps-lg"
+                    style={{ color: "#9b8cff" }}
+                  >
+                    the security grid
+                  </div>
+                  <div className="mt-4 flex items-end justify-between gap-6">
+                    <h2
+                      className="font-display italic leading-[0.95] tracking-mark"
+                      style={{
+                        fontSize: "clamp(28px, 4.6vw, 64px)",
+                        color: "var(--color-cream)",
+                      }}
+                    >
+                      see {release.title.toLowerCase()} in the control room
+                    </h2>
+                    <ArrowUpRight
+                      size={40}
+                      strokeWidth={1}
+                      aria-hidden="true"
+                      className="shrink-0 text-[color:var(--color-cream)] transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1"
+                    />
+                  </div>
+                  <div
+                    className="mt-4 font-mono text-mono-xs uppercase tracking-caps-md"
+                    style={{ color: "rgba(199,189,176,0.7)" }}
+                  >
+                    enter who really won? · straight to the {release.title.toLowerCase()} feed
+                  </div>
+                </div>
+              </NextLink>
+            </Reveal>
+          </div>
+        </section>
+      ) : null}
+
       {/* MUSIC VIDEO */}
       {video ? (
         <section className="relative">
@@ -712,11 +771,11 @@ function JsonLd({ release }: { release: DisplayRelease }) {
       "@type": "MusicGroup",
       name: "Akilah Mali",
       alternateName: "Akilah Mali",
-      url: "https://malicantsing.com",
+      url: "https://akilahmali.com",
     },
     datePublished: release.releaseDate,
     inLanguage: "en",
-    url: `https://malicantsing.com/music/${release.slug}`,
+    url: `https://akilahmali.com/music/${release.slug}`,
     ...(release.label ? { recordLabel: release.label } : {}),
   };
   const payload = isAlbum

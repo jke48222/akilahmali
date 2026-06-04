@@ -343,7 +343,7 @@ async function main() {
     },
     socialLinks: {
       instagram: "https://www.instagram.com/akilah.mali",
-      tiktok: "https://www.tiktok.com/@malicantsing",
+      tiktok: "https://www.tiktok.com/@akilahmali",
       youtube: "https://www.youtube.com/@akilahmali",
     },
     contactEmails: {

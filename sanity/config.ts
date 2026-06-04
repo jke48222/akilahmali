@@ -8,7 +8,7 @@ import { schemaTypes } from "./schemas";
  * projectId + dataset come from env (see sanity/env.ts).
  */
 export default defineConfig({
-  name: "malicantsing",
+  name: "akilahmali",
   title: "MALI — content",
   basePath: studioBasePath,
   projectId,

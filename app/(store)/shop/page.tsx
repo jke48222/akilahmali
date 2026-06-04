@@ -26,6 +26,7 @@ export const metadata: Metadata = {
       "Drop 001 · six pieces. Small batch, when it's gone it's gone.",
     url: "/shop",
     type: "website",
+    images: ["/opengraph-image"],
   },
 };
 

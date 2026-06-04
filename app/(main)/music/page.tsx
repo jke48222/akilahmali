@@ -23,6 +23,7 @@ export const metadata: Metadata = {
     description: "All releases from Akilah Mali.",
     url: "/music",
     type: "website",
+    images: ["/opengraph-image"],
   },
 };
 

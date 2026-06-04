@@ -37,7 +37,7 @@ matters to you.
 | Email signup form | ⚠️ Renders, but submissions error | Klaviyo |
 | Rate limiting on the signup form | ✅ Fails "open" (allows) | Upstash Redis |
 | Instagram feed (home page) | ✅ Live via Curator.io widget | Theme/manage in Curator dashboard |
-| Shop (`shop.malicantsing.com`) | ⚠️ Empty until connected | Shopify |
+| Shop (`shop.akilahmali.com`) | ⚠️ Empty until connected | Shopify |
 | Page-view analytics | ✅ Vercel Analytics auto-on | Plausible (optional 2nd) |
 | Error monitoring | ✅ Off until configured | Sentry |
 
@@ -51,8 +51,8 @@ the related feature just falls back gracefully.
 **Prerequisites:** [Node.js](https://nodejs.org) 20 or newer and Git.
 
 ```bash
-git clone https://github.com/jke48222/malicantsing.git
-cd malicantsing
+git clone https://github.com/jke48222/akilahmali.git
+cd akilahmali
 npm install
 npm run dev
 ```
@@ -85,7 +85,7 @@ Useful commands:
 The repo is already connected to Vercel and **auto-deploys on every push to the
 `main` branch**. If you ever need to set it up from scratch:
 
-1. Push the repo to GitHub (already done: `jke48222/malicantsing`).
+1. Push the repo to GitHub (already done: `jke48222/akilahmali`).
 2. Go to [vercel.com/new](https://vercel.com/new), import the GitHub repo.
 3. Framework preset: **Next.js**. Root directory: **`./`** (the app is at the
    repo root). Leave build settings at their defaults.
@@ -105,21 +105,21 @@ value is picked up.
 
 The site expects two hosts:
 
-- **`malicantsing.com`** → the main site
-- **`shop.malicantsing.com`** → the store (routed automatically by
+- **`akilahmali.com`** → the main site
+- **`shop.akilahmali.com`** → the store (routed automatically by
   `vercel.json` — requests to that subdomain are rewritten to the `/shop`
   routes)
 
 Steps:
 
-1. In Vercel: Project → **Settings → Domains** → add `malicantsing.com` **and**
-   `shop.malicantsing.com`.
+1. In Vercel: Project → **Settings → Domains** → add `akilahmali.com` **and**
+   `shop.akilahmali.com`.
 2. At your domain registrar, point DNS at Vercel (Vercel shows the exact
    records — usually an `A` record for the apex and a `CNAME` for `shop`).
 3. Wait for DNS + SSL to provision (minutes to a couple hours).
 
 > The brand name shown on the site is **mali**, but the technical domain stays
-> `malicantsing.com`. If you ever move to a new domain, update `SITE_URL` in
+> `akilahmali.com`. If you ever move to a new domain, update `SITE_URL` in
 > `app/layout.tsx`, `app/sitemap.ts`, `app/robots.ts`, and the `shop.` host
 > values in `vercel.json` and the store components.
 
@@ -216,7 +216,7 @@ To point the site at a different Curator feed, replace `FEED_SRC` in
 
 ### 5e. Shopify — the store
 
-**Why:** powers `shop.malicantsing.com`. Until connected, the shop routes are
+**Why:** powers `shop.akilahmali.com`. Until connected, the shop routes are
 empty.
 
 1. In Shopify admin, create a **custom app** (or Headless app) and enable the
@@ -239,7 +239,7 @@ empty.
   automatically on Vercel — nothing to do.
 - **Plausible (optional):** register your domain at
   [plausible.io](https://plausible.io) and set
-  `NEXT_PUBLIC_PLAUSIBLE_DOMAIN=malicantsing.com`. Leave it empty in
+  `NEXT_PUBLIC_PLAUSIBLE_DOMAIN=akilahmali.com`. Leave it empty in
   dev/preview so the script never loads there.
 
 ### 5g. Sentry — error monitoring

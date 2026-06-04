@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   const to = process.env.CONTACT_EMAIL ?? "realmalimusic@gmail.com";
   const replyTo = `${name} <${email}>`;
 
-  if (process.env.KLAVIYO_API_KEY) {
+  if (process.env.KLAVIYO_PRIVATE_API_KEY) {
     try {
       const { subscribeToList } = await import("@/lib/klaviyo");
       await subscribeToList(email, "contact");
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
         },
         body: JSON.stringify({
           personalizations: [{ to: [{ email: to }] }],
-          from: { email: "noreply@malicantsing.com", name: "Mali Contact Form" },
+          from: { email: "noreply@akilahmali.com", name: "Mali Contact Form" },
           reply_to: { email, name },
           subject: `Contact from ${name}`,
           content: [

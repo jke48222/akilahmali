@@ -20,6 +20,7 @@ export const metadata: Metadata = {
     title: "Contact · Akilah Mali",
     description: "Get in touch with Akilah Mali.",
     url: "/contact",
+    images: ["/opengraph-image"],
   },
 };
 
