@@ -18,6 +18,7 @@ import gsap from "gsap";
 import * as THREE from "three";
 import { FEEDS, type Feed } from "@/lib/wrw/grid";
 import { RoomModel } from "@/components/wrw/grid/RoomModel";
+import { isCoarsePointer } from "@/lib/device";
 
 export type GridApi = {
   focus: (index: number, onArrive?: () => void) => void;
@@ -164,11 +165,16 @@ export function GridScene({
   // pick → zoom all the way into that monitor → open its blast
   const pick = (i: number) => apiRef.current?.focus(i, () => onSelect(i));
 
+  // On phones/tablets, antialiasing + a high device-pixel-ratio are the biggest
+  // GPU costs in this scene; the baked-lighting room reads fine without MSAA, so
+  // drop it and cap the pixel ratio lower for a smoother frame rate on mobile.
+  const coarse = isCoarsePointer();
+
   return (
     <div className="fixed inset-0" style={{ zIndex: 0 }}>
       <Canvas
-        gl={{ antialias: true, powerPreference: "high-performance" }}
-        dpr={[1, 1.5]}
+        gl={{ antialias: !coarse, powerPreference: "high-performance" }}
+        dpr={coarse ? [1, 1.25] : [1, 1.5]}
         // only run the render loop when the room is actually visible — while the
         // paper cover is up or a blast is open, the canvas is fully occluded, so
         // "demand" stops it burning frames behind them (huge win for the intro

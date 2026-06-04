@@ -25,9 +25,27 @@ export function CursorFX() {
     let cy = my;
     let raf = 0;
 
+    // The follow loop only runs while the dot is catching up to the pointer;
+    // once it settles it stops itself and the next pointer move wakes it again,
+    // so an idle desktop isn't burning a rAF every frame for nothing.
+    const tick = () => {
+      cx += (mx - cx) * 0.22;
+      cy += (my - cy) * 0.22;
+      if (el.current) el.current.style.transform = `translate(${cx}px, ${cy}px)`;
+      if (Math.abs(mx - cx) < 0.1 && Math.abs(my - cy) < 0.1) {
+        raf = 0; // settled — sleep until the pointer moves again
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    const wake = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
     const onMove = (e: PointerEvent) => {
       mx = e.clientX;
       my = e.clientY;
+      wake();
       const t = e.target as HTMLElement | null;
       const interactive = t?.closest(
         'a, button, [role="button"], input, textarea, summary, [data-cursor="hover"]',
@@ -37,13 +55,7 @@ export function CursorFX() {
     const onDown = () => el.current?.classList.add("is-down");
     const onUp = () => el.current?.classList.remove("is-down");
 
-    const loop = () => {
-      cx += (mx - cx) * 0.22;
-      cy += (my - cy) * 0.22;
-      if (el.current) el.current.style.transform = `translate(${cx}px, ${cy}px)`;
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
+    wake();
 
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("pointerdown", onDown);
