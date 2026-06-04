@@ -60,7 +60,7 @@ export const FEEDS: Feed[] = [
     n: 3, title: "Gone Away", kind: "image", src: "/images/100_0324.JPG",
     audio: "/wrw-assets/audio/gone-away.m4a", accent: "#c8ff4a",
     spotify: sp("15gG3VoteXYpZaP6Ns9s5C"), apple: am("gone-away", EP, "1833314190"),
-    pos: [3.569, 1.397, -4.009], size: [0.25, 0.27], rotY: -1.558, // centre mid
+    pos: [3.569, 1.397, -4.009], size: [0.205, 0.221], rotY: -1.558, // centre mid
   },
   {
     n: 4, title: "Been There Once", kind: "image", src: "/images/100_0335.JPG",

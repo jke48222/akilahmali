@@ -247,7 +247,7 @@ export function Landing({ onEnter, onDone }: { onEnter: () => void; onDone: () =
           {/* UI chrome */}
           <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
             <nav className="pointer-events-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-2 px-4 pt-7 text-[10px] uppercase tracking-[0.28em] sm:gap-x-7 sm:text-[11px]">
-              <WordmarkLogo className="text-[15px]" />
+              <WordmarkLogo className="text-[17px]" />
               {NAV.map((n) => (
                 <a key={n.href} href={n.href} className="opacity-70 transition-opacity hover:opacity-100">
                   {n.label}
