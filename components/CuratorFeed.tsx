@@ -67,6 +67,16 @@ export function CuratorFeed() {
   }, []);
 
   return (
-    <div id="curator-feed-default-feed-layout" ref={rootRef} />
+    <div id="curator-feed-default-feed-layout" ref={rootRef}>
+      {/* Curator's attribution placeholder, label intentionally blanked. */}
+      <a
+        href="https://curator.io"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="crt-logo crt-tag"
+      >
+        {" "}
+      </a>
+    </div>
   );
 }
