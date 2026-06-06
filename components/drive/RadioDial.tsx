@@ -15,7 +15,7 @@
    Analogue of components/wrw/grid/GridHUD.tsx.
    ========================================================================= */
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppleIcon, SpotifyIcon } from "@/components/icons";
 import { type Station, wrapStation } from "@/lib/drive/stations";
 
@@ -37,8 +37,7 @@ export function RadioDial({
 }) {
   const station = stations[tuned];
 
-  // Keyboard: ←/→ tune between stations, Enter selects. (Drag/scroll + analog
-  // static arrive in M4; richer focus handling rides along there too.)
+  // Keyboard: ←/→ tune between stations, Enter selects.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") {
@@ -55,15 +54,69 @@ export function RadioDial({
     return () => window.removeEventListener("keydown", onKey);
   }, [tuned, onTune, onSelect]);
 
+  // A brief static flicker on the readout whenever the station changes (analog
+  // tuning feel — pairs with the noise burst played in TheDrive).
+  const [flick, setFlick] = useState(false);
+  useEffect(() => {
+    setFlick(true);
+    const t = window.setTimeout(() => setFlick(false), 220);
+    return () => clearTimeout(t);
+  }, [tuned]);
+
+  // Scroll to tune: accumulate wheel delta, fire a step past a threshold.
+  const wheelAcc = useRef(0);
+  const onWheel = (e: React.WheelEvent) => {
+    wheelAcc.current += e.deltaY;
+    if (Math.abs(wheelAcc.current) >= 60) {
+      onTune(wrapStation(tuned + (wheelAcc.current > 0 ? 1 : -1)));
+      wheelAcc.current = 0;
+    }
+  };
+
+  // Drag to tune: ~46px of horizontal travel = one station from where the drag
+  // began. Window listeners (no pointer capture) so the per-tick click handlers
+  // still fire on a plain tap. Works for mouse + touch.
+  const onPointerDown = (e: React.PointerEvent) => {
+    const startX = e.clientX;
+    const startTuned = tuned;
+    let last = tuned;
+    const move = (ev: PointerEvent) => {
+      const steps = Math.round((ev.clientX - startX) / 46);
+      const next = wrapStation(startTuned + steps);
+      if (next !== last) {
+        last = next;
+        onTune(next);
+      }
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  };
+
   if (!station) return null;
   const accent = station.accent;
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex justify-center px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
       <div
-        className="pointer-events-auto w-full max-w-xl rounded-2xl border bg-[#0a0204]/70 p-4 backdrop-blur-md sm:p-5"
+        onWheel={onWheel}
+        className="pointer-events-auto relative w-full max-w-xl overflow-hidden rounded-2xl border bg-[#0a0204]/70 p-4 backdrop-blur-md sm:p-5"
         style={{ borderColor: `${accent}59`, boxShadow: `0 0 40px -12px ${accent}99` }}
       >
+        {/* analog static flicker on tune */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-10 transition-opacity duration-200"
+          style={{
+            opacity: flick ? 0.5 : 0,
+            mixBlendMode: "screen",
+            backgroundImage:
+              "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23s)' opacity='0.7'/></svg>\")",
+          }}
+        />
         {/* ---- now-playing readout ---- */}
         <div className="flex items-baseline justify-between gap-3">
           <div className="min-w-0">
@@ -107,7 +160,12 @@ export function RadioDial({
           >
             ‹
           </button>
-          <div className="flex flex-1 items-center justify-between gap-1" role="radiogroup" aria-label="Radio stations">
+          <div
+            className="flex flex-1 cursor-ew-resize touch-none items-center justify-between gap-1"
+            role="radiogroup"
+            aria-label="Radio stations — scroll or drag to tune"
+            onPointerDown={onPointerDown}
+          >
             {stations.map((s, i) => {
               const isTuned = i === tuned;
               return (

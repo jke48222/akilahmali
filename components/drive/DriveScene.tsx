@@ -29,6 +29,44 @@ export type DriveApi = {
   reset: (onHome?: () => void) => void;
 };
 
+/* The live, smoothly-eased world palette. PaletteTween lerps these toward the
+   tuned station's target each frame so re-skins crossfade instead of snapping;
+   the city + rain read these Colors directly. */
+export type Palette = { accent: THREE.Color; accent2: THREE.Color; sky: THREE.Color };
+
+/* ---- ease the world palette toward the tuned station + drive sky/fog/fill ---- */
+function PaletteTween({
+  paletteRef,
+  accent,
+  accent2,
+  skyColor,
+  ambientRef,
+}: {
+  paletteRef: RefObject<Palette>;
+  accent: string;
+  accent2: string;
+  skyColor: string;
+  ambientRef: RefObject<THREE.AmbientLight | null>;
+}) {
+  const { scene } = useThree();
+  const tA = useMemo(() => new THREE.Color(), []);
+  const tB = useMemo(() => new THREE.Color(), []);
+  const tS = useMemo(() => new THREE.Color(), []);
+  useFrame(() => {
+    const p = paletteRef.current;
+    tA.set(accent);
+    tB.set(accent2);
+    tS.set(skyColor);
+    p.accent.lerp(tA, 0.06);
+    p.accent2.lerp(tB, 0.06);
+    p.sky.lerp(tS, 0.06);
+    if (scene.background instanceof THREE.Color) scene.background.lerp(tS, 0.06);
+    if (scene.fog) (scene.fog as THREE.Fog).color.lerp(tS, 0.06);
+    ambientRef.current?.color.lerp(p.accent, 0.1);
+  });
+  return null;
+}
+
 /* Passenger-seat pose, looking forward through the windshield down the wet
    road. The car never moves forward in world space — the CITY streams toward
    us — so home stays put and the camera only drifts/parallaxes around it. */
@@ -131,6 +169,13 @@ export function DriveScene({
 }) {
   const coarse = isCoarsePointer();
   const energyRef = useRef(0);
+  const ambientRef = useRef<THREE.AmbientLight | null>(null);
+  // live palette, eased toward the tuned station by PaletteTween
+  const paletteRef = useRef<Palette>({
+    accent: new THREE.Color(accent),
+    accent2: new THREE.Color(accent2),
+    sky: new THREE.Color(skyColor),
+  });
 
   return (
     <div className="fixed inset-0" style={{ zIndex: 0 }}>
@@ -140,16 +185,24 @@ export function DriveScene({
         frameloop={rendering ? "always" : "demand"}
         camera={{ position: HOME_POS.toArray(), fov: 62 }}
       >
-        {/* deep wet-night sky; re-skins per tuned station */}
-        <color attach="background" args={[skyColor]} />
-        <fog attach="fog" args={[skyColor, 7, 64]} />
-        <ambientLight intensity={0.5} color={accent} />
+        {/* deep wet-night sky/fog — PaletteTween crossfades these per station.
+            Fixed initial args so the prop-driven re-skin doesn't fight the lerp. */}
+        <color attach="background" args={["#0a0204"]} />
+        <fog attach="fog" args={["#0a0204", 7, 64]} />
+        <ambientLight ref={ambientRef} intensity={0.5} />
         <Suspense fallback={null}>
-          <CityLoop accent={accent} accent2={accent2} skyColor={skyColor} energyRef={energyRef} />
+          <CityLoop paletteRef={paletteRef} energyRef={energyRef} />
         </Suspense>
-        <RainWindshield energyRef={energyRef} tint={accent} />
+        <RainWindshield energyRef={energyRef} paletteRef={paletteRef} />
         <CameraController apiRef={apiRef} enabled={enabled} />
         <EnergyProbe analyserRef={analyserRef} energyRef={energyRef} />
+        <PaletteTween
+          paletteRef={paletteRef}
+          accent={accent}
+          accent2={accent2}
+          skyColor={skyColor}
+          ambientRef={ambientRef}
+        />
       </Canvas>
     </div>
   );

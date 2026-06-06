@@ -11,38 +11,35 @@
        streaks on the wet asphalt, plus a dimmer mirrored set for the
        wet-road reflection
      • a glossy wet-road plane
-   Re-skins from accent / accent2 / skyColor per the tuned station (M4 lerps
-   these smoothly). Trail speed + density swell subtly with the audio (energyRef).
-   Instance counts drop on coarse pointers. The Tower of Roses landmark + the
-   dashboard rose arrive in M6.
+   The colour comes from the LIVE palette (paletteRef), which DriveScene eases
+   toward the tuned station — so re-skins crossfade smoothly. Trail speed +
+   density swell with the audio (energyRef). Instance counts drop on coarse
+   pointers. The Tower of Roses landmark + the dashboard rose arrive in M6.
    ========================================================================= */
 
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { isCoarsePointer } from "@/lib/device";
+import { type Palette } from "@/components/drive/DriveScene";
 
 const ROAD_DEPTH = 170; // how far the world recedes before recycling
 const NEAR_Z = 6; // a touch behind the camera — where things recycle
 
-/* ---- gradient neon sky backdrop ---- */
-function SkyBackdrop({ skyColor, accent }: { skyColor: string; accent: string }) {
+/* ---- gradient neon sky backdrop (follows the live palette) ---- */
+function SkyBackdrop({ paletteRef }: { paletteRef: RefObject<Palette> }) {
   const uniforms = useMemo(
-    () => ({ uTop: { value: new THREE.Color(skyColor) }, uGlow: { value: new THREE.Color(accent) } }),
-    // updated imperatively below
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    () => ({ uTop: { value: new THREE.Color("#0a0204") }, uGlow: { value: new THREE.Color("#ff3a46") } }),
     [],
   );
-  const matRef = useRef<THREE.ShaderMaterial>(null);
   useFrame(() => {
-    (uniforms.uTop.value as THREE.Color).set(skyColor);
-    (uniforms.uGlow.value as THREE.Color).lerp(new THREE.Color(accent), 0.08);
+    (uniforms.uTop.value as THREE.Color).copy(paletteRef.current.sky);
+    (uniforms.uGlow.value as THREE.Color).copy(paletteRef.current.accent);
   });
   return (
     <mesh position={[0, 16, -ROAD_DEPTH + 8]} renderOrder={-10}>
       <planeGeometry args={[420, 150]} />
       <shaderMaterial
-        ref={matRef}
         uniforms={uniforms}
         depthWrite={false}
         fog={false}
@@ -54,7 +51,6 @@ function SkyBackdrop({ skyColor, accent }: { skyColor: string; accent: string })
           varying vec2 vUv;
           uniform vec3 uTop; uniform vec3 uGlow;
           void main(){
-            // horizon glow concentrated low-centre, fading up into the night
             float horizon = smoothstep(0.0, 0.42, vUv.y);
             float centre = smoothstep(0.62, 0.0, abs(vUv.x - 0.5));
             vec3 col = mix(uGlow * (0.55 + 0.45 * centre), uTop, horizon);
@@ -133,22 +129,13 @@ function Buildings({ energyRef }: { energyRef: RefObject<number> }) {
 
 /* ---- the signature tail-light trails (instanced additive streaks) ---- */
 type Trail = { x: number; y: number; z: number; len: number; w: number; speed: number; warm: number };
-function Trails({
-  accent,
-  accent2,
-  energyRef,
-}: {
-  accent: string;
-  accent2: string;
-  energyRef: RefObject<number>;
-}) {
+function Trails({ paletteRef, energyRef }: { paletteRef: RefObject<Palette>; energyRef: RefObject<number> }) {
   const coarse = isCoarsePointer();
   const COUNT = coarse ? 34 : 76;
   const roadRef = useRef<THREE.InstancedMesh>(null);
   const reflRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
-  const colA = useMemo(() => new THREE.Color(accent), [accent]);
-  const colB = useMemo(() => new THREE.Color(accent2), [accent2]);
+  const scratch = useMemo(() => new THREE.Color(), []);
 
   const data = useMemo<Trail[]>(() => {
     const lanes = [-3.4, -1.9, -0.6, 0.6, 1.9, 3.4];
@@ -167,33 +154,17 @@ function Trails({
     return arr;
   }, [COUNT]);
 
-  // paint per-instance colours (accent ↔ accent2) once
-  useEffect(() => {
-    const road = roadRef.current;
-    const refl = reflRef.current;
-    if (!road || !refl) return;
-    const c = new THREE.Color();
-    data.forEach((tr, i) => {
-      c.copy(colA).lerp(colB, tr.warm);
-      road.setColorAt(i, c);
-      refl.setColorAt(i, c);
-    });
-    if (road.instanceColor) road.instanceColor.needsUpdate = true;
-    if (refl.instanceColor) refl.instanceColor.needsUpdate = true;
-  }, [data, colA, colB]);
-
   useFrame((_, dt) => {
     const road = roadRef.current;
     const refl = reflRef.current;
     if (!road || !refl) return;
+    const { accent, accent2 } = paletteRef.current;
     const v = 34 * (1 + (energyRef.current ?? 0) * 0.7);
     const step = Math.min(dt, 0.05);
     for (let i = 0; i < data.length; i++) {
       const tr = data[i];
       tr.z += v * tr.speed * step;
-      if (tr.z - tr.len / 2 > NEAR_Z) {
-        tr.z -= ROAD_DEPTH;
-      }
+      if (tr.z - tr.len / 2 > NEAR_Z) tr.z -= ROAD_DEPTH;
       // a flat streak lying on the road, long in Z
       dummy.position.set(tr.x, tr.y, tr.z);
       dummy.rotation.set(-Math.PI / 2, 0, 0);
@@ -205,9 +176,15 @@ function Trails({
       dummy.scale.set(tr.w * 1.4, tr.len * 0.9, 1);
       dummy.updateMatrix();
       refl.setMatrixAt(i, dummy.matrix);
+      // re-skin: each streak sits somewhere between accent ↔ accent2
+      scratch.copy(accent).lerp(accent2, data[i].warm);
+      road.setColorAt(i, scratch);
+      refl.setColorAt(i, scratch);
     }
     road.instanceMatrix.needsUpdate = true;
     refl.instanceMatrix.needsUpdate = true;
+    if (road.instanceColor) road.instanceColor.needsUpdate = true;
+    if (refl.instanceColor) refl.instanceColor.needsUpdate = true;
   });
 
   return (
@@ -238,41 +215,43 @@ function Trails({
   );
 }
 
-/* ---- wet asphalt ---- */
-function Road({ accent }: { accent: string }) {
+/* ---- wet asphalt (emissive sheen follows the palette) ---- */
+function Road({ paletteRef }: { paletteRef: RefObject<Palette> }) {
+  const matRef = useRef<THREE.MeshStandardMaterial>(null);
+  useFrame(() => {
+    matRef.current?.emissive.copy(paletteRef.current.accent);
+  });
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -ROAD_DEPTH / 2 + NEAR_Z]} receiveShadow>
       <planeGeometry args={[30, ROAD_DEPTH + 40]} />
-      <meshStandardMaterial
-        color="#08040a"
-        metalness={0.65}
-        roughness={0.34}
-        emissive={new THREE.Color(accent)}
-        emissiveIntensity={0.04}
-      />
+      <meshStandardMaterial ref={matRef} color="#08040a" metalness={0.65} roughness={0.34} emissiveIntensity={0.04} />
     </mesh>
   );
 }
 
+/* ---- low crimson wash so the road + near buildings catch the station hue ---- */
+function Wash({ paletteRef }: { paletteRef: RefObject<Palette> }) {
+  const ref = useRef<THREE.PointLight>(null);
+  useFrame(() => {
+    ref.current?.color.copy(paletteRef.current.accent);
+  });
+  return <pointLight ref={ref} position={[0, 3, -2]} intensity={6} distance={26} decay={2} />;
+}
+
 export function CityLoop({
-  accent,
-  accent2,
-  skyColor,
+  paletteRef,
   energyRef,
 }: {
-  accent: string;
-  accent2: string;
-  skyColor: string;
+  paletteRef: RefObject<Palette>;
   energyRef: RefObject<number>;
 }) {
   return (
     <group>
-      <SkyBackdrop skyColor={skyColor} accent={accent} />
-      {/* a low crimson wash so the road + near buildings catch some colour */}
-      <pointLight position={[0, 3, -2]} intensity={6} distance={26} decay={2} color={accent} />
-      <Road accent={accent} />
+      <SkyBackdrop paletteRef={paletteRef} />
+      <Wash paletteRef={paletteRef} />
+      <Road paletteRef={paletteRef} />
       <Buildings energyRef={energyRef} />
-      <Trails accent={accent} accent2={accent2} energyRef={energyRef} />
+      <Trails paletteRef={paletteRef} energyRef={energyRef} />
     </group>
   );
 }
