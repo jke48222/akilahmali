@@ -9,7 +9,11 @@
    a rendered <Track> to its playable source by title.
    ========================================================================= */
 
-export type VisualMode = "bars" | "pulse";
+// Each song gets its own visualizer personality (see PersistentPlayer):
+//   aurora — layered fluid metaballs        bloom — flowering petals
+//   wave   — circular oscilloscope ribbon    orbit — orbiting particles
+//   pulse  — expanding sonar rings
+export type VisualMode = "aurora" | "wave" | "bloom" | "orbit" | "pulse";
 
 export type PlayerTrack = {
   id: string;
@@ -21,12 +25,12 @@ export type PlayerTrack = {
 };
 
 export const CATALOG: PlayerTrack[] = [
-  { id: "last-year",       title: "Last Year",       artist: "Akilah Mali", src: "/wrw-assets/audio/last-year.m4a",       accent: "#7cf0ff", mode: "bars"  },
-  { id: "my-bed",          title: "My Bed",          artist: "Akilah Mali", src: "/wrw-assets/audio/my-bed.m4a",          accent: "#9b8cff", mode: "pulse" },
-  { id: "gone-away",       title: "Gone Away",       artist: "Akilah Mali", src: "/wrw-assets/audio/gone-away.m4a",       accent: "#c8ff4a", mode: "bars"  },
-  { id: "been-there-once", title: "Been There Once", artist: "Akilah Mali", src: "/wrw-assets/audio/been-there-once.m4a", accent: "#ff9a3c", mode: "pulse" },
-  { id: "who-really-won",  title: "Who Really Won?", artist: "Akilah Mali", src: "/wrw-assets/audio/who-really-won.m4a",  accent: "#4dffa0", mode: "bars"  },
-  { id: "strange",         title: "Strange",         artist: "Akilah Mali", src: "/wrw-assets/audio/strange.m4a",         accent: "#ff7cd5", mode: "pulse" },
+  { id: "last-year",       title: "Last Year",       artist: "Akilah Mali", src: "/wrw-assets/audio/last-year.m4a",       accent: "#7cf0ff", mode: "wave"   },
+  { id: "my-bed",          title: "My Bed",          artist: "Akilah Mali", src: "/wrw-assets/audio/my-bed.m4a",          accent: "#9b8cff", mode: "aurora" },
+  { id: "gone-away",       title: "Gone Away",       artist: "Akilah Mali", src: "/wrw-assets/audio/gone-away.m4a",       accent: "#c8ff4a", mode: "bloom"  },
+  { id: "been-there-once", title: "Been There Once", artist: "Akilah Mali", src: "/wrw-assets/audio/been-there-once.m4a", accent: "#ff9a3c", mode: "orbit"  },
+  { id: "who-really-won",  title: "Who Really Won?", artist: "Akilah Mali", src: "/wrw-assets/audio/who-really-won.m4a",  accent: "#4dffa0", mode: "pulse"  },
+  { id: "strange",         title: "Strange",         artist: "Akilah Mali", src: "/wrw-assets/audio/strange.m4a",         accent: "#ff7cd5", mode: "aurora" },
 ];
 
 const normalize = (s: string) =>
