@@ -94,7 +94,7 @@ const NAV = [
   { label: "Videos", href: "/videos" },
   { label: "About", href: "/about" },
   { label: "Shows", href: "/shows" },
-  { label: "Shop", href: "/shop" },
+  { label: "Shop", href: "https://shop.akilahmali.com", external: true },
   { label: "Press", href: "/press" },
   { label: "Contact", href: "/contact" },
 ];

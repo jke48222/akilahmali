@@ -39,6 +39,15 @@ export async function checkRateLimit(
   identifier: string,
 ): Promise<RateLimitVerdict> {
   if (!isRateLimitConfigured) {
+    // Deliberate fail-open so a partial deploy / local dev never blocks signups.
+    // But in production an unconfigured limiter means abuse protection is OFF —
+    // surface that loudly so it's caught by log monitoring rather than silently.
+    if (process.env.VERCEL_ENV === "production") {
+      console.error(
+        "[rate-limit] UNCONFIGURED IN PRODUCTION — abuse protection is disabled. " +
+          "Set UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN (or KV_*).",
+      );
+    }
     return { allowed: true, remaining: Infinity, reset: 0, skipped: true };
   }
   const { success, remaining, reset } = await getLimiter().limit(identifier);
@@ -47,13 +56,26 @@ export async function checkRateLimit(
   return { allowed: false, remaining, reset, retryAfter };
 }
 
-/** Best-effort client IP extraction from standard proxy headers. */
+/**
+ * Client IP extraction for rate-limit keying.
+ *
+ * SECURITY: the LEFTMOST `x-forwarded-for` entry is client-controllable — a
+ * caller can prepend a forged value and rotate it to defeat per-IP limits. On
+ * Vercel, `x-real-ip` is set by the platform edge to the true connecting IP and
+ * cannot be spoofed, so prefer it. As a fallback we take the RIGHTMOST xff hop
+ * (the one added by the closest trusted proxy), never the leftmost.
+ */
 export function clientIp(headers: Headers): string {
+  const realIp = headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+
+  const cf = headers.get("cf-connecting-ip")?.trim();
+  if (cf) return cf;
+
   const xff = headers.get("x-forwarded-for");
-  if (xff) return xff.split(",")[0].trim();
-  return (
-    headers.get("x-real-ip") ??
-    headers.get("cf-connecting-ip") ??
-    "unknown"
-  );
+  if (xff) {
+    const hops = xff.split(",").map((h) => h.trim()).filter(Boolean);
+    if (hops.length) return hops[hops.length - 1];
+  }
+  return "unknown";
 }

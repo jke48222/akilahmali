@@ -23,6 +23,35 @@ export function CuratorFeed() {
     const root = rootRef.current;
     if (!root) return;
 
+    // Inject the third-party Curator script only once the feed scrolls near the
+    // viewport. It's below the fold, ~heavy, and runs with full page privileges,
+    // so deferring it keeps it off the critical path and out of initial load.
+    const injectWhenVisible = () => {
+      if (injected.current) return;
+      injected.current = true;
+      const first = document.getElementsByTagName("script")[0];
+      const script = document.createElement("script");
+      script.async = true;
+      script.setAttribute("charset", "UTF-8");
+      script.src = FEED_SRC;
+      first?.parentNode?.insertBefore(script, first);
+    };
+
+    const io =
+      typeof IntersectionObserver !== "undefined"
+        ? new IntersectionObserver(
+            (entries) => {
+              if (entries.some((e) => e.isIntersecting)) {
+                injectWhenVisible();
+                io?.disconnect();
+              }
+            },
+            { rootMargin: "400px" },
+          )
+        : null;
+    if (io) io.observe(root);
+    else injectWhenVisible(); // no IO support → load immediately
+
     // Collapse the fixed-height feed window to fit its posts.
     const fit = () => {
       const win = root.querySelector<HTMLElement>(".crt-feed-window");
@@ -49,17 +78,8 @@ export function CuratorFeed() {
     const poll = window.setInterval(fit, 400);
     const stopPoll = window.setTimeout(() => window.clearInterval(poll), 8000);
 
-    if (!injected.current) {
-      injected.current = true;
-      const first = document.getElementsByTagName("script")[0];
-      const script = document.createElement("script");
-      script.async = true;
-      script.setAttribute("charset", "UTF-8");
-      script.src = FEED_SRC;
-      first?.parentNode?.insertBefore(script, first);
-    }
-
     return () => {
+      io?.disconnect();
       observer.disconnect();
       window.clearInterval(poll);
       window.clearTimeout(stopPoll);

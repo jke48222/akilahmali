@@ -1,13 +1,15 @@
 import type { MetadataRoute } from "next";
 import { getAllReleases, getAllVideos } from "@/lib/queries";
-import { getAllProducts, isShopifyConfigured } from "@/lib/shopify";
 
 const SITE_URL = "https://akilahmali.com";
 
 /**
- * Sitemap · emits every public URL. Static routes always; release/video/
- * product entries are gated on Sanity/Shopify being configured so an
- * unconfigured preview deploy still produces a valid sitemap.
+ * Sitemap · emits every public URL. Static routes always; release entries are
+ * gated on Sanity being configured so an unconfigured preview deploy still
+ * produces a valid sitemap.
+ *
+ * The store lives on the hosted Shopify storefront (shop.akilahmali.com), a
+ * separate origin with its own sitemap, so no /shop routes are emitted here.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -20,15 +22,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/shows`,   lastModified: now, changeFrequency: "weekly",  priority: 0.6 },
     { url: `${SITE_URL}/press`,   lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/contact`, lastModified: now, changeFrequency: "yearly",  priority: 0.5 },
-    { url: `${SITE_URL}/shop`,    lastModified: now, changeFrequency: "weekly",  priority: 0.9 },
   ];
 
-  const [releases, products] = await Promise.all([
-    getAllReleases().catch(() => null),
-    isShopifyConfigured
-      ? getAllProducts(100).catch(() => [])
-      : Promise.resolve([]),
-  ]);
+  const releases = await getAllReleases().catch(() => null);
   // Videos all live on /videos in v1 · no per-video routes yet.
   // Kept the await so future per-video routes can be added without a refactor.
   await getAllVideos().catch(() => null);
@@ -41,12 +37,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     })) ?? [];
 
-  const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({
-    url: `${SITE_URL}/shop/products/${p.handle}`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.7,
-  }));
-
-  return [...staticRoutes, ...releaseRoutes, ...productRoutes];
+  return [...staticRoutes, ...releaseRoutes];
 }

@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
+import { honeypotFields, isBotSubmission } from "@/lib/honeypot";
 
 const ContactBody = z.object({
   name: z.string().trim().min(1).max(200),
   email: z.string().trim().toLowerCase().email().max(254),
   message: z.string().trim().min(1).max(5000),
+  ...honeypotFields,
 });
 
 export async function POST(request: Request) {
@@ -33,6 +35,11 @@ export async function POST(request: Request) {
     );
   }
 
+  // Silent bot drop — fake success so scripts get no signal to tune against.
+  if (isBotSubmission(parsed.data)) {
+    return NextResponse.json({ ok: true });
+  }
+
   const { name, email, message } = parsed.data;
 
   const to = process.env.CONTACT_EMAIL ?? "realmalimusic@gmail.com";
@@ -47,9 +54,13 @@ export async function POST(request: Request) {
     }
   }
 
+  // Durable delivery of the actual message. If this doesn't succeed the message
+  // is lost (a missed booking/fan email is a real business cost), so we fail the
+  // request rather than show a false "sent" — never silently swallow.
+  let delivered = false;
   if (process.env.SENDGRID_API_KEY) {
     try {
-      await fetch("https://api.sendgrid.com/v3/mail/send", {
+      const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
@@ -68,12 +79,30 @@ export async function POST(request: Request) {
           ],
         }),
       });
-    } catch {
-      /* best-effort */
+      delivered = res.ok;
+      if (!res.ok) {
+        console.error("[contact] sendgrid rejected", res.status);
+      }
+    } catch (err) {
+      console.error("[contact] sendgrid threw", err instanceof Error ? err.message : err);
     }
+  } else {
+    console.error("[contact] SENDGRID_API_KEY unset — cannot deliver contact messages");
   }
 
-  console.log(`[contact] from=${email} name=${name} message=${message.slice(0, 80)}`);
+  if (!delivered) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Couldn't send right now — please try again in a moment.",
+      },
+      { status: 502 },
+    );
+  }
+
+  // No PII in logs — the message is delivered via email; logs keep only a
+  // non-identifying breadcrumb.
+  console.log("[contact] delivered");
 
   return NextResponse.json({ ok: true });
 }

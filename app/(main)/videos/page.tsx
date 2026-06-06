@@ -6,6 +6,7 @@ import { Reveal } from "@/components/Reveal";
 import { LiteYouTube } from "@/components/LiteYouTube";
 import { getAllVideos, type VideoCard } from "@/lib/queries";
 import { STATIC_VIDEOS, formatReleaseDate, type StaticVideo } from "@/lib/static-content";
+import { jsonLd } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
   title: "Videos",
@@ -183,7 +184,7 @@ function VideosJsonLd({ videos }: { videos: DisplayVideo[] }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(payload) }}
+      dangerouslySetInnerHTML={{ __html: jsonLd(payload) }}
     />
   );
 }

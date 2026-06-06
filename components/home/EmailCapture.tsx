@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
+import { useHoneypot } from "@/components/ui/useHoneypot";
 import { SectionLabel } from "./SectionLabel";
 
 type Status = "idle" | "submitting" | "ok" | "error";
@@ -13,6 +14,7 @@ export function EmailCapture() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const { field: honeypot, values: honeypotValues } = useHoneypot();
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,7 +27,7 @@ export function EmailCapture() {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, source: SOURCE }),
+        body: JSON.stringify({ email, source: SOURCE, ...honeypotValues() }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -63,6 +65,7 @@ export function EmailCapture() {
           <Reveal as="div" delay={140} className="col-span-12 md:col-span-5">
             {status !== "ok" ? (
               <form onSubmit={onSubmit} className="md:pb-3" noValidate>
+                {honeypot}
                 <input type="hidden" name="source" value={SOURCE} />
                 <label htmlFor="email-capture" className="sr-only">
                   Email address

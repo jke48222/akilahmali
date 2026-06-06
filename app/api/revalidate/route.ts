@@ -47,8 +47,8 @@ function pathsFor(body: SanityWebhookBody): string[] {
     case "settings":
       // Settings touch about/contact/press/footer; cheaper to refresh the lot.
       return ["/", "/about", "/contact", "/press"];
-    case "lookbook":
-      return ["/shop"];
+    // `lookbook` previously drove the in-app /shop, which now lives on the hosted
+    // Shopify storefront (separate origin) — nothing on this site to revalidate.
     default:
       return [];
   }
