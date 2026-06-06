@@ -72,6 +72,19 @@ export function WhoReallyWon() {
     };
   }, []);
 
+  // Match the mobile browser chrome (iOS status bar + toolbar) to this page so it
+  // reads full-screen: cream while the paper cover is up, the room's near-black
+  // once it's torn away. Restore the site's default on leave.
+  useEffect(() => {
+    const meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+    if (!meta) return;
+    const original = meta.content;
+    meta.content = showLanding ? "#e9e3d6" : "#05070b";
+    return () => {
+      meta.content = original;
+    };
+  }, [showLanding]);
+
   // the blue desk button → the bare vinyl loop page
   function handleButton() {
     router.push("/music/who-really-won/turntable");
