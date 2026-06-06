@@ -6,6 +6,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Intro } from "@/components/Intro";
 import { CursorFX } from "@/components/CursorFX";
 import { ScrollProgress } from "@/components/ScrollProgress";
+import { PlayerProvider } from "@/components/player/PlayerProvider";
+import { PersistentPlayer } from "@/components/player/PersistentPlayer";
 import "./globals.css";
 
 /* Editorial display serif (variable weight + optical sizing + soft/wonky axes). */
@@ -128,7 +130,10 @@ export default function RootLayout({
         <ScrollProgress />
         <CursorFX />
         <Intro />
-        {children}
+        <PlayerProvider>
+          {children}
+          <PersistentPlayer />
+        </PlayerProvider>
         {/* Vercel Analytics + Speed Insights · auto no-op in dev. */}
         <Analytics />
         <SpeedInsights />

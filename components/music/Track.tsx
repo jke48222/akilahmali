@@ -1,8 +1,10 @@
 "use client";
 
 import { useId, useState } from "react";
-import { Plus } from "lucide-react";
+import { Pause, Play, Plus } from "lucide-react";
 import { SpotifyIcon, AppleIcon } from "@/components/icons";
+import { usePlayer } from "@/components/player/PlayerProvider";
+import { trackById } from "@/lib/player/catalog";
 
 type Density = "compact" | "spacious";
 
@@ -21,6 +23,8 @@ type TrackProps = {
   /** Per-track streaming links shown in the open lyrics drawer. */
   spotify?: string;
   appleMusic?: string;
+  /** Catalog id for the persistent player; enables the inline play button. */
+  playableId?: string;
 };
 
 export function Track({
@@ -34,9 +38,21 @@ export function Track({
   defaultOpen = false,
   spotify,
   appleMusic,
+  playableId,
 }: TrackProps) {
   const [open, setOpen] = useState(defaultOpen);
   const drawerId = useId();
+  const player = usePlayer();
+  const playable = playableId ? trackById(playableId) : null;
+  const isCurrent = !!playable && player.current?.id === playable.id;
+  const isThisPlaying = isCurrent && player.isPlaying;
+
+  const handlePlay = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!playable) return;
+    if (isCurrent) player.toggle();
+    else player.play(playable);
+  };
 
   const titleSize =
     density === "spacious"
@@ -48,12 +64,25 @@ export function Track({
 
   return (
     <li className="border-t border-rule">
+      <div className="relative">
+        {playable ? (
+          <button
+            type="button"
+            onClick={handlePlay}
+            aria-label={isThisPlaying ? `Pause ${title}` : `Play ${title}`}
+            data-cursor="hover"
+            className="absolute left-0 top-1/2 z-10 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border border-rule text-ink-2 transition-colors hover:text-ink"
+            style={isCurrent ? { color: playable.accent, borderColor: playable.accent } : undefined}
+          >
+            {isThisPlaying ? <Pause size={13} strokeWidth={1.6} /> : <Play size={13} strokeWidth={1.6} />}
+          </button>
+        ) : null}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={drawerId}
-        className={`w-full text-left grid grid-cols-12 items-baseline gap-3 ${buttonPad} transition-colors text-ink-2 hover:text-ink track-row ${open ? "open" : ""}`}
+        className={`w-full text-left grid grid-cols-12 items-baseline gap-3 ${buttonPad} ${playable ? "pl-10" : ""} transition-colors text-ink-2 hover:text-ink track-row ${open ? "open" : ""}`}
       >
         <span className="col-span-1 font-mono text-[11px] tracking-[0.12em] text-ink-3 pt-1">
           {String(n).padStart(2, "0")}
@@ -72,6 +101,7 @@ export function Track({
           </span>
         </span>
       </button>
+      </div>
       <div id={drawerId} className={`lyrics-drawer ${open ? "open" : ""}`}>
         <div className="grid grid-cols-12 gap-3 pb-8 md:pb-12">
           <div

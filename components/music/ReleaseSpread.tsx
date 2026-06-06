@@ -4,6 +4,7 @@ import { Reveal } from "@/components/Reveal";
 import { SectionLabel } from "@/components/home/SectionLabel";
 import { ReleaseArtwork } from "@/components/home/ReleaseArtwork";
 import { Track } from "./Track";
+import { trackByTitle } from "@/lib/player/catalog";
 import { AppleIcon, SpotifyIcon } from "@/components/icons";
 import type { SanityImage } from "@/lib/queries";
 import type { Vibe } from "@/lib/static-content";
@@ -134,6 +135,7 @@ export function ReleaseSpread({ index, side, release }: Props) {
                     placeholder={t.placeholder}
                     spotify={t.spotify}
                     appleMusic={t.appleMusic}
+                    playableId={trackByTitle(t.title)?.id}
                     density="compact"
                   />
                 ))}
