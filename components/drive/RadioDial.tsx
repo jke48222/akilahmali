@@ -146,9 +146,29 @@ export function RadioDial({
           </span>
         </div>
 
-        <p className="mt-2 line-clamp-2 font-mono text-[11px] italic leading-relaxed text-white/65">
-          “{station.hookText}”
-        </p>
+        <div className="mt-2 flex items-end justify-between gap-3">
+          <p className="line-clamp-2 flex-1 font-mono text-[11px] italic leading-relaxed text-white/65">
+            “{station.hookText}”
+          </p>
+          {onSelect && (
+            <button
+              type="button"
+              onClick={() => onSelect(tuned)}
+              className="shrink-0 rounded-full border px-4 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] transition-colors"
+              style={{ borderColor: accent, color: accent }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = accent;
+                e.currentTarget.style.color = "#0a0204";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = accent;
+              }}
+            >
+              ▶ drive in
+            </button>
+          )}
+        </div>
 
         {/* ---- the dial: prev / ticks / next ---- */}
         <div className="mt-4 flex items-center gap-3">

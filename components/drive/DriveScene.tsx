@@ -17,6 +17,7 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef, type RefObject } from "react";
+import gsap from "gsap";
 import * as THREE from "three";
 import { isCoarsePointer } from "@/lib/device";
 import { CityLoop } from "@/components/drive/CityLoop";
@@ -73,6 +74,11 @@ function PaletteTween({
 const HOME_POS = new THREE.Vector3(0, 1.18, 3.4);
 const HOME_LOOK = new THREE.Vector3(0, 0.85, -14);
 
+/* The through-windshield push: lunge forward off the seat, accelerating into
+   the city, while StationFilm crossfades in over the still-moving camera. */
+const PUSH_POS = new THREE.Vector3(0, 1.0, -9);
+const PUSH_LOOK = new THREE.Vector3(0, 0.8, -48);
+
 /* ---- sample the analyser into a shared 0..1 energy each frame ---- */
 function EnergyProbe({
   analyserRef,
@@ -108,21 +114,60 @@ function CameraController({
   const { camera } = useThree();
   const target = useRef(HOME_LOOK.clone());
   const locked = useRef(false);
+  const tween = useRef<gsap.core.Tween | null>(null);
+
+  function tweenTo(pos: THREE.Vector3, look: THREE.Vector3, dur: number, ease: string, onDone?: () => void) {
+    locked.current = true;
+    tween.current?.kill();
+    const p = {
+      px: camera.position.x, py: camera.position.y, pz: camera.position.z,
+      tx: target.current.x, ty: target.current.y, tz: target.current.z,
+    };
+    tween.current = gsap.to(p, {
+      px: pos.x, py: pos.y, pz: pos.z, tx: look.x, ty: look.y, tz: look.z,
+      duration: dur,
+      ease,
+      onUpdate: () => {
+        camera.position.set(p.px, p.py, p.pz);
+        target.current.set(p.tx, p.ty, p.tz);
+        camera.lookAt(target.current);
+      },
+      onComplete: onDone,
+    });
+  }
 
   useEffect(() => {
     camera.position.copy(HOME_POS);
     target.current.copy(HOME_LOOK);
     camera.lookAt(target.current);
-    // Minimal api for M3 (no film yet) — the real GSAP through-windshield push
-    // + reset land in M5. Calling focus simply reports arrival.
+    const once = (cb?: () => void) => {
+      let done = false;
+      return () => {
+        if (done) return;
+        done = true;
+        cb?.();
+      };
+    };
     apiRef.current = {
-      focus: (_index, onArrive) => onArrive?.(),
+      focus: (_index, onArrive) => {
+        const fire = once(onArrive);
+        // accelerate forward through the windshield, keep pushing a beat PAST
+        // the hand-off so the film crossfades in over a still-moving camera
+        tweenTo(PUSH_POS, PUSH_LOOK, 1.6, "power3.in");
+        setTimeout(fire, 1050);
+        setTimeout(fire, 1900); // fallback (rAF can be paused in a hidden tab)
+      },
       reset: (onHome) => {
-        locked.current = false;
-        onHome?.();
+        const fire = once(() => {
+          locked.current = false;
+          onHome?.();
+        });
+        tweenTo(HOME_POS, HOME_LOOK, 1.15, "power2.out", fire);
+        setTimeout(fire, 1500);
       },
     };
     return () => {
+      tween.current?.kill();
       apiRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
