@@ -362,9 +362,11 @@ export function PersistentPlayer() {
     <div className="fixed bottom-6 right-6 z-[55] flex flex-col items-end gap-3">
       {expanded && (
         <div
-          className="w-72 rounded-[22px] border border-white/10 bg-white/[0.06] p-4 text-white backdrop-blur-2xl"
+          className="w-72 rounded-[22px] border border-white/10 p-4 text-white backdrop-blur-2xl"
           style={{
-            boxShadow: `0 0 0 1px ${accent}26, 0 18px 50px -12px ${accent}40, 0 10px 40px rgba(0,0,0,0.45)`,
+            // Dark glass so white text + accent read on the site's light theme.
+            background: "rgba(14, 12, 20, 0.88)",
+            boxShadow: `0 0 0 1px ${accent}40, 0 18px 50px -12px ${accent}55, 0 12px 44px rgba(0,0,0,0.5)`,
           }}
         >
           <div className="flex items-start justify-between gap-2">
@@ -375,7 +377,7 @@ export function PersistentPlayer() {
               <p className="mt-1.5 truncate font-display italic text-[20px] leading-tight">
                 {current!.title}
               </p>
-              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/45">
+              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/60">
                 {current!.artist}
               </p>
             </div>
