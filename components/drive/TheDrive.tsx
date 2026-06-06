@@ -23,6 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import { DriveScene, type DriveApi } from "@/components/drive/DriveScene";
 import { DriveCover } from "@/components/drive/DriveCover";
 import { RadioDial } from "@/components/drive/RadioDial";
+import { StationFilm } from "@/components/drive/StationFilm";
 import { STATIONS, stationIndexForSong } from "@/lib/drive/stations";
 
 // 1-sample silent wav — played UNMUTED once on START to bless the audio element
@@ -170,8 +171,40 @@ export function TheDrive() {
     setTuned(next);
   }
 
+  // Select the tuned station → push the camera through the windshield, then
+  // mount its film as the push lands (seamless hand-off, like GridScene.focus).
+  function openStation(i: number) {
+    setTuned(i);
+    apiRef.current?.focus(i, () => setActive(i));
+  }
+
+  // Inside a film, prev/next tunes to the adjacent station's film.
+  function handleFilmIndex(i: number) {
+    if (i !== tuned) playStatic();
+    setTuned(i);
+    setActive(i);
+  }
+
+  // Back to the drive: unmount the film (its audio keeps looping as ambience)
+  // and reverse the camera to the passenger seat.
+  function handleBack() {
+    setActive(null);
+    apiRef.current?.reset();
+  }
+
   const live = entered && !showCover;
   const filmOpen = active !== null;
+
+  // Deep link: once live, if a ?song=/?station= target was set, drive straight
+  // into its film — consuming it so "back to the drive" returns normally.
+  useEffect(() => {
+    if (live && bootStationRef.current !== null && active === null) {
+      const i = bootStationRef.current;
+      bootStationRef.current = null;
+      openStation(i);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [live, active]);
 
   // Idle ambience: the TUNED station's 30s preview plays low on the single
   // unlocked <audio> element while on the drive; a film raises it (M5). One
@@ -207,7 +240,16 @@ export function TheDrive() {
       />
       {/* CityLoop/Rain (M3), StationFilm (M5) mount here */}
       {live && !filmOpen && (
-        <RadioDial stations={STATIONS} tuned={tuned} onTune={handleTune} />
+        <RadioDial stations={STATIONS} tuned={tuned} onTune={handleTune} onSelect={openStation} />
+      )}
+      {filmOpen && (
+        <StationFilm
+          stations={STATIONS}
+          index={active}
+          onIndex={handleFilmIndex}
+          onBack={handleBack}
+          audioRef={audioRef}
+        />
       )}
       {showCover && <DriveCover onEnter={handleEnter} onDone={() => setShowCover(false)} />}
     </div>
