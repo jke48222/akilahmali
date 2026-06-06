@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import NextLink from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { WhoReallyWonClient } from "@/components/wrw/grid/WhoReallyWonClient";
+import { TheDriveClient } from "@/components/drive/TheDriveClient";
 import type { Metadata } from "next";
 import { Reveal } from "@/components/Reveal";
 import { SectionLabel } from "@/components/home/SectionLabel";
@@ -204,6 +205,9 @@ export default async function ReleaseDetailPage({
 
   // The "Who Really Won?" release IS the immersive control-room experience.
   if (slug === "who-really-won") return <WhoReallyWonClient />;
+
+  // The "Endless Cycle" album IS the immersive night-drive experience, THE DRIVE.
+  if (slug === "endless-cycle") return <TheDriveClient />;
 
   // Releases that have a blast in the control room go straight into it.
   if (feedIndexForReleaseSlug(slug) !== null) {
