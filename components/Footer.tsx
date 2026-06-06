@@ -42,7 +42,7 @@ export function Footer() {
         <div className="h-px w-full bg-rule" />
         <div className="grid grid-cols-12 gap-6 md:gap-10 py-10 md:py-14">
           <div className="col-span-12 md:col-span-4">
-            <Wordmark className="text-[44px] md:text-[64px] text-ink" title="Akilah Mali" />
+            <Wordmark fit className="w-full max-w-[260px] text-ink" title="Akilah Mali" />
             <p className="mt-3 font-mono text-mono-xs uppercase tracking-caps-md text-ink-3">
               akilah mali · b. 2005 · est. 2025
             </p>

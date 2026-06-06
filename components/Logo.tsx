@@ -11,9 +11,13 @@
 export function Wordmark({
   className,
   title = "Akilah Mali",
+  fit = false,
 }: {
   className?: string;
   title?: string;
+  /** Size by container WIDTH (fills 100%, height follows aspect) instead of by
+   *  font-size. Use in fixed-width columns so the long wordmark never overflows. */
+  fit?: boolean;
 }) {
   return (
     <svg
@@ -21,7 +25,11 @@ export function Wordmark({
       role="img"
       aria-label={title}
       className={className}
-      style={{ height: "1em", width: "auto", display: "block", overflow: "visible" }}
+      style={
+        fit
+          ? { width: "100%", height: "auto", display: "block", overflow: "visible" }
+          : { height: "1em", width: "auto", display: "block", overflow: "visible" }
+      }
     >
       <text
         x="0"

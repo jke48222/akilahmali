@@ -16,6 +16,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play, SkipBack, SkipForward, X } from "lucide-react";
 import { usePlayer } from "./PlayerProvider";
+import { CATALOG } from "@/lib/player/catalog";
 
 // Routes that own their own audio — keep the global orb out of the way.
 const SILENCED_PREFIXES = ["/music/who-really-won"];
@@ -50,7 +51,7 @@ const hsla = (h: number, s: number, l: number, a: number) =>
   `hsla(${h.toFixed(0)}, ${(s * 100).toFixed(0)}%, ${(l * 100).toFixed(0)}%, ${a})`;
 
 export function PersistentPlayer() {
-  const { current, isPlaying, progress, toggle, pause, next, prev, seek, getAnalyser } =
+  const { current, isPlaying, progress, play, toggle, pause, next, prev, seek, getAnalyser } =
     usePlayer();
   const pathname = usePathname();
   const [expanded, setExpanded] = useState(false);
@@ -77,6 +78,7 @@ export function PersistentPlayer() {
     if (!canvas || !ctx) return;
 
     const { h, s, l } = hexToHsl(current!.accent);
+    const mode = current!.mode;
     const reduced = prefersReducedMotion();
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -177,6 +179,129 @@ export function PersistentPlayer() {
       ctx.shadowBlur = 0;
     };
 
+    // Bright liquid centre — shared identity across modes.
+    const drawCore = (energy: number, scale = 1) => {
+      const coreR = baseR * (0.55 + energy * 0.3) * scale;
+      const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+      core.addColorStop(0, hsla(h, Math.min(1, s + 0.1), 0.97, 0.95));
+      core.addColorStop(0.5, hsla(h, s, Math.min(0.85, l + 0.15), 0.5));
+      core.addColorStop(1, hsla(h, s, l, 0));
+      ctx.fillStyle = core;
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+      ctx.fill();
+    };
+
+    // AURORA — layered fluid metaballs.
+    const drawAurora = (t: number, energy: number) => {
+      drawBlob(1.0, size * 0.1, t * 0.18, 0, 0.16, 0.5, 16, energy, t);
+      drawBlob(0.84, size * 0.12, -t * 0.26, 30, 0.22, 0.5, 12, energy + treble * 0.5, t);
+      drawBlob(0.66, size * 0.13, t * 0.34, -28, 0.3, 0.6, 10, energy + treble, t);
+      drawCore(energy);
+    };
+
+    // WAVE — a circular oscilloscope ribbon that ripples with the spectrum.
+    const drawWave = (t: number, energy: number) => {
+      const N = 96;
+      const ringR = baseR * 1.05;
+      const amp = size * 0.14;
+      const pts: Array<[number, number]> = [];
+      for (let i = 0; i < N; i++) {
+        const a = (i / N) * Math.PI * 2 + t * 0.25;
+        const m = i <= N / 2 ? i : N - i;
+        const fa = bins[Math.floor((m / (N / 2)) * 60)] / 255;
+        const ripple = 0.04 * Math.sin(a * 6 - t * 3);
+        const r = ringR * (1 + ripple) + fa * amp * (0.5 + energy);
+        pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]);
+      }
+      ctx.beginPath();
+      ctx.moveTo((pts[0][0] + pts[N - 1][0]) / 2, (pts[0][1] + pts[N - 1][1]) / 2);
+      for (let i = 0; i < N; i++) {
+        const cur = pts[i];
+        const nxt = pts[(i + 1) % N];
+        ctx.quadraticCurveTo(cur[0], cur[1], (cur[0] + nxt[0]) / 2, (cur[1] + nxt[1]) / 2);
+      }
+      ctx.closePath();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = hsla(h, s, Math.min(0.88, l + 0.12), 0.9);
+      ctx.shadowColor = hsla(h, s, l, 1);
+      ctx.shadowBlur = 12 + energy * 20;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      drawCore(energy, 0.7);
+    };
+
+    // BLOOM — flowering petals (k-fold symmetry), opening with the music.
+    const drawBloom = (t: number, energy: number) => {
+      const N = 120;
+      const petals = 6;
+      const R = baseR * 0.95;
+      const depth = 0.38 + energy * 0.5;
+      const pts: Array<[number, number]> = [];
+      for (let i = 0; i < N; i++) {
+        const a = (i / N) * Math.PI * 2 + t * 0.2;
+        const petal = Math.abs(Math.cos((petals * a) / 2));
+        const fa = bins[i % 64] / 255;
+        const r = R * (0.45 + depth * petal) + fa * size * 0.05;
+        pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]);
+      }
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < N; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+      ctx.closePath();
+      const grad = ctx.createRadialGradient(cx, cy, R * 0.1, cx, cy, R * (0.45 + depth));
+      grad.addColorStop(0, hsla(h, s, Math.min(0.92, l + 0.2), 0.85));
+      grad.addColorStop(0.6, hsla(h, s, l, 0.5));
+      grad.addColorStop(1, hsla(h, s, l, 0));
+      ctx.fillStyle = grad;
+      ctx.shadowColor = hsla(h, s, l, 0.9);
+      ctx.shadowBlur = 14 + energy * 22;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      drawCore(energy, 0.8);
+    };
+
+    // ORBIT — particles circling at band-driven radii.
+    const drawOrbit = (t: number, energy: number) => {
+      const M = 22;
+      for (let i = 0; i < M; i++) {
+        const fa = bins[Math.floor((i / M) * 70)] / 255;
+        const a = (i / M) * Math.PI * 2 + t * (0.5 + (i % 3) * 0.18);
+        const r = baseR * (0.5 + (i % 3) * 0.22) + fa * size * 0.14 + energy * size * 0.06;
+        const x = cx + Math.cos(a) * r;
+        const y = cy + Math.sin(a) * r;
+        const rad = 1.2 + fa * 2.6;
+        ctx.beginPath();
+        ctx.arc(x, y, rad, 0, Math.PI * 2);
+        ctx.fillStyle = hsla(h + (i % 2 ? 24 : -18), s, Math.min(0.9, l + 0.1 + fa * 0.2), 0.85);
+        ctx.shadowColor = hsla(h, s, l, 1);
+        ctx.shadowBlur = 8 + fa * 14;
+        ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+      drawCore(energy, 0.7);
+    };
+
+    // PULSE — sonar rings expanding from the centre on the beat.
+    const drawPulse = (t: number, energy: number) => {
+      const rings = 4;
+      const maxR = size * 0.46;
+      for (let k = 0; k < rings; k++) {
+        const phase = (t * 0.4 + k / rings) % 1;
+        const r = phase * maxR;
+        const fade = (1 - phase) * (0.5 + energy * 0.6);
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = hsla(h, s, Math.min(0.85, l + 0.1), Math.max(0, fade));
+        ctx.lineWidth = 1.5 + energy * 2.5;
+        ctx.shadowColor = hsla(h, s, l, 0.8);
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+      }
+      ctx.shadowBlur = 0;
+      drawCore(energy);
+    };
+
     const render = (t: number) => {
       const analyser = getAnalyser();
       let rawBass = 0;
@@ -196,24 +321,23 @@ export function PersistentPlayer() {
       const energy = playingRef.current ? bass : 0;
 
       ctx.clearRect(0, 0, size, size);
-
-      // layered metaballs (additive within the canvas for an iridescent core)
       ctx.globalCompositeOperation = "lighter";
-      drawBlob(1.0, size * 0.1, t * 0.18, 0, 0.16, 0.5, 16, energy, t);
-      drawBlob(0.84, size * 0.12, -t * 0.26, 30, 0.22, 0.5, 12, energy + treble * 0.5, t);
-      drawBlob(0.66, size * 0.13, t * 0.34, -28, 0.3, 0.6, 10, energy + treble, t);
-
-      // bright liquid core
-      const coreR = baseR * (0.6 + energy * 0.3);
-      const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
-      core.addColorStop(0, hsla(h, Math.min(1, s + 0.1), 0.97, 0.95));
-      core.addColorStop(0.5, hsla(h, s, Math.min(0.85, l + 0.15), 0.5));
-      core.addColorStop(1, hsla(h, s, l, 0));
-      ctx.fillStyle = core;
-      ctx.beginPath();
-      ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
-      ctx.fill();
-
+      switch (mode) {
+        case "wave":
+          drawWave(t, energy);
+          break;
+        case "bloom":
+          drawBloom(t, energy);
+          break;
+        case "orbit":
+          drawOrbit(t, energy);
+          break;
+        case "pulse":
+          drawPulse(t, energy);
+          break;
+        default:
+          drawAurora(t, energy);
+      }
       ctx.globalCompositeOperation = "source-over";
       drawProgress(energy);
     };
@@ -262,6 +386,42 @@ export function PersistentPlayer() {
             >
               <X size={16} strokeWidth={1.4} />
             </button>
+          </div>
+
+          {/* song picker — choose any track to play */}
+          <div className="mt-3 max-h-44 space-y-0.5 overflow-y-auto pr-1">
+            {CATALOG.map((t) => {
+              const active = current!.id === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => play(t)}
+                  className="flex w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-white/10"
+                >
+                  <span
+                    className="grid h-5 w-5 shrink-0 place-items-center"
+                    style={{ color: active ? accent : "rgba(255,255,255,0.5)" }}
+                  >
+                    {active && isPlaying ? (
+                      <Pause size={11} strokeWidth={2} />
+                    ) : (
+                      <Play size={11} strokeWidth={2} className="ml-px" />
+                    )}
+                  </span>
+                  <span
+                    className="min-w-0 flex-1 truncate text-[13px] leading-tight"
+                    style={active ? { color: accent } : { color: "rgba(255,255,255,0.78)" }}
+                  >
+                    {t.title}
+                  </span>
+                  {active ? (
+                    <span className="font-mono text-[8px] uppercase tracking-[0.22em] text-white/40">
+                      {isPlaying ? "playing" : "paused"}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
           </div>
 
           <input
