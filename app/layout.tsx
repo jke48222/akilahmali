@@ -90,6 +90,9 @@ export const viewport: Viewport = {
   themeColor: "#EDE8F2",
   width: "device-width",
   initialScale: 1,
+  // render edge-to-edge into the iOS safe areas (under the Dynamic Island / home
+  // indicator) so the site is truly full-screen on mobile browsers
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

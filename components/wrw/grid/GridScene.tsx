@@ -46,18 +46,22 @@ function focusFor(feed: Feed, fov: number, aspect: number) {
 function homeFor(aspect: number) {
   let fov = 48;
   let back = 0;
+  const target = HOME_TARGET.clone();
+  // On portrait/mobile the bank otherwise sits tiny in a sea of empty room, so
+  // pull the camera IN (smaller back) and tighten the FOV so the monitors fill
+  // the frame while still keeping all 7 monitors in view.
   if (aspect < 0.6) {
-    fov = 72;
-    back = 1.9;
+    fov = 64;
+    back = 0.7;
   } else if (aspect < 0.85) {
-    fov = 62;
-    back = 1.1;
-  } else if (aspect < 1.2) {
     fov = 54;
-    back = 0.5;
+    back = 0.0;
+  } else if (aspect < 1.2) {
+    fov = 50;
+    back = 0.3;
   }
   const dir = HOME_POS.clone().sub(HOME_TARGET).normalize();
-  return { pos: HOME_POS.clone().add(dir.multiplyScalar(back)), fov };
+  return { pos: HOME_POS.clone().add(dir.multiplyScalar(back)), fov, target };
 }
 
 function CameraController({ apiRef }: { apiRef: RefObject<GridApi | null> }) {
@@ -74,7 +78,7 @@ function CameraController({ apiRef }: { apiRef: RefObject<GridApi | null> }) {
     pc.updateProjectionMatrix();
     if (!locked.current) {
       pc.position.copy(home.current.pos);
-      target.current.copy(HOME_TARGET);
+      target.current.copy(home.current.target);
       pc.lookAt(target.current);
     }
   }, [camera, size.width, size.height]);
@@ -123,7 +127,7 @@ function CameraController({ apiRef }: { apiRef: RefObject<GridApi | null> }) {
           locked.current = false;
           onHome?.();
         });
-        tweenTo(home.current.pos, HOME_TARGET, 1.2, fire);
+        tweenTo(home.current.pos, home.current.target, 1.2, fire);
         setTimeout(fire, 1500);
       },
     };
@@ -140,7 +144,7 @@ function CameraController({ apiRef }: { apiRef: RefObject<GridApi | null> }) {
     camera.position.x += (hp.x + pointer.x * 0.35 - camera.position.x) * 0.04;
     camera.position.y += (hp.y + pointer.y * 0.22 - camera.position.y) * 0.04;
     camera.position.z += (hp.z - camera.position.z) * 0.04;
-    target.current.lerp(HOME_TARGET, 0.06);
+    target.current.lerp(home.current.target, 0.06);
     camera.lookAt(target.current);
   });
 
