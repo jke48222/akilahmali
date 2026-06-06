@@ -38,6 +38,8 @@ export function TheDrive() {
   const [tuned, setTuned] = useState(0); // currently tuned-in station
   const apiRef = useRef<DriveApi | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
 
   // Deep link: /music/endless-cycle?song=… (or ?station=N) tunes straight to
   // that station, and (once entered) jumps into its film — see the boot effect
@@ -60,7 +62,7 @@ export function TheDrive() {
     }
   }, []);
 
-  // Release the unlocked audio element on unmount.
+  // Release the unlocked audio element + audio graph on unmount.
   useEffect(() => {
     return () => {
       const a = audioRef.current;
@@ -69,6 +71,7 @@ export function TheDrive() {
         a.removeAttribute("src");
         a.load();
       }
+      audioCtxRef.current?.close().catch(() => {});
     };
   }, []);
 
@@ -108,6 +111,31 @@ export function TheDrive() {
       })
       .catch(() => {});
     audioRef.current = a;
+
+    // Build the Web Audio graph INSIDE the gesture (createMediaElementSource +
+    // resume both require it) so the rain/city can react to the live frequency
+    // data. One source per element; the element's output now routes through the
+    // analyser to the speakers. Mirrors PlayerProvider.ensureGraph.
+    try {
+      const AC: typeof AudioContext =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (AC) {
+        const ctx = new AC();
+        const source = ctx.createMediaElementSource(a);
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.82;
+        source.connect(analyser);
+        analyser.connect(ctx.destination);
+        if (ctx.state === "suspended") void ctx.resume();
+        audioCtxRef.current = ctx;
+        analyserRef.current = analyser;
+      }
+    } catch {
+      /* analyser is a progressive enhancement — the drive still runs without it */
+    }
+
     setEntered(true);
   }
 
@@ -133,9 +161,19 @@ export function TheDrive() {
     a.play().catch(() => {});
   }, [live, tuned, filmOpen]);
 
+  const skin = STATIONS[tuned] ?? STATIONS[0];
+
   return (
     <div className="fixed inset-0 z-[60] h-[100dvh] w-screen overflow-hidden bg-[#0a0204] text-white">
-      <DriveScene apiRef={apiRef} enabled={live && !filmOpen} rendering={entered && !filmOpen} />
+      <DriveScene
+        apiRef={apiRef}
+        enabled={live && !filmOpen}
+        rendering={entered && !filmOpen}
+        analyserRef={analyserRef}
+        accent={skin.accent}
+        accent2={skin.accent2}
+        skyColor={skin.skyColor}
+      />
       {/* CityLoop/Rain (M3), StationFilm (M5) mount here */}
       {live && !filmOpen && (
         <RadioDial stations={STATIONS} tuned={tuned} onTune={setTuned} />
