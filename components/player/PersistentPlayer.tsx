@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from "react";
 import { Pause, Play, SkipBack, SkipForward, X } from "lucide-react";
 import { usePlayer } from "./PlayerProvider";
 import { CATALOG } from "@/lib/player/catalog";
+import { AppleIcon, SpotifyIcon } from "@/components/icons";
 
 // Routes that own their own audio — keep the global orb out of the way.
 const SILENCED_PREFIXES = ["/music/who-really-won"];
@@ -78,8 +79,24 @@ export function PersistentPlayer() {
     if (!canvas || !ctx) return;
 
     const { h, s, l } = hexToHsl(current!.accent);
+    const c2 = hexToHsl(current!.accent2);
     const mode = current!.mode;
     const reduced = prefersReducedMotion();
+
+    // Two-tone palette helpers: blend the track's accent → accent2 along [0,1]
+    // for richer, prettier gradients than a single hue.
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+    const lerpHue = (a: number, b: number, t: number) => {
+      const d = ((b - a + 540) % 360) - 180;
+      return (a + d * t + 360) % 360;
+    };
+    const col = (mix: number, alpha: number, dl = 0) =>
+      hsla(
+        lerpHue(h, c2.h, mix),
+        lerp(s, c2.s, mix),
+        Math.min(0.96, lerp(l, c2.l, mix) + dl),
+        alpha,
+      );
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const size = canvas.clientWidth || 120;
@@ -103,7 +120,7 @@ export function PersistentPlayer() {
       scale: number,
       amp: number,
       rot: number,
-      hueShift: number,
+      mix: number,
       light: number,
       alpha: number,
       blur: number,
@@ -137,11 +154,11 @@ export function PersistentPlayer() {
       ctx.closePath();
 
       const grad = ctx.createRadialGradient(cx, cy, R * 0.15, cx, cy, R + amp);
-      grad.addColorStop(0, hsla(h + hueShift, s, Math.min(0.92, l + light), alpha));
-      grad.addColorStop(0.55, hsla(h + hueShift, s, l, alpha * 0.65));
-      grad.addColorStop(1, hsla(h + hueShift, s, l, 0));
+      grad.addColorStop(0, col(mix, alpha, light));
+      grad.addColorStop(0.55, col(mix, alpha * 0.65));
+      grad.addColorStop(1, col(mix, 0));
       ctx.fillStyle = grad;
-      ctx.shadowColor = hsla(h + hueShift, s, l, 0.8);
+      ctx.shadowColor = col(mix, 0.8);
       ctx.shadowBlur = blur + energy * 22;
       ctx.fill();
       ctx.shadowBlur = 0;
@@ -154,16 +171,16 @@ export function PersistentPlayer() {
       // faint full track
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.strokeStyle = hsla(h, s, l, 0.14);
+      ctx.strokeStyle = col(0, 0.14);
       ctx.lineWidth = 1.5;
       ctx.stroke();
-      // played arc
+      // played arc (accent → accent2 along its sweep via the head colour)
       ctx.beginPath();
       ctx.arc(cx, cy, r, start, end);
-      ctx.strokeStyle = hsla(h, s, Math.min(0.85, l + 0.1), 0.95);
+      ctx.strokeStyle = col(progressRef.current, 0.95, 0.1);
       ctx.lineWidth = 2;
       ctx.lineCap = "round";
-      ctx.shadowColor = hsla(h, s, l, 0.9);
+      ctx.shadowColor = col(progressRef.current, 0.9);
       ctx.shadowBlur = 6 + energy * 10;
       ctx.stroke();
       ctx.shadowBlur = 0;
@@ -172,8 +189,8 @@ export function PersistentPlayer() {
       const hy = cy + Math.sin(end) * r;
       ctx.beginPath();
       ctx.arc(hx, hy, 2.4, 0, Math.PI * 2);
-      ctx.fillStyle = hsla(h, s, 0.95, 1);
-      ctx.shadowColor = hsla(h, s, l, 1);
+      ctx.fillStyle = col(progressRef.current, 1, 0.25);
+      ctx.shadowColor = col(progressRef.current, 1);
       ctx.shadowBlur = 10;
       ctx.fill();
       ctx.shadowBlur = 0;
@@ -183,20 +200,20 @@ export function PersistentPlayer() {
     const drawCore = (energy: number, scale = 1) => {
       const coreR = baseR * (0.55 + energy * 0.3) * scale;
       const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
-      core.addColorStop(0, hsla(h, Math.min(1, s + 0.1), 0.97, 0.95));
-      core.addColorStop(0.5, hsla(h, s, Math.min(0.85, l + 0.15), 0.5));
-      core.addColorStop(1, hsla(h, s, l, 0));
+      core.addColorStop(0, col(0, 0.95, 0.32));
+      core.addColorStop(0.5, col(0.4, 0.5, 0.1));
+      core.addColorStop(1, col(0, 0));
       ctx.fillStyle = core;
       ctx.beginPath();
       ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
       ctx.fill();
     };
 
-    // AURORA — layered fluid metaballs.
+    // AURORA — layered fluid metaballs blending accent → accent2.
     const drawAurora = (t: number, energy: number) => {
       drawBlob(1.0, size * 0.1, t * 0.18, 0, 0.16, 0.5, 16, energy, t);
-      drawBlob(0.84, size * 0.12, -t * 0.26, 30, 0.22, 0.5, 12, energy + treble * 0.5, t);
-      drawBlob(0.66, size * 0.13, t * 0.34, -28, 0.3, 0.6, 10, energy + treble, t);
+      drawBlob(0.84, size * 0.12, -t * 0.26, 0.55, 0.22, 0.5, 12, energy + treble * 0.5, t);
+      drawBlob(0.66, size * 0.13, t * 0.34, 1, 0.3, 0.6, 10, energy + treble, t);
       drawCore(energy);
     };
 
@@ -223,8 +240,8 @@ export function PersistentPlayer() {
       }
       ctx.closePath();
       ctx.lineWidth = 2;
-      ctx.strokeStyle = hsla(h, s, Math.min(0.88, l + 0.12), 0.9);
-      ctx.shadowColor = hsla(h, s, l, 1);
+      ctx.strokeStyle = col(0.35, 0.92, 0.12);
+      ctx.shadowColor = col(0, 1);
       ctx.shadowBlur = 12 + energy * 20;
       ctx.stroke();
       ctx.shadowBlur = 0;
@@ -250,11 +267,11 @@ export function PersistentPlayer() {
       for (let i = 1; i < N; i++) ctx.lineTo(pts[i][0], pts[i][1]);
       ctx.closePath();
       const grad = ctx.createRadialGradient(cx, cy, R * 0.1, cx, cy, R * (0.45 + depth));
-      grad.addColorStop(0, hsla(h, s, Math.min(0.92, l + 0.2), 0.85));
-      grad.addColorStop(0.6, hsla(h, s, l, 0.5));
-      grad.addColorStop(1, hsla(h, s, l, 0));
+      grad.addColorStop(0, col(0, 0.85, 0.2));
+      grad.addColorStop(0.6, col(0.6, 0.5));
+      grad.addColorStop(1, col(1, 0));
       ctx.fillStyle = grad;
-      ctx.shadowColor = hsla(h, s, l, 0.9);
+      ctx.shadowColor = col(0.3, 0.9);
       ctx.shadowBlur = 14 + energy * 22;
       ctx.fill();
       ctx.shadowBlur = 0;
@@ -273,8 +290,8 @@ export function PersistentPlayer() {
         const rad = 1.2 + fa * 2.6;
         ctx.beginPath();
         ctx.arc(x, y, rad, 0, Math.PI * 2);
-        ctx.fillStyle = hsla(h + (i % 2 ? 24 : -18), s, Math.min(0.9, l + 0.1 + fa * 0.2), 0.85);
-        ctx.shadowColor = hsla(h, s, l, 1);
+        ctx.fillStyle = col(i % 2 ? 1 : 0, 0.85, 0.1 + fa * 0.2);
+        ctx.shadowColor = col(0.5, 1);
         ctx.shadowBlur = 8 + fa * 14;
         ctx.fill();
       }
@@ -292,9 +309,9 @@ export function PersistentPlayer() {
         const fade = (1 - phase) * (0.5 + energy * 0.6);
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.strokeStyle = hsla(h, s, Math.min(0.85, l + 0.1), Math.max(0, fade));
+        ctx.strokeStyle = col(phase, Math.max(0, fade), 0.1);
         ctx.lineWidth = 1.5 + energy * 2.5;
-        ctx.shadowColor = hsla(h, s, l, 0.8);
+        ctx.shadowColor = col(0, 0.8);
         ctx.shadowBlur = 8;
         ctx.stroke();
       }
@@ -378,7 +395,7 @@ export function PersistentPlayer() {
                 {current!.title}
               </p>
               <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/60">
-                {current!.artist}
+                {current!.artist} · 30s preview
               </p>
             </div>
             <button
@@ -455,6 +472,31 @@ export function PersistentPlayer() {
             <button onClick={next} aria-label="Next track" className="text-white/60 transition-colors hover:text-white">
               <SkipForward size={18} strokeWidth={1.4} />
             </button>
+          </div>
+
+          {/* Stream the FULL song where it counts — the site only previews. */}
+          <div className="mt-4 border-t border-white/10 pt-3">
+            <p className="mb-2 text-center font-mono text-[8px] uppercase tracking-[0.24em] text-white/40">
+              stream the full song
+            </p>
+            <div className="flex items-center gap-2">
+              <a
+                href={current!.spotify}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-white/10 py-2 text-[11px] font-medium transition-colors hover:bg-white/20"
+              >
+                <SpotifyIcon width="14" height="14" /> Spotify
+              </a>
+              <a
+                href={current!.apple}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-white/10 py-2 text-[11px] font-medium transition-colors hover:bg-white/20"
+              >
+                <AppleIcon width="13" height="13" /> Apple Music
+              </a>
+            </div>
           </div>
         </div>
       )}
