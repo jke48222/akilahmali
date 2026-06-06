@@ -78,7 +78,7 @@ export const FEEDS: Feed[] = [
     n: 2, title: "My Bed", kind: "image", src: "/images/100_0312.JPG",
     audio: "/wrw-assets/audio/my-bed.m4a", accent: "#9b8cff",
     spotify: sp("0VkYr8VpokT0L2DExqtRbG"), apple: am("my-bed", EP, "1833314189"),
-    pos: [3.508, 1.324, -4.348], size: [0.24, 0.23], rotY: -1.66, // left upper
+    pos: [3.508, 1.324, -4.338], size: [0.24, 0.23], rotY: -1.66, // left upper
   },
   {
     n: 3, title: "Gone Away", kind: "image", src: "/images/100_0324.JPG",
@@ -90,20 +90,20 @@ export const FEEDS: Feed[] = [
     n: 4, title: "Been There Once", kind: "image", src: "/images/100_0335.JPG",
     audio: "/wrw-assets/audio/been-there-once.m4a", accent: "#ff9a3c",
     spotify: sp("6UjxD0WgUJaIA3AA1I2psf"), apple: am("been-there-once", EP, "1833314192"),
-    pos: [3.517, 1.035, -4.358], size: [0.24, 0.26], rotY: -1.61, // left lower (flush on desk)
+    pos: [3.507, 1.035, -4.358], size: [0.24, 0.26], rotY: -1.61, // left lower (flush on desk)
   },
   {
     n: 5, title: "Who Really Won?", kind: "image", src: "/images/100_0347.JPG",
     audio: "/wrw-assets/audio/who-really-won.m4a", accent: "#4dffa0",
     spotify: sp("23iYibyDKBPWAYKzkJiXw2"), apple: am("who-really-won", EP, "1833314194"),
-    pos: [3.516, 1.035, -4.012], size: [0.255, 0.265], rotY: -1.42, // right lower (flush on desk)
+    pos: [3.506, 1.035, -4.012], size: [0.255, 0.265], rotY: -1.42, // right lower (flush on desk)
   },
   {
     n: 6, title: "Who Really Won Music Video", titleLines: ["Who Really Won", "Music Video"],
     kind: "video", src: "/video/who-really-won.mp4",
     // play the song track via the unlocked <audio> (reliable) while the video runs muted
     audio: "/wrw-assets/audio/who-really-won.m4a", accent: "#ff2b2b", youtube: YOUTUBE,
-    pos: [3.456, 1.324, -3.527], size: [0.22, 0.24], rotY: -1.92, // side pair, upper (angled)
+    pos: [3.456, 1.324, -3.576], size: [0.22, 0.24], rotY: -2.0, // side pair, upper (angled)
   },
   {
     n: 7, title: "Strange", tag: "SINGLE", kind: "image", src: "/images/100_0309.JPG",
