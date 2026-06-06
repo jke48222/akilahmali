@@ -1,7 +1,7 @@
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import NextLink from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { WhoReallyWon } from "@/components/wrw/grid/WhoReallyWon";
+import { WhoReallyWonClient } from "@/components/wrw/grid/WhoReallyWonClient";
 import type { Metadata } from "next";
 import { Reveal } from "@/components/Reveal";
 import { SectionLabel } from "@/components/home/SectionLabel";
@@ -202,7 +202,7 @@ export default async function ReleaseDetailPage({
   const { slug } = await params;
 
   // The "Who Really Won?" release IS the immersive control-room experience.
-  if (slug === "who-really-won") return <WhoReallyWon />;
+  if (slug === "who-really-won") return <WhoReallyWonClient />;
 
   // Releases that have a blast in the control room go straight into it.
   if (feedIndexForReleaseSlug(slug) !== null) {

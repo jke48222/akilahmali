@@ -83,6 +83,12 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  // @react-three/drei re-exports hundreds of helpers from one barrel; this makes
+  // the bundler pull only the few we import (Clone/useGLTF/useTexture/...) instead
+  // of walking the whole module graph. (lucide-react is optimized by default.)
+  experimental: {
+    optimizePackageImports: ["@react-three/drei"],
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io" },
