@@ -139,6 +139,37 @@ export function TheDrive() {
     setEntered(true);
   }
 
+  // Analog static between stations: a short band-passed white-noise burst on the
+  // shared AudioContext, masking the ambience src swap — the radio "tuning" sound.
+  function playStatic() {
+    const ctx = audioCtxRef.current;
+    if (!ctx) return;
+    const dur = 0.22;
+    const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
+    const ch = buf.getChannelData(0);
+    for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const bp = ctx.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 1700;
+    bp.Q.value = 0.5;
+    const g = ctx.createGain();
+    const now = ctx.currentTime;
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.16, now + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    src.connect(bp).connect(g).connect(ctx.destination);
+    src.start(now);
+    src.stop(now + dur);
+  }
+
+  function handleTune(next: number) {
+    if (next === tuned) return;
+    playStatic();
+    setTuned(next);
+  }
+
   const live = entered && !showCover;
   const filmOpen = active !== null;
 
@@ -176,7 +207,7 @@ export function TheDrive() {
       />
       {/* CityLoop/Rain (M3), StationFilm (M5) mount here */}
       {live && !filmOpen && (
-        <RadioDial stations={STATIONS} tuned={tuned} onTune={setTuned} />
+        <RadioDial stations={STATIONS} tuned={tuned} onTune={handleTune} />
       )}
       {showCover && <DriveCover onEnter={handleEnter} onDone={() => setShowCover(false)} />}
     </div>

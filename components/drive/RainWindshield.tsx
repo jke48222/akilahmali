@@ -17,6 +17,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { isCoarsePointer } from "@/lib/device";
+import { type Palette } from "@/components/drive/DriveScene";
 
 const VERT = /* glsl */ `
   varying vec2 vUv;
@@ -101,12 +102,12 @@ const FRAG = /* glsl */ `
 
 export function RainWindshield({
   energyRef,
-  tint,
+  paletteRef,
 }: {
   /** live audio energy 0..1, written each frame by DriveScene */
   energyRef: RefObject<number>;
-  /** the tuned station accent (crimson family) */
-  tint: string;
+  /** the live, eased world palette (tint = accent) */
+  paletteRef: RefObject<Palette>;
 }) {
   const { camera, size } = useThree();
   const meshRef = useRef<THREE.Mesh>(null);
@@ -117,10 +118,10 @@ export function RainWindshield({
       uTime: { value: 0 },
       uIntensity: { value: 0 },
       uAspect: { value: 1 },
-      uTint: { value: new THREE.Color(tint) },
+      uTint: { value: new THREE.Color("#ff3a46") },
       uQuality: { value: coarse ? 0 : 1 },
     }),
-    // tint updates handled imperatively below to avoid rebuilding the material
+    // tint follows the live palette imperatively below
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [coarse],
   );
@@ -140,7 +141,7 @@ export function RainWindshield({
     uniforms.uAspect.value = size.width / size.height;
     // ease intensity toward the live energy so it pulses, not jitters
     uniforms.uIntensity.value += (energyRef.current - uniforms.uIntensity.value) * 0.12;
-    (uniforms.uTint.value as THREE.Color).set(tint);
+    (uniforms.uTint.value as THREE.Color).copy(paletteRef.current.accent);
   });
 
   return (
