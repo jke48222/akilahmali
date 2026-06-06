@@ -22,6 +22,8 @@
 import { useEffect, useRef, useState } from "react";
 import { DriveScene, type DriveApi } from "@/components/drive/DriveScene";
 import { DriveCover } from "@/components/drive/DriveCover";
+import { RadioDial } from "@/components/drive/RadioDial";
+import { STATIONS, stationIndexForSong } from "@/lib/drive/stations";
 
 // 1-sample silent wav — played UNMUTED once on START to bless the audio element
 // so the later, post-gesture play() (idle ambience / film audio, outside the
@@ -33,19 +35,28 @@ export function TheDrive() {
   const [entered, setEntered] = useState(false);
   const [showCover, setShowCover] = useState(true);
   const [active, setActive] = useState<number | null>(null); // open station film index
+  const [tuned, setTuned] = useState(0); // currently tuned-in station
   const apiRef = useRef<DriveApi | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Deep link: /music/endless-cycle?song=… (or ?station=N) jumps straight into
-  // that station's film once entered (so audio is unlocked first). The ?song →
-  // index mapping lands with stations.ts in M2; for now we honour ?station=N.
+  // Deep link: /music/endless-cycle?song=… (or ?station=N) tunes straight to
+  // that station, and (once entered) jumps into its film — see the boot effect
+  // below. Audio is unlocked on the START gesture first, so the auto-open film
+  // can play. Mirrors WhoReallyWon.tsx's bootFeedRef pattern.
   const bootStationRef = useRef<number | null>(null);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const song = params.get("song");
     const stationParam = params.get("station");
-    if (stationParam !== null) {
+    let idx: number | null = null;
+    if (song) idx = stationIndexForSong(song);
+    else if (stationParam !== null) {
       const n = Number.parseInt(stationParam, 10);
-      if (Number.isInteger(n) && n >= 0) bootStationRef.current = n;
+      if (Number.isInteger(n) && n >= 0 && n < STATIONS.length) idx = n;
+    }
+    if (idx !== null) {
+      setTuned(idx);
+      bootStationRef.current = idx;
     }
   }, []);
 
@@ -103,10 +114,32 @@ export function TheDrive() {
   const live = entered && !showCover;
   const filmOpen = active !== null;
 
+  // Idle ambience: the TUNED station's 30s preview plays low on the single
+  // unlocked <audio> element while on the drive; a film raises it (M5). One
+  // element, reused (no per-station elements) — swap src on tune. The analyser
+  // tap for the rain/city reactivity hangs off this same element in M3.
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a || !live) return;
+    const target = STATIONS[tuned]?.preview;
+    if (!target) return;
+    const abs = new URL(target, window.location.href).href;
+    if (a.src !== abs) {
+      a.src = target;
+      a.loop = true;
+    }
+    a.muted = false;
+    a.volume = filmOpen ? 0.9 : 0.32; // a film raises the same preview (M5)
+    a.play().catch(() => {});
+  }, [live, tuned, filmOpen]);
+
   return (
     <div className="fixed inset-0 z-[60] h-[100dvh] w-screen overflow-hidden bg-[#0a0204] text-white">
       <DriveScene apiRef={apiRef} enabled={live && !filmOpen} rendering={entered && !filmOpen} />
-      {/* RadioDial HUD (M2), CityLoop/Rain (M3), StationFilm (M5) mount here */}
+      {/* CityLoop/Rain (M3), StationFilm (M5) mount here */}
+      {live && !filmOpen && (
+        <RadioDial stations={STATIONS} tuned={tuned} onTune={setTuned} />
+      )}
       {showCover && <DriveCover onEnter={handleEnter} onDone={() => setShowCover(false)} />}
     </div>
   );
