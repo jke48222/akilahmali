@@ -70,31 +70,31 @@ export const SCREEN_SIZE: [number, number] = [0.24, 0.204];
 export const FEEDS: Feed[] = [
   {
     n: 1, title: "Last Year", kind: "image", src: "/images/100_0348.JPG",
-    audio: "/wrw-assets/audio/last-year.m4a", accent: "#7cf0ff",
+    audio: "/wrw-assets/audio/previews/last-year.m4a", accent: "#7cf0ff",
     spotify: sp("6kIg3mQRYjpel7qYwHaZMA"), apple: am("last-year", EP, "1833313978"),
     pos: [3.54, 1.613, -4.165], size: [0.33, 0.31], rotY: -1.39, // top, straddling 2/3
   },
   {
     n: 2, title: "My Bed", kind: "image", src: "/images/100_0312.JPG",
-    audio: "/wrw-assets/audio/my-bed.m4a", accent: "#9b8cff",
+    audio: "/wrw-assets/audio/previews/my-bed.m4a", accent: "#9b8cff",
     spotify: sp("0VkYr8VpokT0L2DExqtRbG"), apple: am("my-bed", EP, "1833314189"),
     pos: [3.508, 1.324, -4.338], size: [0.24, 0.23], rotY: -1.66, // left upper
   },
   {
     n: 3, title: "Gone Away", kind: "image", src: "/images/100_0324.JPG",
-    audio: "/wrw-assets/audio/gone-away.m4a", accent: "#c8ff4a",
+    audio: "/wrw-assets/audio/previews/gone-away.m4a", accent: "#c8ff4a",
     spotify: sp("15gG3VoteXYpZaP6Ns9s5C"), apple: am("gone-away", EP, "1833314190"),
     pos: [3.546, 1.324, -4.016], size: [0.25, 0.27], rotY: -1.46, // right upper
   },
   {
     n: 4, title: "Been There Once", kind: "image", src: "/images/100_0335.JPG",
-    audio: "/wrw-assets/audio/been-there-once.m4a", accent: "#ff9a3c",
+    audio: "/wrw-assets/audio/previews/been-there-once.m4a", accent: "#ff9a3c",
     spotify: sp("6UjxD0WgUJaIA3AA1I2psf"), apple: am("been-there-once", EP, "1833314192"),
     pos: [3.507, 1.035, -4.358], size: [0.24, 0.26], rotY: -1.61, // left lower (flush on desk)
   },
   {
     n: 5, title: "Who Really Won?", kind: "image", src: "/images/100_0347.JPG",
-    audio: "/wrw-assets/audio/who-really-won.m4a", accent: "#4dffa0",
+    audio: "/wrw-assets/audio/previews/who-really-won.m4a", accent: "#4dffa0",
     spotify: sp("23iYibyDKBPWAYKzkJiXw2"), apple: am("who-really-won", EP, "1833314194"),
     pos: [3.506, 1.035, -4.012], size: [0.255, 0.265], rotY: -1.42, // right lower (flush on desk)
   },
@@ -102,12 +102,12 @@ export const FEEDS: Feed[] = [
     n: 6, title: "Who Really Won Music Video", titleLines: ["Who Really Won", "Music Video"],
     kind: "video", src: "/video/who-really-won.mp4",
     // play the song track via the unlocked <audio> (reliable) while the video runs muted
-    audio: "/wrw-assets/audio/who-really-won.m4a", accent: "#ff2b2b", youtube: YOUTUBE,
+    audio: "/wrw-assets/audio/previews/who-really-won.m4a", accent: "#ff2b2b", youtube: YOUTUBE,
     pos: [3.456, 1.324, -3.576], size: [0.22, 0.24], rotY: -2.0, // side pair, upper (angled)
   },
   {
     n: 7, title: "Strange", tag: "SINGLE", kind: "image", src: "/images/100_0309.JPG",
-    audio: "/wrw-assets/audio/strange.m4a", accent: "#ff7cd5",
+    audio: "/wrw-assets/audio/previews/strange.m4a", accent: "#ff7cd5",
     spotify: sp("1jtebf1xPtxiwIlrlrbTi0"), apple: am("strange", "1857222138", "1857222139"),
     pos: [3.445, 1.035, -3.562], size: [0.24, 0.27], rotY: -1.7, // side pair, lower (flush on desk)
   },
