@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { ArrowRight } from "lucide-react";
+import { useHoneypot } from "@/components/ui/useHoneypot";
 
 type Status = "idle" | "submitting" | "ok" | "error";
 
@@ -11,6 +12,7 @@ export function ContactForm() {
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const { field: honeypot, values: honeypotValues } = useHoneypot();
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -23,7 +25,7 @@ export function ContactForm() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, message }),
+        body: JSON.stringify({ name, email, message, ...honeypotValues() }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -56,6 +58,7 @@ export function ContactForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-6">
+      {honeypot}
       <div>
         <label htmlFor="contact-name" className="sr-only">Name</label>
         <input

@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { ArrowRight } from "lucide-react";
+import { useHoneypot } from "@/components/ui/useHoneypot";
 
 type Status = "idle" | "submitting" | "ok" | "error";
 
@@ -13,6 +14,7 @@ export function NotifyForm({ source = "shows" }: { source?: string }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const { field: honeypot, values: honeypotValues } = useHoneypot();
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -23,7 +25,7 @@ export function NotifyForm({ source = "shows" }: { source?: string }) {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, source }),
+        body: JSON.stringify({ email, source, ...honeypotValues() }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -59,6 +61,7 @@ export function NotifyForm({ source = "shows" }: { source?: string }) {
 
   return (
     <form onSubmit={onSubmit} noValidate>
+      {honeypot}
       <input type="hidden" name="source" value={source} />
       <label htmlFor="shows-notify-email" className="sr-only">
         Email address

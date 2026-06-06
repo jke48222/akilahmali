@@ -165,7 +165,9 @@ export function BlastOverlay({
           </button>
         </div>
         <a
-          href="/shop"
+          href="https://shop.akilahmali.com"
+          target="_blank"
+          rel="noopener noreferrer"
           className="border border-white/70 px-3 py-2 text-[10px] uppercase tracking-[0.22em] transition-colors hover:border-white hover:bg-white hover:text-black sm:px-4 sm:text-[11px] sm:tracking-[0.24em]"
         >
           Merch ↗

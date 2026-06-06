@@ -26,7 +26,7 @@ const csp = [
   // Images: own origin + SVG noise + LQIP + Sanity / YouTube / Shopify CDNs.
   // `https:` is allowed so the Curator feed can load Instagram media from
   // whichever social CDN it lives on (images can't execute scripts).
-  `img-src 'self' data: blob: https: https://cdn.sanity.io https://i.ytimg.com https://cdn.shopify.com https://*.myshopify.com`,
+  `img-src 'self' data: blob: https: https://cdn.sanity.io https://i.ytimg.com`,
   // Fetch: own /api/*, Sanity API, Plausible, Vercel Analytics, Sentry, Curator.
   // `blob:` is required for the WebGL room — GLTFLoader fetch()es embedded
   // glb textures via blob: URLs (ImageBitmapLoader) before decoding.
@@ -93,8 +93,6 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io" },
       { protocol: "https", hostname: "i.ytimg.com" },
-      { protocol: "https", hostname: "cdn.shopify.com" },
-      { protocol: "https", hostname: "*.myshopify.com" },
     ],
   },
   async headers() {

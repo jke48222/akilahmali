@@ -23,6 +23,7 @@ import {
   type VideoCard,
 } from "@/lib/queries";
 import { urlForImage } from "@/lib/sanity";
+import { jsonLd } from "@/lib/structured-data";
 import { feedIndexForReleaseSlug } from "@/lib/wrw/grid";
 import { FORCE_PORTRAIT_OG, OG_PORTRAIT } from "@/lib/og";
 import {
@@ -753,7 +754,7 @@ function JsonLd({ release }: { release: DisplayRelease }) {
     <script
       type="application/ld+json"
       // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(payload) }}
+      dangerouslySetInnerHTML={{ __html: jsonLd(payload) }}
     />
   );
 }

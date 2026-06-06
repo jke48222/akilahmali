@@ -6,6 +6,7 @@ import { AboutSnippet } from "@/components/home/AboutSnippet";
 import { SocialFeed } from "@/components/home/SocialFeed";
 import { EmailCapture } from "@/components/home/EmailCapture";
 import { sanityFetch } from "@/lib/sanity";
+import { jsonLd } from "@/lib/structured-data";
 import {
   latestReleaseQuery,
   threeUpReleasesQuery,
@@ -71,7 +72,7 @@ function HomeJsonLd() {
     <script
       type="application/ld+json"
       // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(payload) }}
+      dangerouslySetInnerHTML={{ __html: jsonLd(payload) }}
     />
   );
 }
