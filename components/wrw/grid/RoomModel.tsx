@@ -1,48 +1,121 @@
 "use client";
 
 /* =========================================================================
-   THE CONTROL ROOM — the Cycles-baked Blender environment (wrw.glb). We keep
-   the GLB's OWN monitors (their real "perfect" layout + bodies) and overlay a
-   clickable, cover-cropped photo on each screen face (positions calibrated by
-   raycasting the GLB). A black backing hides the blank glass behind, so it
-   reads as the photo sitting on the monitor.
+   THE CONTROL ROOM — the Cycles-baked Blender environment (wrw.glb). The GLB's
+   own baked monitors are hidden; in their place we clone a CCTV monitor model
+   per feed and paint each feed's photo/video straight onto that model's screen
+   mesh (replacing its glass texture), so the image lives on the actual CRT.
    ========================================================================= */
 
-import { useGLTF, useTexture, useVideoTexture } from "@react-three/drei";
+import { Clone, useGLTF, useTexture, useVideoTexture } from "@react-three/drei";
 import { type ThreeEvent } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
-import { FEEDS, type Feed } from "@/lib/wrw/grid";
+import { FEEDS, SCREEN_SIZE, type Feed } from "@/lib/wrw/grid";
 import { isCoarsePointer } from "@/lib/device";
 
 const MODEL = "/wrw-assets/models/wrw.glb";
 useGLTF.preload(MODEL);
 
-/* a plane (centred at origin, facing +z) with softly rounded corners. UVs are
-   remapped to 0..1 so the cover-cropped texture still maps correctly. */
-function roundedPlane(w: number, h: number, r: number) {
-  const x = -w / 2;
-  const y = -h / 2;
-  const rad = Math.max(0.0001, Math.min(r, w / 2, h / 2));
-  const s = new THREE.Shape();
-  s.moveTo(x + rad, y);
-  s.lineTo(x + w - rad, y);
-  s.quadraticCurveTo(x + w, y, x + w, y + rad);
-  s.lineTo(x + w, y + h - rad);
-  s.quadraticCurveTo(x + w, y + h, x + w - rad, y + h);
-  s.lineTo(x + rad, y + h);
-  s.quadraticCurveTo(x, y + h, x, y + h - rad);
-  s.lineTo(x, y + rad);
-  s.quadraticCurveTo(x, y, x + rad, y);
-  const geo = new THREE.ShapeGeometry(s, 16);
-  const pos = geo.attributes.position;
-  const uv = new Float32Array(pos.count * 2);
-  for (let i = 0; i < pos.count; i++) {
-    uv[i * 2] = (pos.getX(i) - x) / w;
-    uv[i * 2 + 1] = (pos.getY(i) - y) / h;
-  }
-  geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
-  return geo;
+/* The CCTV monitor model. One is cloned per feed. It loads upright with its
+   screen facing +x, screen centred at (0.069, 0.234, 0) in its own
+   (post-node-transform) space and ~0.284 tall × 0.334 wide — measured offline
+   from the glTF. We rotate it -90° about Y so the screen faces the feed group's
+   +z (into the room), scale it so the screen height tracks the feed size, then
+   translate so the screen face lands on the feed plane. */
+const CCTV = "/wrw-assets/models/tv_cctv_monitor.glb";
+useGLTF.preload(CCTV);
+
+const CCTV_SCREEN_CENTER = [0.069, 0.234, 0] as const; // in loaded model space
+const CCTV_SCREEN_H = 0.284; // loaded screen height (world Y)
+const CCTV_SCREEN_W = 0.334; // loaded screen width (world Z → screen-local X)
+const CCTV_ZOFF = 0; // screen face sits on the feed plane (feed.pos)
+
+// one uniform scale for every monitor: shrink the model so its screen matches
+// SCREEN_SIZE. Same size everywhere → an even bank that never intersects.
+const CCTV_SCALE = SCREEN_SIZE[1] / CCTV_SCREEN_H;
+// the screen centre, after the -90°-about-Y rotation + scale, lands at
+// (0, CCTV_SCREEN_CENTER[1]·s, CCTV_SCREEN_CENTER[0]·s); offset it back to (0,0,ZOFF)
+const CCTV_POS: [number, number, number] = [
+  0,
+  -CCTV_SCREEN_CENTER[1] * CCTV_SCALE,
+  CCTV_ZOFF - CCTV_SCREEN_CENTER[0] * CCTV_SCALE,
+];
+
+const NO_RAYCAST = () => null;
+
+/* crop the feed texture to COVER the CCTV screen (5:4-ish) without squashing */
+function coverScreen(tex: THREE.Texture) {
+  const img = tex.image as { width?: number; height?: number; videoWidth?: number; videoHeight?: number } | undefined;
+  const iw = img?.width ?? img?.videoWidth ?? 0;
+  const ih = img?.height ?? img?.videoHeight ?? 0;
+  cover(tex, CCTV_SCREEN_W, CCTV_SCREEN_H, iw, ih);
+}
+
+/* Clone the CCTV model and, on mount: (1) paint this feed's texture onto the
+   screen mesh as an unlit (full-bright, "powered-on") material — the image now
+   lives on the CRT, no overlay plane, no frame; (2) darken the plastic casing to
+   the reference charcoal; (3) make only the screen a click target. */
+function CctvMonitor({ screenTex }: { screenTex: THREE.Texture }) {
+  const { scene } = useGLTF(CCTV);
+
+  const setup = (g: THREE.Group | null) => {
+    g?.traverse((o) => {
+      const mesh = o as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      if (/Screen/i.test(mesh.name)) {
+        // the screen mesh UVs run U:1..2 — normalise to 0..1 once (shared geom)
+        const geo = mesh.geometry as THREE.BufferGeometry;
+        if (!geo.userData.uvNormalized) {
+          const uv = geo.attributes.uv as THREE.BufferAttribute;
+          for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) - 1);
+          uv.needsUpdate = true;
+          geo.userData.uvNormalized = true;
+        }
+        screenTex.colorSpace = THREE.SRGBColorSpace;
+        screenTex.wrapS = screenTex.wrapT = THREE.ClampToEdgeWrapping;
+        // anisotropy is cheap on desktop but adds up on mobile; screens are
+        // viewed near head-on so a lower value is imperceptible there
+        screenTex.anisotropy = isCoarsePointer() ? 2 : 8;
+        coverScreen(screenTex);
+        // unlit so the picture stays bright like a powered screen (per-clone material)
+        mesh.material = new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false });
+      } else {
+        // plastic casing — pure decoration, and dark charcoal like the reference
+        mesh.raycast = NO_RAYCAST;
+        const mat = mesh.material as THREE.MeshStandardMaterial;
+        if (mat?.isMeshStandardMaterial && !mat.userData.cctvTuned) {
+          mat.metalness = Math.min(mat.metalness, 0.2);
+          mat.roughness = Math.max(mat.roughness, 0.7);
+          mat.color.multiplyScalar(0.5); // push the grey plastic toward charcoal
+          mat.emissiveIntensity = 0;
+          mat.needsUpdate = true;
+          mat.userData.cctvTuned = true;
+        }
+      }
+    });
+  };
+
+  return <Clone object={scene} ref={setup} position={CCTV_POS} rotation={[0, -Math.PI / 2, 0]} scale={CCTV_SCALE} />;
+}
+
+/* feed loaders — each resolves its texture, then hands it to CctvMonitor */
+function CctvImage({ feed }: { feed: Feed }) {
+  const tex = useTexture(feed.src, (t) => {
+    (t as THREE.Texture).colorSpace = THREE.SRGBColorSpace;
+  });
+  return <CctvMonitor screenTex={tex as THREE.Texture} />;
+}
+
+function CctvVideo() {
+  const tex = useVideoTexture("/video/who-really-won.mp4", { muted: true, loop: true, start: true, playsInline: true });
+  useEffect(() => {
+    const v = tex.image as HTMLVideoElement;
+    const apply = () => coverScreen(tex);
+    if (v.videoWidth) apply();
+    else v.addEventListener("loadedmetadata", apply, { once: true });
+  }, [tex]);
+  return <CctvMonitor screenTex={tex} />;
 }
 
 /* a soft radial glow texture (white→transparent) for the monitor back light.
@@ -79,40 +152,6 @@ function cover(tex: THREE.Texture, w: number, h: number, iw: number, ih: number)
   tex.needsUpdate = true;
 }
 
-function FeedImage({ src, size }: { src: string; size: [number, number] }) {
-  const tex = useTexture(src, (t) => {
-    const tt = t as THREE.Texture;
-    tt.colorSpace = THREE.SRGBColorSpace;
-    // anisotropic filtering is cheap on desktop GPUs but adds up on mobile —
-    // the monitors are viewed near head-on, so a lower value is imperceptible.
-    tt.anisotropy = isCoarsePointer() ? 2 : 8;
-    const img = tt.image as { width?: number; height?: number } | undefined;
-    cover(tt, size[0], size[1], img?.width ?? 0, img?.height ?? 0);
-  });
-  const geo = useMemo(() => roundedPlane(size[0], size[1], Math.min(size[0], size[1]) * 0.07), [size]);
-  return (
-    <mesh geometry={geo} position={[0, 0, 0.025]}>
-      <meshBasicMaterial map={tex as THREE.Texture} toneMapped={false} />
-    </mesh>
-  );
-}
-
-function FeedVideo({ size }: { src: string; size: [number, number] }) {
-  const tex = useVideoTexture("/video/who-really-won.mp4", { muted: true, loop: true, start: true, playsInline: true });
-  useEffect(() => {
-    const v = tex.image as HTMLVideoElement;
-    const apply = () => cover(tex, size[0], size[1], v.videoWidth, v.videoHeight);
-    if (v.videoWidth) apply();
-    else v.addEventListener("loadedmetadata", apply, { once: true });
-  }, [tex, size]);
-  const geo = useMemo(() => roundedPlane(size[0], size[1], Math.min(size[0], size[1]) * 0.07), [size]);
-  return (
-    <mesh geometry={geo} position={[0, 0, 0.025]}>
-      <meshBasicMaterial map={tex} toneMapped={false} />
-    </mesh>
-  );
-}
-
 function Monitor({
   feed,
   index,
@@ -125,13 +164,7 @@ function Monitor({
   enabled: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
-  // highlight frame: a CONSTANT margin around the photo (same ratio for every
-  // monitor), so the accent highlight reads identically across the grid
-  const HL = 1.14;
-  const [w, h] = feed.size;
-  const minWH = Math.min(w, h);
-  // softly rounded highlight frame; the back light is a radial glow sprite
-  const hlGeo = useMemo(() => roundedPlane(w * HL, h * HL, minWH * HL * 0.07), [w, h, minWH]);
+  const [w, h] = SCREEN_SIZE;
   const glow = useMemo(() => glowTexture(), []);
   return (
     <group
@@ -153,32 +186,24 @@ function Monitor({
         document.body.classList.remove("wrw-target");
       }}
     >
-      {/* back light: a large, soft accent glow behind the monitor that bleeds
-         out onto the wall (radial falloff + additive, so it reads as light) */}
+      {/* back light: a soft accent glow that haloes the monitor and bleeds onto
+         the wall (its centre is occluded by the casing, so it reads as a halo).
+         Brightens on hover — the only hover feedback now there's no frame. */}
       <mesh position={[0, 0, -0.06]} raycast={() => null}>
         <planeGeometry args={[w * 3, h * 3]} />
         <meshBasicMaterial
           map={glow}
           color={feed.accent}
           transparent
-          opacity={hovered && enabled ? 0.85 : 0.5}
+          opacity={hovered && enabled ? 0.7 : 0.4}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           toneMapped={false}
         />
       </mesh>
-      {/* highlight frame behind the photo — same size/crop relative to the photo
-         for every feed, with softly rounded corners; dark by default, tints to
-         this feed's accent on hover. (the GLB glass behind is already blackened) */}
-      <mesh geometry={hlGeo} position={[0, 0, 0.012]}>
-        <meshBasicMaterial color={hovered && enabled ? feed.accent : "#050506"} toneMapped={false} />
-      </mesh>
+      {/* the CCTV monitor — the feed's photo/video is painted onto its screen */}
       <Suspense fallback={null}>
-        {feed.kind === "video" ? (
-          <FeedVideo src={feed.src} size={feed.size} />
-        ) : (
-          <FeedImage src={feed.src} size={feed.size} />
-        )}
+        {feed.kind === "video" ? <CctvVideo /> : <CctvImage feed={feed} />}
       </Suspense>
     </group>
   );
@@ -195,12 +220,14 @@ export function RoomModel({
 }) {
   const { scene } = useGLTF(MODEL);
 
-  // make the GLB's blank screen meshes dark so nothing peeks past our photos
+  // hide the GLB's own baked monitors (bodies + screen glass) — the CCTV models
+  // now stand in their place. Match the monitor casings (T1/T2/T3), their screen
+  // panes (Pantalla) and the big control screen (Screen_A_Glass).
   useEffect(() => {
     scene.traverse((o) => {
       const m = o as THREE.Mesh;
-      if (m.isMesh && /Pantalla|Screen_A_Glass|MonitorT3/i.test(m.name)) {
-        m.material = new THREE.MeshBasicMaterial({ color: "#050506" });
+      if (m.isMesh && /Monitor(T1|T2|T3)|Pantalla|Screen_A_Glass/i.test(m.name)) {
+        m.visible = false;
       }
     });
   }, [scene]);

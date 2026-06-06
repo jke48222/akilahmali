@@ -16,7 +16,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useRef, type RefObject } from "react";
 import gsap from "gsap";
 import * as THREE from "three";
-import { FEEDS, type Feed } from "@/lib/wrw/grid";
+import { FEEDS, SCREEN_SIZE, type Feed } from "@/lib/wrw/grid";
 import { RoomModel } from "@/components/wrw/grid/RoomModel";
 import { isCoarsePointer } from "@/lib/device";
 
@@ -35,8 +35,8 @@ const HOME_TARGET = new THREE.Vector3(3.5, 1.32, -4.05);
    distances; a hair under 1 so there's never a sliver of room at the edges. */
 function focusFor(feed: Feed, fov: number, aspect: number) {
   const t = Math.tan((fov * Math.PI) / 180 / 2);
-  const distH = feed.size[1] / (2 * t);
-  const distW = feed.size[0] / (2 * t * aspect);
+  const distH = SCREEN_SIZE[1] / (2 * t);
+  const distW = SCREEN_SIZE[0] / (2 * t * aspect);
   const dist = Math.min(distH, distW) * 0.96;
   const nrm = new THREE.Vector3(Math.sin(feed.rotY), 0, Math.cos(feed.rotY)).normalize(); // plane normal (-x-ish)
   const pos = new THREE.Vector3(...feed.pos).add(nrm.multiplyScalar(dist));
@@ -185,6 +185,11 @@ export function GridScene({
       >
         <color attach="background" args={["#05070b"]} />
         <ambientLight intensity={0.45} />
+        {/* soft fill in front of the monitor bank so the (otherwise unlit) CCTV
+            casings get real form — and a touch of glow spills onto the desk. The
+            baked room geometry already carries its own light, so this is gentle
+            and local (high decay), aimed at the +x wall where the feeds sit. */}
+        <pointLight position={[2.7, 1.4, -4.05]} intensity={3.2} distance={3.2} decay={2} color="#cfe2ff" />
         <Suspense fallback={null}>
           <RoomModel onSelect={pick} enabled={enabled} onButton={onButton} />
         </Suspense>
