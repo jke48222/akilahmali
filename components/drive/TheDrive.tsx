@@ -175,7 +175,7 @@ export function TheDrive() {
   // mount its film as the push lands (seamless hand-off, like GridScene.focus).
   function openStation(i: number) {
     setTuned(i);
-    apiRef.current?.focus(i, () => setActive(i));
+    apiRef.current?.focus(i, () => setActive(i), STATIONS[i]?.isLandmark);
   }
 
   // Inside a film, prev/next tunes to the adjacent station's film.
@@ -237,6 +237,7 @@ export function TheDrive() {
         accent={skin.accent}
         accent2={skin.accent2}
         skyColor={skin.skyColor}
+        landmarkActive={!!skin.isLandmark}
       />
       {/* CityLoop/Rain (M3), StationFilm (M5) mount here */}
       {live && !filmOpen && (

@@ -26,6 +26,12 @@ import { type Palette } from "@/components/drive/DriveScene";
 const ROAD_DEPTH = 170; // how far the world recedes before recycling
 const NEAR_Z = 6; // a touch behind the camera — where things recycle
 
+/* The Tower of Roses — a fixed neon high-rise ahead-left, blooming with roses,
+   glimpsed through the wet window. Shared with the camera so focus() can drift
+   up it before the push (see DriveScene). */
+export const TOWER_POS = new THREE.Vector3(-7, 0, -46);
+export const TOWER_H = 40;
+
 /* ---- gradient neon sky backdrop (follows the live palette) ---- */
 function SkyBackdrop({ paletteRef }: { paletteRef: RefObject<Palette> }) {
   const uniforms = useMemo(
@@ -215,6 +221,71 @@ function Trails({ paletteRef, energyRef }: { paletteRef: RefObject<Palette>; ene
   );
 }
 
+/* ---- the Tower of Roses (fixed neon landmark, blooming with roses) ---- */
+function RosesTower({ paletteRef, landmarkActive }: { paletteRef: RefObject<Palette>; landmarkActive: boolean }) {
+  const coarse = isCoarsePointer();
+  const COUNT = coarse ? 40 : 80;
+  const bloomsRef = useRef<THREE.InstancedMesh>(null);
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const glow = useRef(0.4);
+
+  // roses clustered over the tower's faces, climbing toward the top
+  const roses = useMemo(() => {
+    const arr: { x: number; y: number; z: number; s: number; ph: number }[] = [];
+    for (let i = 0; i < COUNT; i++) {
+      const up = Math.pow(Math.random(), 0.7); // denser higher up (the bloom)
+      const face = Math.floor(Math.random() * 3); // front + two sides toward us
+      const off = (Math.random() - 0.5) * 6.6;
+      const fx = face === 1 ? 3.7 : face === 2 ? -3.7 : off;
+      const fz = face === 0 ? 3.7 : off;
+      arr.push({
+        x: TOWER_POS.x + fx,
+        y: 4 + up * (TOWER_H - 4),
+        z: TOWER_POS.z + fz,
+        s: 0.55 + Math.random() * 0.9,
+        ph: Math.random() * 6.28,
+      });
+    }
+    return arr;
+  }, [COUNT]);
+
+  useEffect(() => {
+    const mesh = bloomsRef.current;
+    if (!mesh) return;
+    roses.forEach((r, i) => {
+      dummy.position.set(r.x, r.y, r.z);
+      dummy.scale.setScalar(r.s);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+  }, [roses, dummy]);
+
+  useFrame((_, dt) => {
+    // roses glow in the live accent; bloom brighter when this is the tuned station
+    const targetGlow = landmarkActive ? 2.6 : 0.95;
+    glow.current += (targetGlow - glow.current) * Math.min(1, dt * 2.2);
+    if (matRef.current) {
+      matRef.current.color.copy(paletteRef.current.accent).multiplyScalar(glow.current);
+    }
+  });
+
+  return (
+    <group>
+      <mesh position={[TOWER_POS.x, TOWER_H / 2, TOWER_POS.z]}>
+        <boxGeometry args={[7.4, TOWER_H, 7.4]} />
+        <meshBasicMaterial color="#0a0408" />
+      </mesh>
+      <instancedMesh ref={bloomsRef} args={[undefined, undefined, COUNT]} frustumCulled={false}>
+        <icosahedronGeometry args={[0.5, 0]} />
+        {/* fog off so the neon roses glow THROUGH the wet-night haze */}
+        <meshBasicMaterial ref={matRef} toneMapped={false} fog={false} transparent opacity={0.95} blending={THREE.AdditiveBlending} depthWrite={false} />
+      </instancedMesh>
+    </group>
+  );
+}
+
 /* ---- wet asphalt (emissive sheen follows the palette) ---- */
 function Road({ paletteRef }: { paletteRef: RefObject<Palette> }) {
   const matRef = useRef<THREE.MeshStandardMaterial>(null);
@@ -241,9 +312,11 @@ function Wash({ paletteRef }: { paletteRef: RefObject<Palette> }) {
 export function CityLoop({
   paletteRef,
   energyRef,
+  landmarkActive,
 }: {
   paletteRef: RefObject<Palette>;
   energyRef: RefObject<number>;
+  landmarkActive: boolean;
 }) {
   return (
     <group>
@@ -251,6 +324,7 @@ export function CityLoop({
       <Wash paletteRef={paletteRef} />
       <Road paletteRef={paletteRef} />
       <Buildings energyRef={energyRef} />
+      <RosesTower paletteRef={paletteRef} landmarkActive={landmarkActive} />
       <Trails paletteRef={paletteRef} energyRef={energyRef} />
     </group>
   );

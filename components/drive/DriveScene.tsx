@@ -20,12 +20,14 @@ import { Suspense, useEffect, useMemo, useRef, type RefObject } from "react";
 import gsap from "gsap";
 import * as THREE from "three";
 import { isCoarsePointer } from "@/lib/device";
-import { CityLoop } from "@/components/drive/CityLoop";
+import { CityLoop, TOWER_POS } from "@/components/drive/CityLoop";
 import { RainWindshield } from "@/components/drive/RainWindshield";
+import { DashboardRose } from "@/components/drive/DashboardRose";
 
 export type DriveApi = {
-  /** push the camera through the windshield into station[index], then mount its film */
-  focus: (index: number, onArrive?: () => void) => void;
+  /** push the camera through the windshield into station[index], then mount its
+      film. When `landmark` (the Tower of Roses), drift UP the tower first. */
+  focus: (index: number, onArrive?: () => void, landmark?: boolean) => void;
   /** reverse the camera back to the home (passenger-seat) pose */
   reset: (onHome?: () => void) => void;
 };
@@ -114,26 +116,46 @@ function CameraController({
   const { camera } = useThree();
   const target = useRef(HOME_LOOK.clone());
   const locked = useRef(false);
-  const tween = useRef<gsap.core.Tween | null>(null);
+  const tween = useRef<{ kill: () => void } | null>(null);
+
+  const snap = () => ({
+    px: camera.position.x, py: camera.position.y, pz: camera.position.z,
+    tx: target.current.x, ty: target.current.y, tz: target.current.z,
+  });
+  const apply = (p: ReturnType<typeof snap>) => {
+    camera.position.set(p.px, p.py, p.pz);
+    target.current.set(p.tx, p.ty, p.tz);
+    camera.lookAt(target.current);
+  };
 
   function tweenTo(pos: THREE.Vector3, look: THREE.Vector3, dur: number, ease: string, onDone?: () => void) {
     locked.current = true;
     tween.current?.kill();
-    const p = {
-      px: camera.position.x, py: camera.position.y, pz: camera.position.z,
-      tx: target.current.x, ty: target.current.y, tz: target.current.z,
-    };
+    const p = snap();
     tween.current = gsap.to(p, {
       px: pos.x, py: pos.y, pz: pos.z, tx: look.x, ty: look.y, tz: look.z,
       duration: dur,
       ease,
-      onUpdate: () => {
-        camera.position.set(p.px, p.py, p.pz);
-        target.current.set(p.tx, p.ty, p.tz);
-        camera.lookAt(target.current);
-      },
+      onUpdate: () => apply(p),
       onComplete: onDone,
     });
+  }
+
+  // The landmark variant: drift UP the neon Tower of Roses, then push through.
+  function focusTower() {
+    locked.current = true;
+    tween.current?.kill();
+    const p = snap();
+    tween.current = gsap
+      .timeline()
+      .to(p, {
+        px: 0, py: 3.5, pz: 1.0, tx: TOWER_POS.x, ty: 27, tz: TOWER_POS.z,
+        duration: 1.5, ease: "power1.inOut", onUpdate: () => apply(p),
+      })
+      .to(p, {
+        px: PUSH_POS.x, py: PUSH_POS.y, pz: PUSH_POS.z, tx: PUSH_LOOK.x, ty: PUSH_LOOK.y, tz: PUSH_LOOK.z,
+        duration: 1.4, ease: "power3.in", onUpdate: () => apply(p),
+      });
   }
 
   useEffect(() => {
@@ -149,13 +171,21 @@ function CameraController({
       };
     };
     apiRef.current = {
-      focus: (_index, onArrive) => {
+      focus: (_index, onArrive, landmark) => {
         const fire = once(onArrive);
-        // accelerate forward through the windshield, keep pushing a beat PAST
-        // the hand-off so the film crossfades in over a still-moving camera
-        tweenTo(PUSH_POS, PUSH_LOOK, 1.6, "power3.in");
-        setTimeout(fire, 1050);
-        setTimeout(fire, 1900); // fallback (rAF can be paused in a hidden tab)
+        if (landmark) {
+          // drift UP the Tower of Roses, THEN push through — film crossfades in
+          // partway through the final push
+          focusTower();
+          setTimeout(fire, 2350);
+          setTimeout(fire, 3200); // fallback
+        } else {
+          // accelerate forward through the windshield, keep pushing a beat PAST
+          // the hand-off so the film crossfades in over a still-moving camera
+          tweenTo(PUSH_POS, PUSH_LOOK, 1.6, "power3.in");
+          setTimeout(fire, 1050);
+          setTimeout(fire, 1900); // fallback (rAF can be paused in a hidden tab)
+        }
       },
       reset: (onHome) => {
         const fire = once(() => {
@@ -200,6 +230,7 @@ export function DriveScene({
   accent,
   accent2,
   skyColor,
+  landmarkActive,
 }: {
   apiRef: RefObject<DriveApi | null>;
   /** interactivity live — true on the live drive, false under cover / in a film */
@@ -211,6 +242,8 @@ export function DriveScene({
   accent: string;
   accent2: string;
   skyColor: string;
+  /** the tuned station is the Tower of Roses → bloom the landmark brighter */
+  landmarkActive: boolean;
 }) {
   const coarse = isCoarsePointer();
   const energyRef = useRef(0);
@@ -236,8 +269,9 @@ export function DriveScene({
         <fog attach="fog" args={["#0a0204", 7, 64]} />
         <ambientLight ref={ambientRef} intensity={0.5} />
         <Suspense fallback={null}>
-          <CityLoop paletteRef={paletteRef} energyRef={energyRef} />
+          <CityLoop paletteRef={paletteRef} energyRef={energyRef} landmarkActive={landmarkActive} />
         </Suspense>
+        <DashboardRose paletteRef={paletteRef} />
         <RainWindshield energyRef={energyRef} paletteRef={paletteRef} />
         <CameraController apiRef={apiRef} enabled={enabled} />
         <EnergyProbe analyserRef={analyserRef} energyRef={energyRef} />
