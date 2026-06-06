@@ -37,55 +37,76 @@ export type Feed = {
   spotify?: string;
   apple?: string;
   youtube?: string;
-  /** clickable screen plane in world space (on the GLB monitor's glass) */
+  /** monitor centre in world space (the screen sits here) */
   pos: [number, number, number];
-  size: [number, number]; // photo size: width (along z), height (along y)
-  rotY: number;
+  size: [number, number]; // legacy metadata (monitor size is now uniform — see SCREEN_SIZE)
+  rotY: number; // yaw — how the monitor faces the room (varied per monitor for a hand-placed look)
 };
+
+/* Every CCTV monitor is rendered at this one uniform on-screen picture size
+   (world units — the visible CRT screen, ~5:4). The camera zoom (focusFor)
+   frames exactly this, and RoomModel scales the model so its screen matches it.
+   Replaces the old per-feed `size`, now only metadata.
+
+   At this size the monitor BODY footprint is ~0.280 wide × ~0.289 tall, so the
+   positions below are spaced ~0.290 (cols) / ~0.289 (rows) — the casings touch
+   without overlapping. The bottom row (4, 5) and the side-lower (7) sit FLUSH on
+   the desk: the desk top is at worldY 0.866 and the body bottom is 0.169 below
+   the screen centre, so their centres are at 0.866 + 0.169 = 1.035.
+
+   Each monitor is yaw-rotated a little differently (rotY) for a hand-placed
+   look — no pitch/roll, just horizontal rotation.
+
+   Layout: the five middle monitors form a touching pyramid (1 straddles 2/3,
+   with 4/5 beneath), and 6/7 are a touching stacked pair off to the right.
+       [1]
+     [2][3]      [6]
+     [4][5]      [7]                                                          */
+export const SCREEN_SIZE: [number, number] = [0.24, 0.204];
 
 export const FEEDS: Feed[] = [
   {
     n: 1, title: "Last Year", kind: "image", src: "/images/100_0348.JPG",
     audio: "/wrw-assets/audio/last-year.m4a", accent: "#7cf0ff",
     spotify: sp("6kIg3mQRYjpel7qYwHaZMA"), apple: am("last-year", EP, "1833313978"),
-    pos: [3.58, 1.73, -4.135], size: [0.33, 0.31], rotY: -1.483, // top centre
+    pos: [3.566, 1.613, -4.183], size: [0.33, 0.31], rotY: -1.39, // top, straddling 2/3
   },
   {
     n: 2, title: "My Bed", kind: "image", src: "/images/100_0312.JPG",
     audio: "/wrw-assets/audio/my-bed.m4a", accent: "#9b8cff",
     spotify: sp("0VkYr8VpokT0L2DExqtRbG"), apple: am("my-bed", EP, "1833314189"),
-    pos: [3.55, 1.4, -4.366], size: [0.24, 0.23], rotY: -1.527, // left upper
+    pos: [3.55, 1.324, -4.335], size: [0.24, 0.23], rotY: -1.66, // left upper
   },
   {
     n: 3, title: "Gone Away", kind: "image", src: "/images/100_0324.JPG",
     audio: "/wrw-assets/audio/gone-away.m4a", accent: "#c8ff4a",
     spotify: sp("15gG3VoteXYpZaP6Ns9s5C"), apple: am("gone-away", EP, "1833314190"),
-    pos: [3.569, 1.397, -4.009], size: [0.205, 0.221], rotY: -1.558, // centre mid
+    pos: [3.564, 1.324, -4.03], size: [0.25, 0.27], rotY: -1.46, // right upper
   },
   {
     n: 4, title: "Been There Once", kind: "image", src: "/images/100_0335.JPG",
     audio: "/wrw-assets/audio/been-there-once.m4a", accent: "#ff9a3c",
     spotify: sp("6UjxD0WgUJaIA3AA1I2psf"), apple: am("been-there-once", EP, "1833314192"),
-    pos: [3.55, 1.03, -4.366], size: [0.24, 0.26], rotY: -1.527, // left lower
+    pos: [3.55, 1.035, -4.335], size: [0.24, 0.26], rotY: -1.61, // left lower (flush on desk)
   },
   {
     n: 5, title: "Who Really Won?", kind: "image", src: "/images/100_0347.JPG",
     audio: "/wrw-assets/audio/who-really-won.m4a", accent: "#4dffa0",
     spotify: sp("23iYibyDKBPWAYKzkJiXw2"), apple: am("who-really-won", EP, "1833314194"),
-    pos: [3.563, 1.03, -4.007], size: [0.255, 0.265], rotY: -1.553, // centre lower
+    pos: [3.564, 1.035, -4.03], size: [0.255, 0.265], rotY: -1.42, // right lower (flush on desk)
   },
   {
     n: 6, title: "Who Really Won Music Video", titleLines: ["Who Really Won", "Music Video"],
     kind: "video", src: "/video/who-really-won.mp4",
     // play the song track via the unlocked <audio> (reliable) while the video runs muted
     audio: "/wrw-assets/audio/who-really-won.m4a", accent: "#ff2b2b", youtube: YOUTUBE,
-    pos: [3.483, 1.417, -3.543], size: [0.22, 0.24], rotY: -1.807, // right upper (angled)
+    pos: [3.483, 1.324, -3.543], size: [0.22, 0.24], rotY: -1.92, // side pair, upper (angled)
   },
   {
     n: 7, title: "Strange", tag: "SINGLE", kind: "image", src: "/images/100_0309.JPG",
     audio: "/wrw-assets/audio/strange.m4a", accent: "#ff7cd5",
     spotify: sp("1jtebf1xPtxiwIlrlrbTi0"), apple: am("strange", "1857222138", "1857222139"),
-    pos: [3.483, 1.06, -3.542], size: [0.24, 0.27], rotY: -1.802, // right lower (angled)
+    pos: [3.483, 1.035, -3.542], size: [0.24, 0.27], rotY: -1.7, // side pair, lower (flush on desk)
   },
 ];
 
