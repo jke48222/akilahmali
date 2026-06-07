@@ -21,6 +21,7 @@ import { BoothCover } from "@/components/booth/BoothCover";
 import { CallTranscript } from "@/components/booth/CallTranscript";
 import { KeypadHUD } from "@/components/booth/KeypadHUD";
 import { InCall, type ActiveCall } from "@/components/booth/InCall";
+import { BoothSignup } from "@/components/booth/BoothSignup";
 import { BoothFallback } from "@/components/booth/BoothFallback";
 import { makeToneEngine, type ToneEngine } from "@/lib/booth/tones";
 
@@ -57,6 +58,7 @@ export function TheBooth() {
   const [dialed, setDialed] = useState("");
   const [status, setStatus] = useState("dial tone");
   const [active, setActive] = useState<ActiveCall | null>(null);
+  const [signupOpen, setSignupOpen] = useState(false);
 
   const apiRef = useRef<BoothApi | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null); // unlock + the Mali call
@@ -141,6 +143,8 @@ export function TheBooth() {
     apiRef.current?.enter();
     toneRef.current?.dialTone(true);
     setStatus("dial tone");
+    // Mali just asked you to call back on the 17th — offer the line, once.
+    window.setTimeout(() => setSignupOpen(true), 1200);
   }
 
   function handleDigit(d: string) {
@@ -216,6 +220,18 @@ export function TheBooth() {
         />
       )}
       {active && <InCall call={active} onHangup={handleHangup} />}
+
+      {/* leave-your-number (email → mailing list); auto-offered once on entry */}
+      {live && phase === "dialing" && !signupOpen && (
+        <button
+          type="button"
+          onClick={() => setSignupOpen(true)}
+          className="fixed right-5 top-5 z-20 rounded-full border border-[#ff2b3e]/40 bg-[#0a0103]/70 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.26em] text-[#ffd9df] backdrop-blur-md transition-colors hover:bg-[#ff2b3e]/20"
+        >
+          ✉ leave your number
+        </button>
+      )}
+      {signupOpen && <BoothSignup onClose={() => setSignupOpen(false)} />}
 
       {showCover && <BoothCover onEnter={handleEnter} onDone={() => setShowCover(false)} />}
     </div>
