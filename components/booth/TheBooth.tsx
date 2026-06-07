@@ -1,55 +1,78 @@
 "use client";
 
 /* =========================================================================
-   THE PAYPHONE — "DEAD LINE". The immersive experience at /payphone.
+   THE PAYPHONE — "DEAD LINE". /payphone.
 
-   A post-apocalyptic crimson phone booth: answer the incoming call, then (in
-   Booth-2) pick up the receiver and dial. The canvas mounts under the cover
-   from the start so the set is warmed up and revealed the instant the call
-   connects. The camera is driven imperatively through apiRef (see BoothScene).
-
-   State machine mirrors TheDrive:
-     entered    → audio unlocked, set live (on the PICK UP gesture)
-     showCover  → the incoming-call cover is still mounted
-     connected  → a dialed number's reveal is open (Booth-2/3)
+   Flow:
+     1. cover      — incoming call, you answer
+     2. call       — the booth fills the screen + a live transcript of Akilah
+                     Mali's frantic distress call (mali-call.mp3); the line is
+                     severed and the operator cuts in
+     3. dialing    — the camera moves INSIDE the booth to the phone + keypad;
+                     you dial out. 1 → the Tower of Roses instrumental; any other
+                     number → the operator ("this line is not available");
+                     an empty dial → "no longer in service".
+   Audio is unlocked on the ANSWER gesture; the camera is driven via apiRef.
    ========================================================================= */
 
 import { useEffect, useRef, useState } from "react";
 import { BoothScene, type BoothApi } from "@/components/booth/BoothScene";
 import { BoothCover } from "@/components/booth/BoothCover";
+import { CallTranscript } from "@/components/booth/CallTranscript";
 import { KeypadHUD } from "@/components/booth/KeypadHUD";
-import { BoothReveal } from "@/components/booth/BoothReveal";
+import { InCall, type ActiveCall } from "@/components/booth/InCall";
 import { BoothFallback } from "@/components/booth/BoothFallback";
 import { makeToneEngine, type ToneEngine } from "@/lib/booth/tones";
+
+const SILENT =
+  "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
+
+type CallTarget = { kind: "operator" | "music"; label: string; src: string; caption?: string };
+
+// numbers you can dial → what answers. More real numbers/audio land here later.
+const NUMBERS: Record<string, CallTarget> = {
+  "1": { kind: "music", label: "Tower of Roses", src: "/booth-assets/audio/tower-of-roses.m4a" },
+};
+const DEFAULT_CALL: CallTarget = {
+  kind: "operator",
+  label: "Operator",
+  src: "/booth-assets/audio/operator-default.mp3",
+  caption: "I'm sorry. This line is not available. Goodbye.",
+};
+const INVALID_CALL: CallTarget = {
+  kind: "operator",
+  label: "Operator",
+  src: "/booth-assets/audio/operator-invalid.mp3",
+  caption: "The number you have dialed is no longer in service. Please check the number and dial again.",
+};
 
 const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-// 1-sample silent wav — bless the audio element on the gesture for later
-// programmatic playback (ring / dial tone / DTMF), copied from TheDrive.
-const SILENT =
-  "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
-
 export function TheBooth() {
   const [entered, setEntered] = useState(false);
   const [showCover, setShowCover] = useState(true);
-  const [reduced] = useState(prefersReducedMotion); // decided once, before hooks branch
-  const [connected, setConnected] = useState(false); // the dialed-number reveal is open
+  const [reduced] = useState(prefersReducedMotion);
+  const [phase, setPhase] = useState<"call" | "dialing">("call");
   const [dialed, setDialed] = useState("");
   const [status, setStatus] = useState("dial tone");
+  const [active, setActive] = useState<ActiveCall | null>(null);
+
   const apiRef = useRef<BoothApi | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null); // unlock + the Mali call
+  const voiceRef = useRef<HTMLAudioElement | null>(null); // operator / tower beat
   const audioCtxRef = useRef<AudioContext | null>(null);
   const toneRef = useRef<ToneEngine | null>(null);
   const callTimer = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
-      const a = audioRef.current;
-      if (a) {
-        a.pause();
-        a.removeAttribute("src");
-        a.load();
+      for (const a of [audioRef.current, voiceRef.current]) {
+        if (a) {
+          a.pause();
+          a.removeAttribute("src");
+          a.load();
+        }
       }
       toneRef.current?.stopAll();
       if (callTimer.current) clearTimeout(callTimer.current);
@@ -57,13 +80,11 @@ export function TheBooth() {
     };
   }, []);
 
-  // crimson reticle cursor (reuse the drive cursor styles)
   useEffect(() => {
-    document.body.classList.add("drive-cursor");
-    return () => document.body.classList.remove("drive-cursor", "drive-target");
+    document.body.classList.add("booth-cursor");
+    return () => document.body.classList.remove("booth-cursor", "booth-target");
   }, []);
 
-  // theme-color → the booth's near-black crimson
   useEffect(() => {
     const meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
     if (!meta) return;
@@ -74,16 +95,28 @@ export function TheBooth() {
     };
   }, []);
 
+  function playVoice(src: string) {
+    const v = voiceRef.current;
+    if (!v) return;
+    v.src = src;
+    v.currentTime = 0;
+    v.volume = 0.95;
+    v.play().catch(() => {});
+  }
+
   function handleEnter() {
     const a = new Audio();
-    a.loop = false;
     a.preload = "auto";
     a.muted = false;
     a.src = SILENT;
     a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
     audioRef.current = a;
 
-    // build the telephone tone engine inside the gesture (AudioContext needs it)
+    const v = new Audio();
+    v.preload = "auto";
+    v.muted = false;
+    voiceRef.current = v;
+
     try {
       const AC: typeof AudioContext =
         window.AudioContext ||
@@ -97,23 +130,21 @@ export function TheBooth() {
     } catch {
       /* tones are a progressive enhancement */
     }
-
     setEntered(true);
   }
 
   const live = entered && !showCover;
 
-  // Once the call connects (cover gone), lean into the keypad + dial tone.
-  useEffect(() => {
-    if (!live || connected) return;
-    apiRef.current?.lean();
+  // Act 1 ended → move inside the booth to the keypad + start a dial tone.
+  function enterBooth() {
+    setPhase("dialing");
+    apiRef.current?.enter();
     toneRef.current?.dialTone(true);
     setStatus("dial tone");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [live]);
+  }
 
   function handleDigit(d: string) {
-    if (connected || dialed.length >= 12) return;
+    if (active || dialed.length >= 12) return;
     toneRef.current?.dtmf(d);
     if (dialed.length === 0) toneRef.current?.dialTone(false);
     setDialed((s) => s + d);
@@ -125,30 +156,38 @@ export function TheBooth() {
   }
 
   function handleCall() {
-    if (connected) return;
+    if (active) return;
+    toneRef.current?.dialTone(false);
+
+    // empty dial → the "no longer in service" intercept
     if (!dialed) {
       setStatus("not in service");
-      void toneRef.current?.intercept();
+      const tone = toneRef.current;
+      if (tone) tone.intercept().then(() => playVoice(INVALID_CALL.src));
+      else playVoice(INVALID_CALL.src);
+      setActive({ kind: "operator", label: INVALID_CALL.label, caption: INVALID_CALL.caption, number: dialed });
       return;
     }
-    toneRef.current?.dialTone(false);
-    toneRef.current?.ringback(true);
+
+    const target = NUMBERS[dialed] ?? DEFAULT_CALL;
     setStatus("calling…");
+    toneRef.current?.ringback(true);
     if (callTimer.current) clearTimeout(callTimer.current);
     callTimer.current = window.setTimeout(() => {
       toneRef.current?.ringback(false);
-      setConnected(true);
-    }, 3400);
+      playVoice(target.src);
+      setActive({ kind: target.kind, label: target.label, caption: target.caption, number: dialed });
+    }, 1700);
   }
 
-  // back to the booth from the keypad (✕) or the reveal: fresh dead line
+  // end the active call, back to a fresh dial tone (still inside the booth)
   function handleHangup() {
     if (callTimer.current) clearTimeout(callTimer.current);
     toneRef.current?.stopAll();
-    setConnected(false);
+    voiceRef.current?.pause();
+    setActive(null);
     setDialed("");
     setStatus("dial tone");
-    apiRef.current?.lean();
     toneRef.current?.dialTone(true);
   }
 
@@ -162,8 +201,11 @@ export function TheBooth() {
 
   return (
     <div className="fixed inset-0 z-[60] h-[100dvh] w-screen overflow-hidden bg-[#080103] text-white">
-      <BoothScene apiRef={apiRef} enabled={live && !connected} rendering={entered && !connected} />
-      {live && !connected && (
+      <BoothScene apiRef={apiRef} enabled={phase === "dialing" && !active} rendering={entered} />
+
+      {live && phase === "call" && <CallTranscript audioRef={audioRef} onDone={enterBooth} />}
+
+      {live && phase === "dialing" && !active && (
         <KeypadHUD
           dialed={dialed}
           status={status}
@@ -173,7 +215,8 @@ export function TheBooth() {
           onHangup={handleHangup}
         />
       )}
-      {connected && <BoothReveal dialed={dialed} onHangup={handleHangup} />}
+      {active && <InCall call={active} onHangup={handleHangup} />}
+
       {showCover && <BoothCover onEnter={handleEnter} onDone={() => setShowCover(false)} />}
     </div>
   );
