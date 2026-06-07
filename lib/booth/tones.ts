@@ -31,7 +31,8 @@ export function makeToneEngine(ctx: AudioContext): ToneEngine {
   master.connect(ctx.destination);
 
   let dial: { osc: OscillatorNode[]; g: GainNode } | null = null;
-  let ringTimer: number | null = null;
+  let ringOn = false;
+  let ringTimers: number[] = [];
   let ringNodes: { osc: OscillatorNode[]; g: GainNode } | null = null;
 
   function pair(f1: number, f2: number, gain: number) {
@@ -74,29 +75,38 @@ export function makeToneEngine(ctx: AudioContext): ToneEngine {
     }
   }
 
+  function stopRingNodes() {
+    if (ringNodes) {
+      ringNodes.osc.forEach((o) => {
+        try {
+          o.stop();
+        } catch {
+          /* already stopped */
+        }
+      });
+      ringNodes = null;
+    }
+  }
+
   function ringback(on: boolean) {
     if (on) {
-      if (ringTimer !== null) return;
+      if (ringOn) return;
+      ringOn = true;
+      // 2s on / 4s off, repeating — EVERY timer is tracked so ringback(false)
+      // (and stopAll) can fully cancel it. The cycle bails if ringOn flipped.
       const cycle = () => {
+        if (!ringOn) return;
+        stopRingNodes();
         ringNodes = pair(440, 480, 0.18);
-        ringTimer = window.setTimeout(() => {
-          if (ringNodes) {
-            ringNodes.osc.forEach((o) => o.stop());
-            ringNodes = null;
-          }
-        }, 2000);
-        window.setTimeout(cycle, 6000);
+        ringTimers.push(window.setTimeout(stopRingNodes, 2000));
+        ringTimers.push(window.setTimeout(cycle, 6000));
       };
       cycle();
     } else {
-      if (ringTimer !== null) {
-        clearTimeout(ringTimer);
-        ringTimer = null;
-      }
-      if (ringNodes) {
-        ringNodes.osc.forEach((o) => o.stop());
-        ringNodes = null;
-      }
+      ringOn = false;
+      ringTimers.forEach((t) => clearTimeout(t));
+      ringTimers = [];
+      stopRingNodes();
     }
   }
 

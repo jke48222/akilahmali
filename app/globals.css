@@ -56,6 +56,9 @@
   --font-sans:    var(--font-sans-src), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display-src), ui-serif, Georgia, serif;
   --font-mono:    var(--font-mono-src), ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* /payphone only */
+  --font-booth:   var(--font-booth-src), "Courier New", ui-monospace, monospace;
+  --font-lcd:     var(--font-lcd-src), ui-monospace, "Courier New", monospace;
 }
 
 /* =========================================================================
@@ -718,17 +721,44 @@ body.drive-cursor button:hover {
 }
 
 /* =========================================================================
-   THE PAYPHONE — telephone-handset cursor (/payphone)
+   THE PAYPHONE — high-contrast dot+ring cursor (/payphone)
+   A native CSS cursor (hardware-composited → zero lag, always on top). White
+   ring + dot over a dark halo so it reads against the crimson set; a crimson
+   centre keeps it on-theme.
    ========================================================================= */
 body.booth-cursor,
 body.booth-cursor * {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='30'%20height='30'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M6.62%2010.79c1.44%202.83%203.76%205.14%206.59%206.59l2.2-2.2c.27-.27.67-.36%201.02-.24%201.12.37%202.33.57%203.57.57.55%200%201%20.45%201%201V20c0%20.55-.45%201-1%201-9.39%200-17-7.61-17-17%200-.55.45-1%201-1h3.5c.55%200%201%20.45%201%201%200%201.25.2%202.45.57%203.57.11.35.03.74-.25%201.02l-2.2%202.2z'%20fill='%23ff2b3e'%20stroke='%23000'%20stroke-width='0.5'/%3E%3C/svg%3E") 8 8, pointer;
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='30'%20height='30'%20viewBox='0%200%2030%2030'%3E%3Ccircle%20cx='15'%20cy='15'%20r='10'%20fill='none'%20stroke='%23000'%20stroke-opacity='0.6'%20stroke-width='4'/%3E%3Ccircle%20cx='15'%20cy='15'%20r='10'%20fill='none'%20stroke='%23fff'%20stroke-width='2'/%3E%3Ccircle%20cx='15'%20cy='15'%20r='3'%20fill='%23fff'/%3E%3Ccircle%20cx='15'%20cy='15'%20r='1.5'%20fill='%23ff3a46'/%3E%3C/svg%3E") 15 15, auto;
 }
-body.booth-cursor.booth-target,
-body.booth-cursor.booth-target *,
-body.booth-cursor a:hover,
-body.booth-cursor button:hover {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='36'%20height='36'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M6.62%2010.79c1.44%202.83%203.76%205.14%206.59%206.59l2.2-2.2c.27-.27.67-.36%201.02-.24%201.12.37%202.33.57%203.57.57.55%200%201%20.45%201%201V20c0%20.55-.45%201-1%201-9.39%200-17-7.61-17-17%200-.55.45-1%201-1h3.5c.55%200%201%20.45%201%201%200%201.25.2%202.45.57%203.57.11.35.03.74-.25%201.02l-2.2%202.2z'%20fill='%23ff5566'%20stroke='%23000'%20stroke-width='0.5'/%3E%3C/svg%3E") 10 10, pointer;
+/* /payphone typography — worn typewriter everywhere (overrides the site's
+   font-sans/font-mono utilities); the number readout opts into the LCD face. */
+body.booth-type,
+body.booth-type * {
+  font-family: var(--font-booth);
+}
+body.booth-type .booth-lcd {
+  font-family: var(--font-lcd);
+}
+
+/* clickable targets → crimson lock-on ring */
+body.booth-cursor a,
+body.booth-cursor button,
+body.booth-cursor [role="button"],
+body.booth-cursor .booth-dial-hole {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Ccircle%20cx='17'%20cy='17'%20r='12'%20fill='none'%20stroke='%23000'%20stroke-opacity='0.6'%20stroke-width='4'/%3E%3Ccircle%20cx='17'%20cy='17'%20r='12'%20fill='none'%20stroke='%23ff3a46'%20stroke-width='2.4'/%3E%3Ccircle%20cx='17'%20cy='17'%20r='3'%20fill='%23fff'/%3E%3C/svg%3E") 17 17, pointer;
+}
+
+/* =========================================================================
+   THE PAYPHONE — typeface scope. Everything on /payphone uses the typewriter
+   (overrides the site's font-sans/font-mono utilities); the number readout and
+   bits tagged .booth-lcd use the terminal/LCD face. Added by TheBooth.
+   ========================================================================= */
+body.booth-type,
+body.booth-type * {
+  font-family: var(--font-booth);
+}
+body.booth-type .booth-lcd {
+  font-family: var(--font-lcd);
 }
 
 /* Magnetic wrapper */
@@ -781,6 +811,7 @@ body.booth-cursor button:hover {
 
 @media (hover: none), (pointer: coarse) {
   html.has-cursor, html.has-cursor * { cursor: auto !important; }
+  body.booth-cursor, body.booth-cursor * { cursor: auto; }
   .cursor-cross { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -73,7 +73,15 @@ export function CallTranscript({
 
   // cumulative character fractions → reveal schedule (filled once duration known)
   const fracs = useMemo(() => {
-    const lens = SEGMENTS.map((s) => s.text.length + 8); // +8 ≈ inter-line breath
+    // weight each line by length, but give short lines a floor so they don't
+    // flash by, and add a beat after sentence ends / cut-off em-dashes — closer
+    // to real speech pacing than raw character count.
+    const lens = SEGMENTS.map((s) => {
+      const base = Math.max(26, s.text.length);
+      const end = s.text.trim().slice(-1);
+      const pause = end === "—" ? 18 : /[.?!]/.test(end) ? 12 : 4;
+      return base + pause;
+    });
     const total = lens.reduce((a, b) => a + b, 0);
     let acc = 0;
     return lens.map((l) => {
@@ -148,8 +156,7 @@ export function CallTranscript({
             className="relative leading-snug transition-opacity duration-300"
             style={{
               color: current.who === "operator" ? "#a8202c" : "#cf2233",
-              fontFamily: current.who === "operator" ? undefined : "var(--font-display), Georgia, serif",
-              fontSize: current.who === "operator" ? "14px" : "clamp(20px, 3vw, 34px)",
+              fontSize: current.who === "operator" ? "14px" : "clamp(19px, 2.8vw, 30px)",
               letterSpacing: current.who === "operator" ? "0.24em" : "normal",
               textTransform: current.who === "operator" ? "uppercase" : "none",
               textShadow: "0 0 24px rgba(180,18,30,0.55)",
