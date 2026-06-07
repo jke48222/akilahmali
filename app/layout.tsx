@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Space_Grotesk, Space_Mono } from "next/font/google";
+import { Fraunces, Space_Grotesk, Space_Mono, Special_Elite, VT323 } from "next/font/google";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -30,6 +30,22 @@ const spaceGrotesk = Space_Grotesk({
 /* Mono for labels + captions. */
 const spaceMono = Space_Mono({
   variable: "--font-mono-src",
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
+});
+
+/* /payphone only — typewriter for the distress-call transcript + stamped UI. */
+const specialElite = Special_Elite({
+  variable: "--font-booth-src",
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
+});
+
+/* /payphone only — terminal/LCD face for the number readout. */
+const vt323 = VT323({
+  variable: "--font-lcd-src",
   subsets: ["latin"],
   weight: ["400"],
   display: "swap",
@@ -105,7 +121,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${spaceMono.variable} ${fraunces.variable} antialiased`}
+      className={`${spaceGrotesk.variable} ${spaceMono.variable} ${fraunces.variable} ${specialElite.variable} ${vt323.variable} antialiased`}
     >
       <body className="min-h-screen flex flex-col overflow-x-clip bg-bg text-ink font-sans">
         <script

@@ -19,7 +19,7 @@ import { useEffect, useRef, useState } from "react";
 import { BoothScene, type BoothApi } from "@/components/booth/BoothScene";
 import { BoothCover } from "@/components/booth/BoothCover";
 import { CallTranscript } from "@/components/booth/CallTranscript";
-import { KeypadHUD } from "@/components/booth/KeypadHUD";
+import { RotaryDial } from "@/components/booth/RotaryDial";
 import { InCall, type ActiveCall } from "@/components/booth/InCall";
 import { BoothSignup } from "@/components/booth/BoothSignup";
 import { BoothFallback } from "@/components/booth/BoothFallback";
@@ -60,6 +60,7 @@ export function TheBooth() {
   const [active, setActive] = useState<ActiveCall | null>(null);
   const [signupOpen, setSignupOpen] = useState(false);
   const [showKeypad, setShowKeypad] = useState(false);
+  const [phoneReady, setPhoneReady] = useState(false); // camera is inside; waiting for the phone click
   const apiRef = useRef<BoothApi | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null); // unlock + the Mali call
   const voiceRef = useRef<HTMLAudioElement | null>(null); // operator / tower beat
@@ -67,6 +68,7 @@ export function TheBooth() {
   const toneRef = useRef<ToneEngine | null>(null);
   const callTimer = useRef<number | null>(null);
   const dialToneTimer = useRef<number | null>(null);
+  const connecting = useRef(false); // true while a call is ringing out → connecting
 
   // a dial tone that politely stops itself after a few seconds (not forever)
   function startDialTone() {
@@ -96,8 +98,8 @@ export function TheBooth() {
   }, []);
 
   useEffect(() => {
-    document.body.classList.add("booth-cursor");
-    return () => document.body.classList.remove("booth-cursor", "booth-target");
+    document.body.classList.add("booth-cursor", "booth-type");
+    return () => document.body.classList.remove("booth-cursor", "booth-target", "booth-type");
   }, []);
 
   useEffect(() => {
@@ -150,11 +152,19 @@ export function TheBooth() {
 
   const live = entered && !showCover;
 
-  // Act 1 ended → move inside the booth to the keypad + start a dial tone.
+  // Act 1 ended → move inside the booth. The keypad stays hidden until the
+  // visitor actually clicks the phone (handlePhoneClick).
   function enterBooth() {
     setPhase("dialing");
-    // enter the booth; show keypad only after camera finishes its enter tween
-    apiRef.current?.enter(() => setShowKeypad(true));
+    apiRef.current?.enter(() => setPhoneReady(true));
+    setStatus("pick up the phone");
+  }
+
+  // clicking the phone in the booth → reveal the keypad + start a dial tone.
+  function handlePhoneClick() {
+    if (showKeypad || active) return;
+    setPhoneReady(false);
+    setShowKeypad(true);
     startDialTone();
     setStatus("dial tone");
   }
@@ -172,7 +182,7 @@ export function TheBooth() {
   }
 
   function handleCall() {
-    if (active) return;
+    if (active || connecting.current) return;
     stopDialTone();
 
     // empty dial → the "no longer in service" intercept
@@ -187,9 +197,12 @@ export function TheBooth() {
 
     const target = NUMBERS[dialed] ?? DEFAULT_CALL;
     setStatus("calling…");
+    connecting.current = true;
     toneRef.current?.ringback(true);
     if (callTimer.current) clearTimeout(callTimer.current);
     callTimer.current = window.setTimeout(() => {
+      callTimer.current = null;
+      connecting.current = false;
       toneRef.current?.ringback(false);
       playVoice(target.src);
       setActive({ kind: target.kind, label: target.label, caption: target.caption, number: dialed });
@@ -198,9 +211,17 @@ export function TheBooth() {
 
   // end the active call, back to a fresh dial tone (still inside the booth)
   function handleHangup() {
-    if (callTimer.current) clearTimeout(callTimer.current);
+    if (callTimer.current) {
+      clearTimeout(callTimer.current);
+      callTimer.current = null;
+    }
+    connecting.current = false;
     toneRef.current?.stopAll();
-    voiceRef.current?.pause();
+    const v = voiceRef.current;
+    if (v) {
+      v.pause();
+      v.currentTime = 0;
+    }
     setActive(null);
     setDialed("");
     setStatus("dial tone");
@@ -218,12 +239,31 @@ export function TheBooth() {
 
   return (
     <div className="fixed inset-0 z-[60] h-[100dvh] w-screen overflow-hidden bg-[#080103] text-white">
-      <BoothScene apiRef={apiRef} enabled={phase === "dialing" && !active} rendering={entered} />
+      <BoothScene
+        apiRef={apiRef}
+        enabled={phase === "dialing" && !active}
+        rendering={entered}
+        interactive={phase === "dialing" && phoneReady && !showKeypad && !active}
+        onPhoneClick={handlePhoneClick}
+        sway={live && phase === "call"}
+      />
 
       {live && phase === "call" && <CallTranscript audioRef={audioRef} onDone={enterBooth} />}
 
+      {/* before the keypad: a prompt to click the phone in the booth */}
+      {live && phase === "dialing" && phoneReady && !showKeypad && !active && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex justify-center pb-[max(2.5rem,env(safe-area-inset-bottom))]">
+          <p
+            className="animate-pulse font-mono text-[11px] uppercase tracking-[0.32em] text-[#ffd9df]"
+            style={{ textShadow: "0 0 14px #ff2b3e99" }}
+          >
+            pick up the phone
+          </p>
+        </div>
+      )}
+
       {live && phase === "dialing" && !active && showKeypad && (
-        <KeypadHUD
+        <RotaryDial
           dialed={dialed}
           status={status}
           onDigit={handleDigit}

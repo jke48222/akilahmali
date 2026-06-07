@@ -15,7 +15,7 @@
    ========================================================================= */
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Suspense, useEffect, useRef, type RefObject } from "react";
+import { Suspense, useEffect, useRef, useState, useCallback, type RefObject } from "react";
 import gsap from "gsap";
 import * as THREE from "three";
 import { isCoarsePointer } from "@/lib/device";
@@ -37,7 +37,7 @@ const HOME_LOOK = new THREE.Vector3(0, 2.18, 0);
 const INSIDE_POS = new THREE.Vector3(0, 2.3, 0.20);
 const INSIDE_LOOK = new THREE.Vector3(0, 2.0, -1.6);
 
-function CameraController({ apiRef, enabled }: { apiRef: RefObject<BoothApi | null>; enabled: boolean }) {
+function CameraController({ apiRef, enabled, sway }: { apiRef: RefObject<BoothApi | null>; enabled: boolean; sway: boolean }) {
   const { camera } = useThree();
   const target = useRef(HOME_LOOK.clone());
   const locked = useRef(false);
@@ -82,9 +82,11 @@ function CameraController({ apiRef, enabled }: { apiRef: RefObject<BoothApi | nu
     const t = clock.elapsedTime;
     const sx = Math.sin(t * 0.5) * 0.025;
     const sy = Math.sin(t * 0.37 + 1.1) * 0.018;
+    // while the distress call plays, drift the camera slowly left↔right
+    const swayX = sway ? Math.sin(t * 0.16) * 0.5 : 0;
     const px = enabled ? pointer.x * 0.32 : 0;
     const py = enabled ? pointer.y * 0.14 : 0;
-    camera.position.x += (HOME_POS.x + sx + px - camera.position.x) * 0.05;
+    camera.position.x += (HOME_POS.x + sx + swayX + px - camera.position.x) * 0.05;
     camera.position.y += (HOME_POS.y + sy + py - camera.position.y) * 0.05;
     camera.position.z += (HOME_POS.z - camera.position.z) * 0.05;
     target.current.lerp(HOME_LOOK, 0.06);
@@ -118,15 +120,24 @@ export function BoothScene({
   apiRef,
   enabled,
   rendering,
+  interactive = false,
+  onPhoneClick,
+  sway = false,
 }: {
   apiRef: RefObject<BoothApi | null>;
   enabled: boolean;
   rendering: boolean;
+  /** when true, clicking the phone in the booth fires onPhoneClick */
+  interactive?: boolean;
+  onPhoneClick?: () => void;
+  /** slow left↔right camera drift while the distress call plays */
+  sway?: boolean;
 }) {
   const coarse = isCoarsePointer();
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <div className="fixed inset-0" style={{ zIndex: 0 }}>
+    <div ref={wrapperRef} className="fixed inset-0" style={{ zIndex: 0 }}>
       <Canvas
         gl={{ antialias: !coarse, powerPreference: "high-performance" }}
         dpr={coarse ? [1, 1.25] : [1, 1.5]}
@@ -137,9 +148,17 @@ export function BoothScene({
         <fog attach="fog" args={["#080103", 4, 22]} />
         <BoothLights />
         <Suspense fallback={null}>
-          <DriveModel url="/booth-assets/models/phone_booth.glb" fit={3.4} fitAxis="y" grounded position={[0, 0, 0]} rotation={[0, 0, 0]} />
+          <group
+            onClick={(e) => {
+              if (!interactive) return;
+              e.stopPropagation();
+              onPhoneClick?.();
+            }}
+          >
+            <DriveModel url="/booth-assets/models/phone_booth.glb" fit={3.4} fitAxis="y" grounded position={[0, 0, 0]} rotation={[0, 0, 0]} />
+          </group>
         </Suspense>
-        <CameraController apiRef={apiRef} enabled={enabled} />
+        <CameraController apiRef={apiRef} enabled={enabled} sway={sway} />
       </Canvas>
 
       {/* cinematic grade — vignette + chromatic edge fringe + grain */}
