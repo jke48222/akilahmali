@@ -18,10 +18,12 @@
    ========================================================================= */
 
 import { useFrame } from "@react-three/fiber";
+import { useTexture } from "@react-three/drei";
 import { useEffect, useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { isCoarsePointer } from "@/lib/device";
 import { type Palette } from "@/components/drive/DriveScene";
+import { DriveModel } from "@/components/drive/DriveModel";
 
 const ROAD_DEPTH = 170; // how far the world recedes before recycling
 const NEAR_Z = 6; // a touch behind the camera — where things recycle
@@ -273,10 +275,13 @@ function RosesTower({ paletteRef, landmarkActive }: { paletteRef: RefObject<Pale
 
   return (
     <group>
-      <mesh position={[TOWER_POS.x, TOWER_H / 2, TOWER_POS.z]}>
-        <boxGeometry args={[7.4, TOWER_H, 7.4]} />
-        <meshBasicMaterial color="#0a0408" />
-      </mesh>
+      {/* the real neon high-rise as the Tower of Roses */}
+      <DriveModel
+        url="/drive-assets/models/cyberpunk_skyscraper.glb"
+        fit={TOWER_H}
+        grounded
+        position={[TOWER_POS.x, 0, TOWER_POS.z]}
+      />
       <instancedMesh ref={bloomsRef} args={[undefined, undefined, COUNT]} frustumCulled={false}>
         <icosahedronGeometry args={[0.5, 0]} />
         {/* fog off so the neon roses glow THROUGH the wet-night haze */}
@@ -286,8 +291,21 @@ function RosesTower({ paletteRef, landmarkActive }: { paletteRef: RefObject<Pale
   );
 }
 
-/* ---- wet asphalt (emissive sheen follows the palette) ---- */
+/* ---- wet asphalt (real PBR texture; emissive sheen follows the palette) ---- */
 function Road({ paletteRef }: { paletteRef: RefObject<Palette> }) {
+  const [base, normal, rough] = useTexture([
+    "/drive-assets/textures/road_basecolor.webp",
+    "/drive-assets/textures/road_normal.webp",
+    "/drive-assets/textures/road_roughness.webp",
+  ]);
+  useMemo(() => {
+    for (const t of [base, normal, rough]) {
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      t.repeat.set(3, 26);
+      t.anisotropy = 4;
+    }
+    base.colorSpace = THREE.SRGBColorSpace;
+  }, [base, normal, rough]);
   const matRef = useRef<THREE.MeshStandardMaterial>(null);
   useFrame(() => {
     matRef.current?.emissive.copy(paletteRef.current.accent);
@@ -295,7 +313,15 @@ function Road({ paletteRef }: { paletteRef: RefObject<Palette> }) {
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -ROAD_DEPTH / 2 + NEAR_Z]} receiveShadow>
       <planeGeometry args={[30, ROAD_DEPTH + 40]} />
-      <meshStandardMaterial ref={matRef} color="#08040a" metalness={0.65} roughness={0.34} emissiveIntensity={0.04} />
+      <meshStandardMaterial
+        ref={matRef}
+        map={base}
+        normalMap={normal}
+        roughnessMap={rough}
+        color="#221015"
+        metalness={0.6}
+        emissiveIntensity={0.05}
+      />
     </mesh>
   );
 }
@@ -324,6 +350,8 @@ export function CityLoop({
       <Wash paletteRef={paletteRef} />
       <Road paletteRef={paletteRef} />
       <Buildings energyRef={energyRef} />
+      {/* the real lit skyline as the distant backdrop the road heads toward */}
+      <DriveModel url="/drive-assets/models/low_poly_night_city_building_skyline.glb" fit={110} grounded position={[0, 0, -78]} />
       <RosesTower paletteRef={paletteRef} landmarkActive={landmarkActive} />
       <Trails paletteRef={paletteRef} energyRef={energyRef} />
     </group>
