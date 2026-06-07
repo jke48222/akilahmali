@@ -69,7 +69,7 @@ export function InCall({ call, onHangup }: { call: ActiveCall; onHangup: () => v
             <style>{`@keyframes boothEq{from{transform:scaleY(0.4)}to{transform:scaleY(1)}}`}</style>
           </>
         ) : (
-          <p className="mt-3 font-mono text-[13px] italic leading-relaxed text-[#9fb4ff]" aria-live="polite">
+          <p className="mt-3 font-mono text-[13px] italic leading-relaxed text-white" aria-live="polite">
             “{call.caption}”
           </p>
         )}

@@ -50,9 +50,9 @@ export function KeypadHUD({
   }, [onDigit, onCall, onClear, onHangup]);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex justify-center px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex justify-end px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
       <div
-        className="pointer-events-auto w-full max-w-xs rounded-2xl border border-[#ff2b3e]/40 bg-[#0a0103]/80 p-4 backdrop-blur-md sm:p-5"
+        className="pointer-events-auto w-full max-w-[16rem] rounded-2xl border border-[#ff2b3e]/40 bg-[#0a0103]/80 p-4 backdrop-blur-md sm:p-5"
         style={{ boxShadow: "0 0 44px -10px #ff2b3eaa" }}
       >
         {/* worn LCD readout */}
