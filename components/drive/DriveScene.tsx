@@ -266,12 +266,12 @@ export function DriveScene({
         {/* deep wet-night sky/fog — PaletteTween crossfades these per station.
             Fixed initial args so the prop-driven re-skin doesn't fight the lerp. */}
         <color attach="background" args={["#0a0204"]} />
-        <fog attach="fog" args={["#0a0204", 7, 64]} />
+        <fog attach="fog" args={["#0a0204", 9, 110]} />
         <ambientLight ref={ambientRef} intensity={0.5} />
         <Suspense fallback={null}>
           <CityLoop paletteRef={paletteRef} energyRef={energyRef} landmarkActive={landmarkActive} />
+          <DashboardRose />
         </Suspense>
-        <DashboardRose paletteRef={paletteRef} />
         <RainWindshield energyRef={energyRef} paletteRef={paletteRef} />
         <CameraController apiRef={apiRef} enabled={enabled} />
         <EnergyProbe analyserRef={analyserRef} energyRef={energyRef} />
