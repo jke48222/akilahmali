@@ -3,6 +3,7 @@ import NextLink from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { WhoReallyWonClient } from "@/components/wrw/grid/WhoReallyWonClient";
 import { TheDriveClient } from "@/components/drive/TheDriveClient";
+import { DriveFallback } from "@/components/drive/DriveFallback";
 import type { Metadata } from "next";
 import { Reveal } from "@/components/Reveal";
 import { SectionLabel } from "@/components/home/SectionLabel";
@@ -62,6 +63,31 @@ export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> },
 ): Promise<Metadata> {
   const { slug } = await params;
+
+  // "Endless Cycle" is the immersive world (THE DRIVE), not a Sanity/static
+  // release — so it needs its own metadata or a shared link would read "Release
+  // not found". Crimson card when per-page art is on; portrait while forced.
+  if (slug === "endless-cycle") {
+    const title = "Endless Cycle";
+    const description =
+      "A first-person drive through a rain-soaked, neon-crimson city that never arrives — Akilah Mali's immersive world for Endless Cycle. Tune the radio, drive into each song.";
+    const ogImage = FORCE_PORTRAIT_OG ? OG_PORTRAIT : "/drive-og";
+    const ogAlt = FORCE_PORTRAIT_OG ? "Akilah Mali" : "Endless Cycle — The Drive";
+    return {
+      title,
+      description,
+      alternates: { canonical: "/music/endless-cycle" },
+      openGraph: {
+        title: `${title} · Akilah Mali`,
+        description,
+        url: "/music/endless-cycle",
+        type: "music.album",
+        images: [{ url: ogImage, width: 1200, height: 630, alt: ogAlt }],
+      },
+      twitter: { card: "summary_large_image", title: `${title} · Akilah Mali`, description, images: [ogImage] },
+    };
+  }
+
   const live = await getReleaseBySlug(slug);
   const fallback = STATIC_RELEASES.find((r) => r.slug === slug);
   if (!live && !fallback) return { title: "Release not found" };
@@ -207,7 +233,18 @@ export default async function ReleaseDetailPage({
   if (slug === "who-really-won") return <WhoReallyWonClient />;
 
   // The "Endless Cycle" album IS the immersive night-drive experience, THE DRIVE.
-  if (slug === "endless-cycle") return <TheDriveClient />;
+  // The <noscript> keeps it crawlable / usable without JS (the same static 2D
+  // version reduced-motion visitors get).
+  if (slug === "endless-cycle") {
+    return (
+      <>
+        <TheDriveClient />
+        <noscript>
+          <DriveFallback />
+        </noscript>
+      </>
+    );
+  }
 
   // Releases that have a blast in the control room go straight into it.
   if (feedIndexForReleaseSlug(slug) !== null) {
