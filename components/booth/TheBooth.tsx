@@ -19,7 +19,11 @@ import { BoothScene, type BoothApi } from "@/components/booth/BoothScene";
 import { BoothCover } from "@/components/booth/BoothCover";
 import { KeypadHUD } from "@/components/booth/KeypadHUD";
 import { BoothReveal } from "@/components/booth/BoothReveal";
+import { BoothFallback } from "@/components/booth/BoothFallback";
 import { makeToneEngine, type ToneEngine } from "@/lib/booth/tones";
+
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 // 1-sample silent wav — bless the audio element on the gesture for later
 // programmatic playback (ring / dial tone / DTMF), copied from TheDrive.
@@ -29,6 +33,7 @@ const SILENT =
 export function TheBooth() {
   const [entered, setEntered] = useState(false);
   const [showCover, setShowCover] = useState(true);
+  const [reduced] = useState(prefersReducedMotion); // decided once, before hooks branch
   const [connected, setConnected] = useState(false); // the dialed-number reveal is open
   const [dialed, setDialed] = useState("");
   const [status, setStatus] = useState("dial tone");
@@ -145,6 +150,14 @@ export function TheBooth() {
     setStatus("dial tone");
     apiRef.current?.lean();
     toneRef.current?.dialTone(true);
+  }
+
+  if (reduced) {
+    return (
+      <div className="fixed inset-0 z-[60] h-[100dvh] w-screen overflow-y-auto">
+        <BoothFallback />
+      </div>
+    );
   }
 
   return (

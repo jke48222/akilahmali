@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { TheBoothClient } from "@/components/booth/TheBoothClient";
+import { BoothFallback } from "@/components/booth/BoothFallback";
 
 /* =========================================================================
    /payphone — "DEAD LINE", the post-apocalyptic phone-booth experience.
@@ -26,5 +27,12 @@ export const metadata: Metadata = {
 };
 
 export default function PayphonePage() {
-  return <TheBoothClient />;
+  return (
+    <>
+      <TheBoothClient />
+      <noscript>
+        <BoothFallback />
+      </noscript>
+    </>
+  );
 }
