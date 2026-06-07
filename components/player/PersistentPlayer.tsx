@@ -20,7 +20,7 @@ import { CATALOG } from "@/lib/player/catalog";
 import { AppleIcon, SpotifyIcon } from "@/components/icons";
 
 // Routes that own their own audio — keep the global orb out of the way.
-const SILENCED_PREFIXES = ["/music/who-really-won", "/music/endless-cycle"];
+const SILENCED_PREFIXES = ["/music/who-really-won", "/music/endless-cycle", "/payphone"];
 
 const prefersReducedMotion = () =>
   typeof window !== "undefined" &&
