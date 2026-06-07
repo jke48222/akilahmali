@@ -66,6 +66,18 @@ export function TheBooth() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const toneRef = useRef<ToneEngine | null>(null);
   const callTimer = useRef<number | null>(null);
+  const dialToneTimer = useRef<number | null>(null);
+
+  // a dial tone that politely stops itself after a few seconds (not forever)
+  function startDialTone() {
+    if (dialToneTimer.current) clearTimeout(dialToneTimer.current);
+    toneRef.current?.dialTone(true);
+    dialToneTimer.current = window.setTimeout(() => toneRef.current?.dialTone(false), 4000);
+  }
+  function stopDialTone() {
+    if (dialToneTimer.current) clearTimeout(dialToneTimer.current);
+    toneRef.current?.dialTone(false);
+  }
 
   useEffect(() => {
     return () => {
@@ -78,6 +90,7 @@ export function TheBooth() {
       }
       toneRef.current?.stopAll();
       if (callTimer.current) clearTimeout(callTimer.current);
+      if (dialToneTimer.current) clearTimeout(dialToneTimer.current);
       audioCtxRef.current?.close().catch(() => {});
     };
   }, []);
@@ -141,16 +154,14 @@ export function TheBooth() {
   function enterBooth() {
     setPhase("dialing");
     apiRef.current?.enter();
-    toneRef.current?.dialTone(true);
+    startDialTone();
     setStatus("dial tone");
-    // Mali just asked you to call back on the 17th — offer the line, once.
-    window.setTimeout(() => setSignupOpen(true), 1200);
   }
 
   function handleDigit(d: string) {
     if (active || dialed.length >= 12) return;
     toneRef.current?.dtmf(d);
-    if (dialed.length === 0) toneRef.current?.dialTone(false);
+    if (dialed.length === 0) stopDialTone();
     setDialed((s) => s + d);
     setStatus("dialing");
   }
@@ -161,7 +172,7 @@ export function TheBooth() {
 
   function handleCall() {
     if (active) return;
-    toneRef.current?.dialTone(false);
+    stopDialTone();
 
     // empty dial → the "no longer in service" intercept
     if (!dialed) {
@@ -192,7 +203,7 @@ export function TheBooth() {
     setActive(null);
     setDialed("");
     setStatus("dial tone");
-    toneRef.current?.dialTone(true);
+    startDialTone();
   }
 
   if (reduced) {

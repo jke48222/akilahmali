@@ -28,10 +28,14 @@ export type BoothApi = {
   reset: (onHome?: () => void) => void;
 };
 
-const HOME_POS = new THREE.Vector3(0, 1.45, 3.5);
-const HOME_LOOK = new THREE.Vector3(0, 1.25, 0);
-const INSIDE_POS = new THREE.Vector3(0, 1.32, 1.15);
-const INSIDE_LOOK = new THREE.Vector3(0, 1.16, -0.4);
+// the booth TOWER floats high in a wide debris cloud (bbox ~8u, tower centred
+// ~y2.25), so we aim tight at the tower itself, not the bbox.
+// establishing shot during the call — the booth fills the frame
+const HOME_POS = new THREE.Vector3(0, 2.25, 1.55);
+const HOME_LOOK = new THREE.Vector3(0, 2.18, 0);
+// after the call — push INSIDE the booth, close on the phone (back wall)
+const INSIDE_POS = new THREE.Vector3(0, 2.1, 0.25);
+const INSIDE_LOOK = new THREE.Vector3(0, 2.0, -1.6);
 
 function CameraController({ apiRef, enabled }: { apiRef: RefObject<BoothApi | null>; enabled: boolean }) {
   const { camera } = useThree();
@@ -133,7 +137,7 @@ export function BoothScene({
         <fog attach="fog" args={["#080103", 4, 22]} />
         <BoothLights />
         <Suspense fallback={null}>
-          <DriveModel url="/booth-assets/models/phone_booth.glb" fit={3.4} grounded position={[0, 0, 0]} rotation={[0, 0, 0]} />
+          <DriveModel url="/booth-assets/models/phone_booth.glb" fit={3.4} fitAxis="y" grounded position={[0, 0, 0]} rotation={[0, 0, 0]} />
         </Suspense>
         <CameraController apiRef={apiRef} enabled={enabled} />
       </Canvas>

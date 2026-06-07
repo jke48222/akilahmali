@@ -56,7 +56,6 @@ export function CallTranscript({
   const [count, setCount] = useState(0); // how many segments revealed
   const [ended, setEnded] = useState(false);
   const startsRef = useRef<number[]>([]);
-  const listRef = useRef<HTMLDivElement>(null);
   const advanced = useRef(false);
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
@@ -123,73 +122,50 @@ export function CallTranscript({
     };
   }, [audioRef, fracs]);
 
-  // keep the latest line in view
-  useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [count]);
-
   function skip() {
     finish();
   }
 
   const visible = SEGMENTS.slice(0, count);
-  const lastIsOperator = visible.length > 0 && visible[visible.length - 1].who === "operator";
+  const current = visible.length > 0 ? visible[visible.length - 1] : null;
+  const lastIsOperator = current?.who === "operator";
 
   return (
-    <div className="fixed inset-0 z-30 flex flex-col items-center justify-end font-mono text-[#f4e6ea]">
-      {/* failing-line scrim + grain (heavier as the call dies) */}
-      <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to top, rgba(8,1,3,0.92) 0%, rgba(8,1,3,0.35) 45%, transparent 70%)" }} />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 mix-blend-overlay"
-        style={{
-          opacity: lastIsOperator ? 0.32 : 0.14,
-          backgroundImage:
-            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23s)' opacity='0.7'/></svg>\")",
-        }}
-      />
-
-      {/* live indicator */}
-      <div className="pointer-events-none absolute left-1/2 top-7 flex -translate-x-1/2 items-center gap-2 text-[10px] uppercase tracking-[0.4em] text-[#ff7d92]">
+    <div className="pointer-events-none fixed inset-0 z-30 font-mono text-[#f4e6ea]">
+      {/* live indicator (top of the booth box) */}
+      <div className="absolute left-1/2 top-7 flex -translate-x-1/2 items-center gap-2 text-[10px] uppercase tracking-[0.4em]" style={{ color: lastIsOperator ? "#a8202c" : "#cf2233" }}>
         <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#ff2b3e]" />
         {lastIsOperator ? "line lost" : "incoming · tracing"}
       </div>
 
-      {/* the transcript */}
-      <div
-        ref={listRef}
-        className="no-bar relative z-10 mb-24 max-h-[46vh] w-full max-w-2xl overflow-y-auto px-6 text-center"
-        style={{ scrollbarWidth: "none" }}
-        aria-live="polite"
-      >
-        {visible.map((s, i) => {
-          const isLast = i === visible.length - 1;
-          const op = s.who === "operator";
-          return (
-            <p
-              key={i}
-              className="mb-4 leading-relaxed transition-opacity duration-500"
-              style={{
-                opacity: isLast ? 1 : 0.4,
-                color: op ? "#9fb4ff" : "#ffd9df",
-                fontFamily: op ? undefined : "var(--font-display), Georgia, serif",
-                fontSize: op ? "13px" : "clamp(18px, 3.2vw, 30px)",
-                letterSpacing: op ? "0.24em" : "normal",
-                textTransform: op ? "uppercase" : "none",
-                textShadow: op ? "none" : "0 0 22px rgba(255,40,70,0.35)",
-              }}
-            >
-              {op ? s.text : `“${s.text}”`}
-            </p>
-          );
-        })}
+      {/* CAPTION STRIP — bottom box: only the current line, all dark red */}
+      <div className="absolute inset-x-0 bottom-0 flex h-[16vh] min-h-[110px] items-center justify-center px-6 text-center" aria-live="polite">
+        {/* faint scrim so captions read over the booth */}
+        <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to top, rgba(8,1,3,0.9), transparent)" }} />
+        {current && (
+          <p
+            key={count}
+            className="relative leading-snug transition-opacity duration-300"
+            style={{
+              color: current.who === "operator" ? "#a8202c" : "#cf2233",
+              fontFamily: current.who === "operator" ? undefined : "var(--font-display), Georgia, serif",
+              fontSize: current.who === "operator" ? "14px" : "clamp(20px, 3vw, 34px)",
+              letterSpacing: current.who === "operator" ? "0.24em" : "normal",
+              textTransform: current.who === "operator" ? "uppercase" : "none",
+              textShadow: "0 0 24px rgba(180,18,30,0.55)",
+              maxWidth: "44rem",
+            }}
+          >
+            {current.who === "operator" ? current.text : `“${current.text}”`}
+          </p>
+        )}
       </div>
 
       {/* skip */}
       <button
         type="button"
         onClick={skip}
-        className="pointer-events-auto absolute bottom-7 right-7 z-10 font-mono text-[10px] uppercase tracking-[0.3em] text-white/45 transition-colors hover:text-white"
+        className="pointer-events-auto absolute bottom-7 right-7 z-10 font-mono text-[10px] uppercase tracking-[0.3em] text-[#cf2233]/70 transition-colors hover:text-[#ff5566]"
       >
         {ended ? "enter the booth ▸" : "skip ▸"}
       </button>
