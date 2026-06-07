@@ -19,6 +19,7 @@ import * as THREE from "three";
 export function DriveModel({
   url,
   fit,
+  fitAxis = "max",
   position = [0, 0, 0],
   rotation = [0, 0, 0],
   grounded = false,
@@ -26,8 +27,11 @@ export function DriveModel({
   emissiveIntensity = 0,
 }: {
   url: string;
-  /** target size (largest bounding-box dimension) in world units */
+  /** target size in world units (of the chosen axis) */
   fit: number;
+  /** scale so this axis == fit. "max" = largest dim (default); "y" ignores a
+      wide/long footprint (e.g. scattered debris) and sizes by height. */
+  fitAxis?: "max" | "y";
   position?: [number, number, number];
   rotation?: [number, number, number];
   /** sit the model on y=0 instead of centering vertically */
@@ -45,11 +49,11 @@ export function DriveModel({
     const center = new THREE.Vector3();
     box.getSize(size);
     box.getCenter(center);
-    const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    const s = fit / maxDim;
+    const dim = fitAxis === "y" ? size.y : Math.max(size.x, size.y, size.z);
+    const s = fit / (dim || 1);
     const off = new THREE.Vector3(-center.x, grounded ? -box.min.y : -center.y, -center.z);
     return { scale: s, offset: off };
-  }, [cloned, fit, grounded]);
+  }, [cloned, fit, fitAxis, grounded]);
 
   // optional emissive boost for neon models (tower)
   const matRef = useRef(false);
