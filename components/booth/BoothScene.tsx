@@ -34,7 +34,7 @@ export type BoothApi = {
 const HOME_POS = new THREE.Vector3(0, 2.25, 1.55);
 const HOME_LOOK = new THREE.Vector3(0, 2.18, 0);
 // after the call — push INSIDE the booth, close on the phone (back wall)
-const INSIDE_POS = new THREE.Vector3(0, 2.1, 0.25);
+const INSIDE_POS = new THREE.Vector3(0, 2.3, 0.20);
 const INSIDE_LOOK = new THREE.Vector3(0, 2.0, -1.6);
 
 function CameraController({ apiRef, enabled }: { apiRef: RefObject<BoothApi | null>; enabled: boolean }) {

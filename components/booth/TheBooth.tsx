@@ -59,7 +59,7 @@ export function TheBooth() {
   const [status, setStatus] = useState("dial tone");
   const [active, setActive] = useState<ActiveCall | null>(null);
   const [signupOpen, setSignupOpen] = useState(false);
-
+  const [showKeypad, setShowKeypad] = useState(false);
   const apiRef = useRef<BoothApi | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null); // unlock + the Mali call
   const voiceRef = useRef<HTMLAudioElement | null>(null); // operator / tower beat
@@ -153,7 +153,8 @@ export function TheBooth() {
   // Act 1 ended → move inside the booth to the keypad + start a dial tone.
   function enterBooth() {
     setPhase("dialing");
-    apiRef.current?.enter();
+    // enter the booth; show keypad only after camera finishes its enter tween
+    apiRef.current?.enter(() => setShowKeypad(true));
     startDialTone();
     setStatus("dial tone");
   }
@@ -204,6 +205,7 @@ export function TheBooth() {
     setDialed("");
     setStatus("dial tone");
     startDialTone();
+    setShowKeypad(true);
   }
 
   if (reduced) {
@@ -220,7 +222,7 @@ export function TheBooth() {
 
       {live && phase === "call" && <CallTranscript audioRef={audioRef} onDone={enterBooth} />}
 
-      {live && phase === "dialing" && !active && (
+      {live && phase === "dialing" && !active && showKeypad && (
         <KeypadHUD
           dialed={dialed}
           status={status}
