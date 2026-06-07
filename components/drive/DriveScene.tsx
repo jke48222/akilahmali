@@ -283,6 +283,33 @@ export function DriveScene({
           ambientRef={ambientRef}
         />
       </Canvas>
+
+      {/* ---- the cinematic grade (DOM overlay over the canvas) ----
+          vignette + a subtle chromatic fringe at the frame edges + 35mm grain.
+          Bloom on light sources comes from the additive trails/roses; true
+          per-pixel CA would need a scene-sampling post pass — overkill here.
+          pointer-events-none so the canvas stays interactive. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{ background: "radial-gradient(120% 100% at 50% 46%, transparent 50%, rgba(5,1,3,0.6) 100%)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-60 mix-blend-screen"
+        style={{
+          background:
+            "radial-gradient(135% 120% at 50% 50%, transparent 72%, rgba(70,110,255,0.10) 86%, rgba(255,40,70,0.14) 100%)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23g)' opacity='0.7'/></svg>\")",
+        }}
+      />
     </div>
   );
 }

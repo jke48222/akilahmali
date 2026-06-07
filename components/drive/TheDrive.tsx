@@ -24,7 +24,12 @@ import { DriveScene, type DriveApi } from "@/components/drive/DriveScene";
 import { DriveCover } from "@/components/drive/DriveCover";
 import { RadioDial } from "@/components/drive/RadioDial";
 import { StationFilm } from "@/components/drive/StationFilm";
+import { DriveFallback } from "@/components/drive/DriveFallback";
 import { STATIONS, stationIndexForSong } from "@/lib/drive/stations";
+
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 // 1-sample silent wav — played UNMUTED once on START to bless the audio element
 // so the later, post-gesture play() (idle ambience / film audio, outside the
@@ -37,6 +42,9 @@ export function TheDrive() {
   const [showCover, setShowCover] = useState(true);
   const [active, setActive] = useState<number | null>(null); // open station film index
   const [tuned, setTuned] = useState(0); // currently tuned-in station
+  // Reduced-motion visitors skip the animated drive + camera push entirely and
+  // get the static 2D version (decided once, before any hooks branch).
+  const [reduced] = useState(prefersReducedMotion);
   const apiRef = useRef<DriveApi | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -226,6 +234,15 @@ export function TheDrive() {
   }, [live, tuned, filmOpen]);
 
   const skin = STATIONS[tuned] ?? STATIONS[0];
+
+  // Reduced motion → the static 2D version (no WebGL, no push).
+  if (reduced) {
+    return (
+      <div className="fixed inset-0 z-[60] h-[100dvh] w-screen overflow-y-auto">
+        <DriveFallback />
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[60] h-[100dvh] w-screen overflow-hidden bg-[#0a0204] text-white">
