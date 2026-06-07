@@ -22,16 +22,16 @@ import { isCoarsePointer } from "@/lib/device";
 import { DriveModel } from "@/components/drive/DriveModel";
 
 export type BoothApi = {
-  /** lean the camera in toward the keypad (on pick-up) */
-  lean: (onArrive?: () => void) => void;
-  /** pull back to the establishing pose (on hang-up) */
+  /** push the camera INSIDE the booth, framing the phone + keypad */
+  enter: (onArrive?: () => void) => void;
+  /** pull back to the establishing pose */
   reset: (onHome?: () => void) => void;
 };
 
 const HOME_POS = new THREE.Vector3(0, 1.45, 3.5);
 const HOME_LOOK = new THREE.Vector3(0, 1.25, 0);
-const LEAN_POS = new THREE.Vector3(0, 1.3, 1.9);
-const LEAN_LOOK = new THREE.Vector3(0, 1.15, 0);
+const INSIDE_POS = new THREE.Vector3(0, 1.32, 1.15);
+const INSIDE_LOOK = new THREE.Vector3(0, 1.16, -0.4);
 
 function CameraController({ apiRef, enabled }: { apiRef: RefObject<BoothApi | null>; enabled: boolean }) {
   const { camera } = useThree();
@@ -63,8 +63,8 @@ function CameraController({ apiRef, enabled }: { apiRef: RefObject<BoothApi | nu
     target.current.copy(HOME_LOOK);
     camera.lookAt(target.current);
     apiRef.current = {
-      lean: (onArrive) => tweenTo(LEAN_POS, LEAN_LOOK, 1.3, onArrive),
-      reset: (onHome) => tweenTo(HOME_POS, HOME_LOOK, 1.1, () => { locked.current = false; onHome?.(); }),
+      enter: (onArrive) => tweenTo(INSIDE_POS, INSIDE_LOOK, 2.0, onArrive),
+      reset: (onHome) => tweenTo(HOME_POS, HOME_LOOK, 1.2, () => { locked.current = false; onHome?.(); }),
     };
     return () => {
       tween.current?.kill();
