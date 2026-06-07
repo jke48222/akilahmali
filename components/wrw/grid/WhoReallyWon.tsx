@@ -43,9 +43,32 @@ export function WhoReallyWon() {
   const [entered, setEntered] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
   const [active, setActive] = useState<number | null>(null); // active song feed index
+  // Defer mounting the WebGL scene until the browser is idle, so parsing ~1MB of
+  // three.js doesn't jank the cover's draw-on ink animation. It's still ready
+  // well before the visitor finishes reading the cover and clicks ENTER (and we
+  // also force-mount the instant they enter, in case they're fast).
+  const [sceneReady, setSceneReady] = useState(false);
   const apiRef = useRef<GridApi | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const w = window as typeof window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    let idleId: number | undefined;
+    let toId: number | undefined;
+    if (w.requestIdleCallback) {
+      idleId = w.requestIdleCallback(() => setSceneReady(true), { timeout: 1800 });
+    } else {
+      toId = window.setTimeout(() => setSceneReady(true), 1200);
+    }
+    return () => {
+      if (idleId !== undefined) w.cancelIdleCallback?.(idleId);
+      if (toId !== undefined) window.clearTimeout(toId);
+    };
+  }, []);
 
   // Deep link: /music/who-really-won?song=last-year (or ?feed=N) opens straight
   // into that blast once the visitor has entered (so audio is unlocked first).
@@ -145,13 +168,15 @@ export function WhoReallyWon() {
 
   return (
     <div className="fixed inset-0 z-[60] h-[100dvh] w-screen overflow-hidden bg-black text-white">
-      <GridScene
-        apiRef={apiRef}
-        enabled={live && !blastOpen}
-        rendering={entered && !blastOpen}
-        onSelect={handleSelect}
-        onButton={handleButton}
-      />
+      {(sceneReady || entered) && (
+        <GridScene
+          apiRef={apiRef}
+          enabled={live && !blastOpen}
+          rendering={entered && !blastOpen}
+          onSelect={handleSelect}
+          onButton={handleButton}
+        />
+      )}
       {live && !blastOpen && <GridHUD />}
       {showLanding && <Landing onEnter={handleEnter} onDone={() => setShowLanding(false)} />}
       {active !== null && (
