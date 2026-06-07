@@ -16,13 +16,23 @@
    ========================================================================= */
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { GridScene, type GridApi } from "@/components/wrw/grid/GridScene";
+import type { GridApi } from "@/components/wrw/grid/GridScene";
 import { BlastOverlay } from "@/components/wrw/grid/BlastOverlay";
 import { GridHUD } from "@/components/wrw/grid/GridHUD";
 import { Landing } from "@/components/wrw/grid/Landing";
 import { WrwCRT } from "@/components/wrw/WrwCRT";
 import { FEEDS, feedIndexForReleaseSlug } from "@/lib/wrw/grid";
+
+// The WebGL room (three.js + drei + fiber + gsap, ~1.5MB) is split into its OWN
+// chunk and lazy-loaded so it NEVER blocks the paper cover. The cover/ink mark
+// paints the instant this lightweight component's chunk arrives, while the room
+// streams in behind it (it's fully occluded by the cover anyway until the tear).
+const GridScene = dynamic(
+  () => import("@/components/wrw/grid/GridScene").then((m) => m.GridScene),
+  { ssr: false },
+);
 
 // 1-sample silent wav — played once on ENTER to unlock the audio element so
 // the later, post-zoom play() (outside the click's gesture window) is allowed.
