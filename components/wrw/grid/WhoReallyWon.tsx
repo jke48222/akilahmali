@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import type { GridApi } from "@/components/wrw/grid/GridScene";
 import { BlastOverlay } from "@/components/wrw/grid/BlastOverlay";
 import { GridHUD } from "@/components/wrw/grid/GridHUD";
-import { Landing } from "@/components/wrw/grid/Landing";
+import { Landing, INK_DRAW_MS } from "@/components/wrw/grid/Landing";
 import { WrwCRT } from "@/components/wrw/WrwCRT";
 import { FEEDS, feedIndexForReleaseSlug } from "@/lib/wrw/grid";
 
@@ -53,21 +53,16 @@ export function WhoReallyWon() {
   const router = useRouter();
 
   useEffect(() => {
-    const w = window as typeof window & {
-      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
-      cancelIdleCallback?: (id: number) => void;
-    };
-    let idleId: number | undefined;
-    let toId: number | undefined;
-    if (w.requestIdleCallback) {
-      idleId = w.requestIdleCallback(() => setSceneReady(true), { timeout: 1800 });
-    } else {
-      toId = window.setTimeout(() => setSceneReady(true), 1200);
-    }
-    return () => {
-      if (idleId !== undefined) w.cancelIdleCallback?.(idleId);
-      if (toId !== undefined) window.clearTimeout(toId);
-    };
+    // Mount the WebGL scene only AFTER the ink finishes drawing. The draw-on
+    // animates stroke-dashoffset on the MAIN thread, so parsing ~1MB of three.js
+    // mid-draw janks it (a hitch wherever the parse lands). Once drawn, the cover
+    // sits static while the visitor reads — the safe window to parse three. The
+    // later paper tear is a CSS transform on the COMPOSITOR, so the parse can't
+    // jank it. (We also force-mount the instant they ENTER, below, via the gate.)
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const delay = reduced ? 150 : INK_DRAW_MS + 250;
+    const id = window.setTimeout(() => setSceneReady(true), delay);
+    return () => window.clearTimeout(id);
   }, []);
 
   // Deep link: /music/who-really-won?song=last-year (or ?feed=N) opens straight
