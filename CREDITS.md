@@ -40,6 +40,14 @@ Textures (`public/drive-assets/textures/`):
 
 ---
 
+## THE PAYPHONE — (post-apocalyptic phone-booth experience)
+
+3D model (`public/booth-assets/models/`):
+
+- **"Post Apocalyptic Phone Booth"** (<https://skfb.ly/o7U7y>) by **denis_cliofas** — CC Attribution.
+
+---
+
 _All 3D models were re-compressed for the web with `gltf-transform optimize`
 (WebP textures, ≤1024px, no geometry codec) so no blocked CDN decoder (Draco /
 meshopt) is ever requested under our Content-Security-Policy._
