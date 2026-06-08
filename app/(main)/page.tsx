@@ -62,7 +62,7 @@ function HomeJsonLd() {
     foundingDate: "2025",
     sameAs: [
       "https://www.instagram.com/akilah.mali",
-      "https://www.tiktok.com/@akilahmali",
+      "https://www.tiktok.com/@malicantsing",
       "https://www.youtube.com/@akilahmali",
       "https://open.spotify.com/artist/13CrflPMkTb5mmizdGYL2i",
       "https://music.apple.com/us/artist/mali/1815283080",

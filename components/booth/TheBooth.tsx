@@ -24,6 +24,7 @@ import { InCall, type ActiveCall } from "@/components/booth/InCall";
 import { BoothSignup } from "@/components/booth/BoothSignup";
 import { BoothFallback } from "@/components/booth/BoothFallback";
 import { makeToneEngine, type ToneEngine } from "@/lib/booth/tones";
+import { prefersReducedMotion } from "@/lib/device";
 
 const SILENT =
   "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
@@ -46,9 +47,6 @@ const INVALID_CALL: CallTarget = {
   src: "/booth-assets/audio/operator-invalid.mp3",
   caption: "The number you have dialed is no longer in service. Please check the number and dial again.",
 };
-
-const prefersReducedMotion = () =>
-  typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 export function TheBooth() {
   const [entered, setEntered] = useState(false);

@@ -15,6 +15,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { WordmarkLogo } from "@/components/Logo";
+import { prefersReducedMotion as reduceMotion } from "@/lib/device";
 
 const NAV = [
   { label: "Music", href: "/music" },
@@ -25,10 +26,6 @@ const NAV = [
   { label: "Press", href: "/press" },
   { label: "Contact", href: "/contact" },
 ];
-
-const reduceMotion = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 export function DriveCover({ onEnter, onDone }: { onEnter: () => void; onDone: () => void }) {
   const [wiping, setWiping] = useState(false);

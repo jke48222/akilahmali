@@ -9,6 +9,7 @@ import { Reveal } from "@/components/Reveal";
 import { SectionLabel } from "@/components/home/SectionLabel";
 import { ReleaseArtwork } from "@/components/home/ReleaseArtwork";
 import { Track } from "@/components/music/Track";
+import { ShopModule } from "@/components/music/ShopModule";
 import { LiteYouTube } from "@/components/LiteYouTube";
 import { NavThemeSentinel } from "@/components/NavThemeSentinel";
 import {
@@ -26,6 +27,7 @@ import {
 } from "@/lib/queries";
 import { urlForImage } from "@/lib/sanity";
 import { jsonLd } from "@/lib/structured-data";
+import { slugify } from "@/lib/slug";
 import { feedIndexForReleaseSlug } from "@/lib/wrw/grid";
 import { FORCE_PORTRAIT_OG, OG_PORTRAIT } from "@/lib/og";
 import {
@@ -157,6 +159,7 @@ type DisplayRelease = {
   }>;
   credits: Array<[string, string]>;
   streamingLinks?: ReleaseDetail["streamingLinks"];
+  shopLinks?: ReleaseDetail["shopLinks"];
 };
 
 function mergeWithStatic(
@@ -212,6 +215,10 @@ function mergeWithStatic(
     tracks,
     credits,
     streamingLinks: live?.streamingLinks,
+    shopLinks:
+      live?.shopLinks && live.shopLinks.length > 0
+        ? live.shopLinks
+        : fallback.shopLinks,
   };
 }
 
@@ -517,6 +524,9 @@ export default async function ReleaseDetailPage({
         </div>
       </section>
 
+      {/* SHOP · physical / merch (renders nothing when empty) */}
+      <ShopModule items={release.shopLinks ?? []} releaseTitle={release.title} />
+
       {/* TRACKLIST */}
       <section className="relative">
         <div className="mx-auto max-w-page px-gutter md:px-gutter-md lg:px-gutter-lg pt-section md:pt-section-xl">
@@ -548,6 +558,8 @@ export default async function ReleaseDetailPage({
                   appleMusic={t.appleMusic}
                   density="spacious"
                   defaultOpen={i === 0 && !t.placeholder}
+                  releaseSlug={release.slug}
+                  songSlug={slugify(t.title)}
                   meta={[`written by · akilah brown-pagan`, `vocals · akilah brown-pagan`]}
                 />
               ))}
@@ -772,6 +784,22 @@ function JsonLd({ release }: { release: DisplayRelease }) {
     inLanguage: "en",
     url: `https://akilahmali.com/music/${release.slug}`,
     ...(release.label ? { recordLabel: release.label } : {}),
+    ...(release.shopLinks && release.shopLinks.length > 0
+      ? {
+          offers: release.shopLinks.map((s) => {
+            const price = parsePrice(s.price);
+            return {
+              "@type": "Offer",
+              name: s.title,
+              url: s.url,
+              ...(price ? { price, priceCurrency: "USD" } : {}),
+              availability: s.soldOut
+                ? "https://schema.org/SoldOut"
+                : "https://schema.org/InStock",
+            };
+          }),
+        }
+      : {}),
   };
   const payload = isAlbum
     ? {
@@ -798,6 +826,13 @@ function JsonLd({ release }: { release: DisplayRelease }) {
       dangerouslySetInnerHTML={{ __html: jsonLd(payload) }}
     />
   );
+}
+
+/** Pull a plain numeric price out of a display string like "$28" → "28.00". */
+function parsePrice(display?: string): string | null {
+  if (!display) return null;
+  const m = display.replace(/,/g, "").match(/(\d+(?:\.\d{1,2})?)/);
+  return m ? Number(m[1]).toFixed(2) : null;
 }
 
 function durationToISO(mmss: string): string {

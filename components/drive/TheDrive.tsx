@@ -26,10 +26,7 @@ import { RadioDial } from "@/components/drive/RadioDial";
 import { StationFilm } from "@/components/drive/StationFilm";
 import { DriveFallback } from "@/components/drive/DriveFallback";
 import { STATIONS, stationIndexForSong } from "@/lib/drive/stations";
-
-const prefersReducedMotion = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+import { prefersReducedMotion } from "@/lib/device";
 
 // 1-sample silent wav — played UNMUTED once on START to bless the audio element
 // so the later, post-gesture play() (idle ambience / film audio, outside the

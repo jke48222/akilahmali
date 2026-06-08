@@ -35,7 +35,8 @@ const csp = [
   `frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://*.curator.io`,
   // Where forms can submit (we POST internally; Shopify checkout is a top-level redirect, not a form).
   `form-action 'self'`,
-  `frame-ancestors 'self'`,
+  // Allow this site to be embedded in an <iframe> from any origin.
+  `frame-ancestors *`,
   `base-uri 'self'`,
   `object-src 'none'`,
   isDev ? null : `upgrade-insecure-requests`,
@@ -50,7 +51,8 @@ const SECURITY_HEADERS = [
   },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  // X-Frame-Options intentionally omitted — it has no "allow any origin" value,
+  // so framing is controlled solely by the CSP `frame-ancestors *` above.
   {
     key: "Permissions-Policy",
     value: [

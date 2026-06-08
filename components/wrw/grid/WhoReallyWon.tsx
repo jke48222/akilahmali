@@ -24,6 +24,7 @@ import { GridHUD } from "@/components/wrw/grid/GridHUD";
 import { Landing, INK_DRAW_MS } from "@/components/wrw/grid/Landing";
 import { WrwCRT } from "@/components/wrw/WrwCRT";
 import { FEEDS, feedIndexForReleaseSlug } from "@/lib/wrw/grid";
+import { prefersReducedMotion } from "@/lib/device";
 
 // The WebGL room (three.js + drei + fiber + gsap, ~1.5MB) is split into its OWN
 // chunk and lazy-loaded so it NEVER blocks the paper cover. The cover/ink mark
@@ -59,7 +60,7 @@ export function WhoReallyWon() {
     // sits static while the visitor reads — the safe window to parse three. The
     // later paper tear is a CSS transform on the COMPOSITOR, so the parse can't
     // jank it. (We also force-mount the instant they ENTER, below, via the gate.)
-    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
     const delay = reduced ? 150 : INK_DRAW_MS + 250;
     const id = window.setTimeout(() => setSceneReady(true), delay);
     return () => window.clearTimeout(id);

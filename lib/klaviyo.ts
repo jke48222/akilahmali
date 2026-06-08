@@ -32,20 +32,51 @@ export type SubscribeResult =
  * we treat any 2xx as success. If the upstream returns 409 or a duplicate-y
  * error code, we surface it as `already-subscribed` for client-side copy.
  *
+ * Beyond the consent-level `custom_source`, we also stamp filterable PROFILE
+ * properties so Klaviyo segments + flows can branch per entry point (the
+ * source-specific welcome journeys). See docs/klaviyo-journeys.md for the
+ * canonical source list and the flows each one triggers.
+ *
  * @param email     Validated email address.
  * @param source    Form identifier surfaced as Klaviyo `custom_source` on the
- *                  consent record — visible in the Klaviyo UI per-profile.
+ *                  consent record AND as the `signup_source` profile property.
+ * @param props     Optional extra profile properties for context-aware
+ *                  segmentation (e.g. `{ rsvp_show_id, rsvp_show_city }` from a
+ *                  show RSVP, or `{ release_slug }` from a release capture).
+ *                  String values only; keys become Klaviyo custom properties.
  */
 export async function subscribeToList(
   email: string,
   source: string,
+  props?: Record<string, string>,
 ): Promise<SubscribeResult> {
   if (!isKlaviyoConfigured) {
     return { status: "skipped", reason: "unconfigured" };
   }
 
+  // Filterable profile properties → these are what segments/flows branch on.
+  // `signup_source` = the latest entry point; `source_<name>` booleans let a
+  // segment say "anyone who ever signed up via the booth" even after a later
+  // signup overwrites `signup_source`.
+  const properties: Record<string, string | boolean> = {
+    signup_source: source,
+    [`source_${source}`]: true,
+    ...props,
+  };
+
   try {
-    await getProfilesApi().bulkSubscribeProfiles({
+    const api = getProfilesApi();
+
+    // 1) Upsert the profile FIRST to merge the segmentation properties. The
+    //    bulk-subscribe job only carries consent (its profile attributes don't
+    //    accept custom properties), so we set properties via createOrUpdate —
+    //    keyed by email, it creates or merges onto an existing profile.
+    await api.createOrUpdateProfile({
+      data: { type: "profile", attributes: { email, properties } },
+    });
+
+    // 2) Subscribe → set marketing consent on the configured list.
+    await api.bulkSubscribeProfiles({
       data: {
         type: "profile-subscription-bulk-create-job",
         attributes: {

@@ -8,7 +8,7 @@
  */
 export const SOCIAL_PROFILES = {
   instagram: "https://www.instagram.com/akilah.mali",
-  tiktok: "https://www.tiktok.com/@akilahmali",
+  tiktok: "https://www.tiktok.com/@malicantsing",
   youtube: "https://www.youtube.com/@akilahmali",
   linkedin: "https://www.linkedin.com/in/akilah-brown-069b24341/",
 };

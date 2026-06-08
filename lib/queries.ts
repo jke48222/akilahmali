@@ -28,6 +28,16 @@ const STREAMING = /* groq */ `
   }
 `;
 
+const SHOP = /* groq */ `
+  "shopLinks": shopLinks[]{
+    title,
+    url,
+    kind,
+    price,
+    soldOut
+  }
+`;
+
 /* =========================================================================
    Releases
    ========================================================================= */
@@ -37,6 +47,7 @@ export const latestReleaseQuery = defineQuery(`
     description,
     credits,
     ${STREAMING},
+    ${SHOP},
     "tracks": tracks[]->{ _id, title, trackNumber, duration }
   }
 `);
@@ -59,6 +70,7 @@ export const releaseBySlugQuery = defineQuery(`
     description,
     credits,
     ${STREAMING},
+    ${SHOP},
     "tracks": tracks[]->{ _id, title, trackNumber, duration, lyrics, credits } | order(trackNumber asc)
   }
 `);
@@ -76,7 +88,8 @@ export const allVideosQuery = defineQuery(`
 export const upcomingShowsQuery = defineQuery(`
   *[_type == "show" && dateTime(date) >= dateTime(now())]
     | order(date asc) {
-      _id, date, venue, city, country, billing, ticketUrl, status, notes
+      _id, date, venue, city, country, billing, ticketUrl, status, notes,
+      rsvp, "geo": location { lat, lng }
     }
 `);
 
@@ -211,10 +224,21 @@ export type StreamingLinks = {
   smartlink?: string;
 };
 
+export type ShopKind = "vinyl" | "cd" | "cassette" | "apparel" | "bundle" | "other";
+
+export type ShopLink = {
+  title: string;
+  url: string;
+  kind?: ShopKind;
+  price?: string;
+  soldOut?: boolean;
+};
+
 export type LatestRelease = ReleaseCard & {
   description?: PortableTextBlock[];
   credits?: PortableTextBlock[];
   streamingLinks?: StreamingLinks;
+  shopLinks?: ShopLink[];
   tracks?: Track[];
 };
 
@@ -351,6 +375,8 @@ export type ShowItem = {
   ticketUrl?: string;
   status: "announced" | "onSale" | "soldOut" | "cancelled" | "tba";
   notes?: string;
+  rsvp?: boolean;
+  geo?: { lat: number; lng: number } | null;
 };
 
 export async function getUpcomingShows(): Promise<ShowItem[] | null> {
