@@ -1,7 +1,7 @@
 "use client";
 
-import { useId, useState } from "react";
-import { Pause, Play, Plus } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
+import { Check, Link2, Pause, Play, Plus } from "lucide-react";
 import { SpotifyIcon, AppleIcon } from "@/components/icons";
 import { usePlayer } from "@/components/player/PlayerProvider";
 import { trackById } from "@/lib/player/catalog";
@@ -25,6 +25,11 @@ type TrackProps = {
   appleMusic?: string;
   /** Catalog id for the persistent player; enables the inline play button. */
   playableId?: string;
+  /** Release slug + per-song slug → enables the per-song deep link / share. When
+   *  the page loads with ?song=<songSlug> (or #<songSlug>) this track auto-opens
+   *  and scrolls into view, and a "copy link" control appears in the drawer. */
+  releaseSlug?: string;
+  songSlug?: string;
 };
 
 export function Track({
@@ -39,10 +44,43 @@ export function Track({
   spotify,
   appleMusic,
   playableId,
+  releaseSlug,
+  songSlug,
 }: TrackProps) {
   const [open, setOpen] = useState(defaultOpen);
+  const [copied, setCopied] = useState(false);
+  const liRef = useRef<HTMLLIElement>(null);
   const drawerId = useId();
   const player = usePlayer();
+
+  // Deep link: open + scroll this track when the URL targets it (?song= or #).
+  useEffect(() => {
+    if (!songSlug) return;
+    const params = new URLSearchParams(window.location.search);
+    const target = params.get("song") || window.location.hash.replace(/^#/, "");
+    if (target && target === songSlug) {
+      // Defer to a tick so opening + scrolling happen off the synchronous effect
+      // body (and after first paint, so the drawer expansion is visible).
+      const id = window.setTimeout(() => {
+        setOpen(true);
+        liRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 120);
+      return () => window.clearTimeout(id);
+    }
+  }, [songSlug]);
+
+  async function copyLink(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!releaseSlug || !songSlug) return;
+    const url = `${window.location.origin}/music/${releaseSlug}?song=${songSlug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard blocked — no-op; the anchor id still makes the URL shareable */
+    }
+  }
   const playable = playableId ? trackById(playableId) : null;
   const isCurrent = !!playable && player.current?.id === playable.id;
   const isThisPlaying = isCurrent && player.isPlaying;
@@ -63,7 +101,7 @@ export function Track({
     density === "spacious" ? "py-5 md:py-6" : "py-4 md:py-5";
 
   return (
-    <li className="border-t border-rule">
+    <li ref={liRef} id={songSlug} className="border-t border-rule scroll-mt-24">
       <div className="relative">
         {playable ? (
           <button
@@ -129,9 +167,11 @@ export function Track({
                 {lyrics}
               </pre>
             )}
-            {spotify || appleMusic ? (
-              <div className="mt-6 flex items-center gap-5 font-mono text-mono-xs uppercase tracking-caps-md text-ink-2">
-                <span className="text-ink-3">listen</span>
+            {spotify || appleMusic || (releaseSlug && songSlug) ? (
+              <div className="mt-6 flex flex-wrap items-center gap-5 font-mono text-mono-xs uppercase tracking-caps-md text-ink-2">
+                {spotify || appleMusic ? (
+                  <span className="text-ink-3">listen</span>
+                ) : null}
                 {spotify ? (
                   <a href={spotify} rel="noopener" target="_blank" data-cursor="hover" className="ulink inline-flex items-center gap-2">
                     <SpotifyIcon width="13" height="13" /> spotify
@@ -141,6 +181,21 @@ export function Track({
                   <a href={appleMusic} rel="noopener" target="_blank" data-cursor="hover" className="ulink inline-flex items-center gap-2">
                     <AppleIcon width="13" height="13" /> apple music
                   </a>
+                ) : null}
+                {releaseSlug && songSlug ? (
+                  <button
+                    type="button"
+                    onClick={copyLink}
+                    data-cursor="hover"
+                    className="ulink inline-flex items-center gap-2 text-ink-3 hover:text-ink-2"
+                    aria-label={`Copy link to ${title}`}
+                  >
+                    {copied ? (
+                      <><Check width={13} height={13} strokeWidth={1.6} /> copied</>
+                    ) : (
+                      <><Link2 width={13} height={13} strokeWidth={1.4} /> copy link</>
+                    )}
+                  </button>
                 ) : null}
               </div>
             ) : null}

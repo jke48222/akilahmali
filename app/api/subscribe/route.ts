@@ -4,9 +4,30 @@ import { subscribeToList } from "@/lib/klaviyo";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 import { honeypotFields, isBotSubmission } from "@/lib/honeypot";
 
+// Optional context properties forwarded to Klaviyo as profile properties for
+// segmentation (e.g. a show RSVP sends rsvp_show_id / rsvp_show_city). Tightly
+// bounded so a form can't stuff arbitrary data onto a profile: snake_case keys,
+// short string values, at most 8 pairs.
+const SubscribeMeta = z
+  .record(
+    z.string().regex(/^[a-z][a-z0-9_]{0,39}$/),
+    z.string().trim().min(1).max(120),
+  )
+  .refine((o) => Object.keys(o).length <= 8, {
+    message: "Too many properties.",
+  });
+
 const SubscribeBody = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
-  source: z.string().trim().min(1).max(64).optional().default("unknown"),
+  source: z
+    .string()
+    .trim()
+    .min(1)
+    .max(64)
+    .regex(/^[a-z0-9][a-z0-9-]*$/, "Invalid source.")
+    .optional()
+    .default("unknown"),
+  meta: SubscribeMeta.optional(),
   ...honeypotFields,
 });
 
@@ -50,10 +71,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, status: "subscribed" });
   }
 
-  const { email, source } = parsed.data;
+  const { email, source, meta } = parsed.data;
 
   // 3) Hand off to Klaviyo (or no-op fallback when unconfigured).
-  const result = await subscribeToList(email, source);
+  const result = await subscribeToList(email, source, meta);
 
   switch (result.status) {
     case "ok":

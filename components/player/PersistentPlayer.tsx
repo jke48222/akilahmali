@@ -18,13 +18,10 @@ import { Pause, Play, SkipBack, SkipForward, X } from "lucide-react";
 import { usePlayer } from "./PlayerProvider";
 import { CATALOG } from "@/lib/player/catalog";
 import { AppleIcon, SpotifyIcon } from "@/components/icons";
+import { prefersReducedMotion } from "@/lib/device";
 
 // Routes that own their own audio — keep the global orb out of the way.
 const SILENCED_PREFIXES = ["/music/who-really-won", "/music/endless-cycle", "/payphone"];
-
-const prefersReducedMotion = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 /* hex → HSL so we can derive analogous hues for layered, iridescent depth. */
 function hexToHsl(hex: string): { h: number; s: number; l: number } {

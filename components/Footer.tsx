@@ -20,7 +20,7 @@ const LISTEN = [
 
 const FOLLOW = [
   { label: "Instagram", href: "https://www.instagram.com/akilah.mali", Icon: InstagramIcon },
-  { label: "TikTok", href: "https://www.tiktok.com/@akilahmali", Icon: TikTokIcon },
+  { label: "TikTok", href: "https://www.tiktok.com/@malicantsing", Icon: TikTokIcon },
   { label: "YouTube", href: "https://www.youtube.com/@akilahmali", Icon: YouTubeIcon },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/akilah-brown-069b24341/", Icon: LinkedInIcon },
 ];

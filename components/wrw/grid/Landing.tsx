@@ -21,6 +21,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { wrwPhoto } from "@/lib/wrw/tracks";
+import { prefersReducedMotion } from "@/lib/device";
 import { WordmarkLogo } from "@/components/Logo";
 
 /* The handwritten "Who Really Won?" mark — one <path> per stroke. */
@@ -116,7 +117,7 @@ function InkMark({ animate }: { animate: boolean }) {
   useEffect(() => {
     if (!animate || !ref.current) return;
     const paths = Array.from(ref.current.querySelectorAll<SVGPathElement>(".ink-path")).reverse();
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    if (prefersReducedMotion()) {
       paths.forEach((p) => (p.style.fill = "#141210"));
       return;
     }

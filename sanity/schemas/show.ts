@@ -38,6 +38,21 @@ export const show = defineType({
       type: "url",
     }),
     defineField({
+      name: "location",
+      title: "Venue location (for 'shows near me')",
+      description:
+        "Drop a pin on the venue. Powers the opt-in 'shows near me' sort on /shows. Optional — shows without a pin still appear, just not distance-sorted.",
+      type: "geopoint",
+    }),
+    defineField({
+      name: "rsvp",
+      title: "Free entry — collect RSVPs",
+      description:
+        "For free / no-ticket dates: shows an RSVP email capture instead of a ticket link. Ignored when a Ticket URL is set.",
+      type: "boolean",
+      initialValue: false,
+    }),
+    defineField({
       name: "status",
       type: "string",
       options: {

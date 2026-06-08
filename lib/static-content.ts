@@ -46,6 +46,13 @@ export type StaticRelease = {
     tidal?: string;
     smartlink?: string;
   };
+  shopLinks?: Array<{
+    title: string;
+    url: string;
+    kind?: "vinyl" | "cd" | "cassette" | "apparel" | "bundle" | "other";
+    price?: string;
+    soldOut?: boolean;
+  }>;
 };
 
 /* Shared links — artist-level streaming + the linktree "everywhere" smartlink. */
@@ -663,7 +670,7 @@ export const STATIC_BUCKETS: ContactBucket[] = [
 
 export const STATIC_SOCIAL_LINKS = {
   instagram: "https://www.instagram.com/akilah.mali",
-  tiktok: "https://www.tiktok.com/@akilahmali",
+  tiktok: "https://www.tiktok.com/@malicantsing",
   youtube: "https://www.youtube.com/@akilahmali",
   twitter: "",
 };
