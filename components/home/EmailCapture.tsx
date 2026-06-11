@@ -4,11 +4,19 @@ import { useState, type FormEvent } from "react";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 import { useHoneypot } from "@/components/ui/useHoneypot";
+import { resolveSignupSource, trackLead } from "@/lib/analytics";
 import { SectionLabel } from "./SectionLabel";
 
 type Status = "idle" | "submitting" | "ok" | "error";
 
 const SOURCE = "home";
+
+/**
+ * Lead magnet delivered on signup (free demo / voice memo / lyric PDF).
+ * TODO(akilah): set NEXT_PUBLIC_LEAD_MAGNET_URL to the asset link once it
+ * exists — until then the success state simply omits the download line.
+ */
+const LEAD_MAGNET_URL = process.env.NEXT_PUBLIC_LEAD_MAGNET_URL || null;
 
 export function EmailCapture() {
   const [email, setEmail] = useState("");
@@ -23,11 +31,14 @@ export function EmailCapture() {
     setStatus("submitting");
     setErrorMsg("");
 
+    // ?source= UTM (tiktok / ig / yt bio links) outranks the form's own id.
+    const source = resolveSignupSource(SOURCE);
+
     try {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, source: SOURCE, ...honeypotValues() }),
+        body: JSON.stringify({ email, source, ...honeypotValues() }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -37,6 +48,7 @@ export function EmailCapture() {
             : "We couldn’t save your email. Try again shortly.",
         );
       }
+      trackLead(source);
       setStatus("ok");
     } catch (err) {
       setStatus("error");
@@ -121,6 +133,16 @@ export function EmailCapture() {
                 <p className="mt-3 font-mono text-mono-xs uppercase tracking-caps text-ink-3">
                   ({email})
                 </p>
+                {LEAD_MAGNET_URL ? (
+                  <p className="mt-4 font-mono text-mono-xs uppercase tracking-caps">
+                    <a
+                      href={LEAD_MAGNET_URL}
+                      className="ulink text-accent hover:text-accent-2"
+                    >
+                      your welcome gift — download
+                    </a>
+                  </p>
+                ) : null}
               </div>
             )}
           </Reveal>

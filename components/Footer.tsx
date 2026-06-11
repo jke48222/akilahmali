@@ -1,4 +1,5 @@
 import NextLink from "next/link";
+import { SHOP_URL } from "@/lib/shop";
 import { LocalClock } from "./LocalClock";
 import { Wordmark } from "./Logo";
 import {
@@ -16,12 +17,13 @@ const YEAR = new Date().getFullYear();
 const LISTEN = [
   { label: "Spotify", href: "https://open.spotify.com/artist/13CrflPMkTb5mmizdGYL2i", Icon: SpotifyIcon },
   { label: "Apple Music", href: "https://music.apple.com/us/artist/mali/1815283080", Icon: AppleIcon },
-  { label: "YouTube Music", href: "https://music.youtube.com/channel/UCQVqXv4_mcRLIE0Wy1WUSHw", Icon: YouTubeIcon },
+  { label: "YouTube Music", href: "https://music.youtube.com/channel/UC_F92jN7yVa0CU_PbS3Db9g", Icon: YouTubeIcon },
 ];
 
 const FOLLOW = [
   { label: "Instagram", href: "https://www.instagram.com/akilah.mali", Icon: InstagramIcon },
-  { label: "TikTok", href: "https://www.tiktok.com/@malicantsing", Icon: TikTokIcon },
+  // Standardized on @akilahmali — @malicantsing is being retired.
+  { label: "TikTok", href: "https://www.tiktok.com/@akilahmali", Icon: TikTokIcon },
   { label: "YouTube", href: "https://www.youtube.com/@akilahmali", Icon: YouTubeIcon },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/akilah-brown-069b24341/", Icon: LinkedInIcon },
 ];
@@ -93,19 +95,21 @@ export function Footer() {
             </ul>
           </FooterCol>
 
-          <FooterCol title="store" className="col-span-6 md:col-span-2">
-            <ul className="space-y-2 text-[14px]">
-              <li>
-                <a
-                  href="https://shop.akilahmali.com"
-                  rel="noopener"
-                  className="ulink inline-flex items-center gap-1"
-                >
-                  shop <ArrowDiagIcon width="12" height="12" />
-                </a>
-              </li>
-            </ul>
-          </FooterCol>
+          {SHOP_URL ? (
+            <FooterCol title="store" className="col-span-6 md:col-span-2">
+              <ul className="space-y-2 text-[14px]">
+                <li>
+                  <a
+                    href={SHOP_URL}
+                    rel="noopener"
+                    className="ulink inline-flex items-center gap-1"
+                  >
+                    shop <ArrowDiagIcon width="12" height="12" />
+                  </a>
+                </li>
+              </ul>
+            </FooterCol>
+          ) : null}
         </div>
 
         <div className="h-px w-full bg-rule" />

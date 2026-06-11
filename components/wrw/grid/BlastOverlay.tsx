@@ -8,6 +8,7 @@
    ========================================================================= */
 
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { SHOP_URL } from "@/lib/shop";
 import type { Feed } from "@/lib/wrw/grid";
 
 export function BlastOverlay({
@@ -164,14 +165,16 @@ export function BlastOverlay({
             {muted ? "Muted" : "Sound"}
           </button>
         </div>
-        <a
-          href="https://shop.akilahmali.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="border border-white/70 px-3 py-2 text-[10px] uppercase tracking-[0.22em] transition-colors hover:border-white hover:bg-white hover:text-black sm:px-4 sm:text-[11px] sm:tracking-[0.24em]"
-        >
-          Merch ↗
-        </a>
+        {SHOP_URL ? (
+          <a
+            href={SHOP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border border-white/70 px-3 py-2 text-[10px] uppercase tracking-[0.22em] transition-colors hover:border-white hover:bg-white hover:text-black sm:px-4 sm:text-[11px] sm:tracking-[0.24em]"
+          >
+            Merch ↗
+          </a>
+        ) : null}
       </div>
 
       {/* prev / next — chevron icons only */}

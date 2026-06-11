@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import NextLink from "next/link";
+import { SHOP_URL } from "@/lib/shop";
 import { CloseIcon } from "./icons";
 import { Wordmark } from "./Logo";
 
@@ -17,7 +18,8 @@ const LINKS: NavLink[] = [
   { label: "videos", href: "/videos" },
   { label: "about", href: "/about" },
   { label: "shows", href: "/shows" },
-  { label: "shop", href: "https://shop.akilahmali.com", external: true },
+  // "shop" hides itself until NEXT_PUBLIC_SHOP_URL points at a real store.
+  ...(SHOP_URL ? [{ label: "shop", href: SHOP_URL, external: true }] : []),
   { label: "contact", href: "/contact" },
 ];
 

@@ -16,6 +16,12 @@ export type StaticTrack = {
   /** Per-track streaming links. */
   spotify?: string;
   appleMusic?: string;
+  /**
+   * ISRC from the distributor — surfaces as isrcCode in structured data.
+   * TODO(akilah): fill these in from the distributor dashboard (DistroKid /
+   * TuneCore show ISRCs per track) for all 6 released songs.
+   */
+  isrc?: string;
 };
 
 export type StaticRelease = {
@@ -58,7 +64,7 @@ export type StaticRelease = {
 /* Shared links — artist-level streaming + the linktree "everywhere" smartlink. */
 const SPOTIFY_ARTIST = "https://open.spotify.com/artist/13CrflPMkTb5mmizdGYL2i";
 const APPLE_ARTIST = "https://music.apple.com/us/artist/mali/1815283080";
-const YTM_CHANNEL = "https://music.youtube.com/channel/UCQVqXv4_mcRLIE0Wy1WUSHw";
+const YTM_CHANNEL = "https://music.youtube.com/channel/UC_F92jN7yVa0CU_PbS3Db9g";
 const SMARTLINK = "https://linktr.ee/akilahmali";
 
 /* -------------------------------------------------------------------------
@@ -670,7 +676,8 @@ export const STATIC_BUCKETS: ContactBucket[] = [
 
 export const STATIC_SOCIAL_LINKS = {
   instagram: "https://www.instagram.com/akilah.mali",
-  tiktok: "https://www.tiktok.com/@malicantsing",
+  // Standardized on @akilahmali — @malicantsing is being retired.
+  tiktok: "https://www.tiktok.com/@akilahmali",
   youtube: "https://www.youtube.com/@akilahmali",
   twitter: "",
 };
@@ -679,7 +686,7 @@ export const STATIC_SOCIAL_LINKS = {
 export const STATIC_LISTEN_LINKS = {
   spotify: "https://open.spotify.com/artist/13CrflPMkTb5mmizdGYL2i",
   appleMusic: "https://music.apple.com/us/artist/mali/1815283080",
-  youtubeMusic: "https://music.youtube.com/channel/UCQVqXv4_mcRLIE0Wy1WUSHw",
+  youtubeMusic: YTM_CHANNEL,
   smartlink: "https://linktr.ee/akilahmali",
 };
 

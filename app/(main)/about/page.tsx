@@ -12,6 +12,7 @@ import {
   STATIC_LISTEN_LINKS,
   STATIC_CONTACT_EMAIL,
 } from "@/lib/static-content";
+import { artistJsonLd, jsonLd } from "@/lib/structured-data";
 
 export const revalidate = 60;
 
@@ -65,6 +66,12 @@ export default async function AboutPage() {
 
   return (
     <>
+      {/* Canonical artist entity — same @id the release pages reference. */}
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: jsonLd(artistJsonLd()) }}
+      />
       {/* Lead photo */}
       <section className="relative w-full">
         <NavThemeSentinel height="70svh" />

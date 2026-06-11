@@ -48,7 +48,7 @@ export const latestReleaseQuery = defineQuery(`
     credits,
     ${STREAMING},
     ${SHOP},
-    "tracks": tracks[]->{ _id, title, trackNumber, duration }
+    "tracks": tracks[]->{ _id, title, trackNumber, duration, isrc }
   }
 `);
 
@@ -71,7 +71,7 @@ export const releaseBySlugQuery = defineQuery(`
     credits,
     ${STREAMING},
     ${SHOP},
-    "tracks": tracks[]->{ _id, title, trackNumber, duration, lyrics, credits } | order(trackNumber asc)
+    "tracks": tracks[]->{ _id, title, trackNumber, duration, isrc, lyrics, credits } | order(trackNumber asc)
   }
 `);
 
@@ -212,6 +212,8 @@ export type Track = {
   title: string;
   trackNumber: number;
   duration: string;
+  /** ISRC from the distributor — surfaces as isrcCode in structured data. */
+  isrc?: string;
   lyrics?: PortableTextBlock[];
   credits?: PortableTextBlock[];
 };

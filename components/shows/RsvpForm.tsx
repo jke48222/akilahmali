@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { ArrowRight } from "lucide-react";
 import { useHoneypot } from "@/components/ui/useHoneypot";
+import { trackLead } from "@/lib/analytics";
 
 type Status = "idle" | "submitting" | "ok" | "error";
 
@@ -56,6 +57,7 @@ export function RsvpForm({
             : "We couldn’t save your RSVP. Try again shortly.",
         );
       }
+      trackLead("show-rsvp");
       setStatus("ok");
       onDone?.();
     } catch (err) {

@@ -31,6 +31,17 @@ export const track = defineType({
           .error("Use mm:ss — e.g. 3:42"),
     }),
     defineField({
+      name: "isrc",
+      title: "ISRC",
+      type: "string",
+      description:
+        "International Standard Recording Code from the distributor, e.g. USABC2500001. Feeds the MusicRecording structured data.",
+      validation: (r) =>
+        r
+          .regex(/^[A-Z]{2}-?[A-Z0-9]{3}-?\d{2}-?\d{5}$/i, { name: "ISRC" })
+          .warning("Expected format: CC-XXX-YY-NNNNN (dashes optional)"),
+    }),
+    defineField({
       name: "lyrics",
       type: "array",
       of: [{ type: "block" }],

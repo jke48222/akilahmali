@@ -26,7 +26,7 @@ import {
   type VideoCard,
 } from "@/lib/queries";
 import { urlForImage } from "@/lib/sanity";
-import { jsonLd } from "@/lib/structured-data";
+import { artistRef, jsonLd } from "@/lib/structured-data";
 import { slugify } from "@/lib/slug";
 import { feedIndexForReleaseSlug } from "@/lib/wrw/grid";
 import { FORCE_PORTRAIT_OG, OG_PORTRAIT } from "@/lib/og";
@@ -156,6 +156,7 @@ type DisplayRelease = {
     placeholder?: boolean;
     spotify?: string;
     appleMusic?: string;
+    isrc?: string;
   }>;
   credits: Array<[string, string]>;
   streamingLinks?: ReleaseDetail["streamingLinks"];
@@ -176,6 +177,7 @@ function mergeWithStatic(
           duration: t.duration,
           lyrics: portableTextToPlain(t.lyrics),
           placeholder: false,
+          isrc: t.isrc,
         }))
       : fallback.tracks.map((t) => ({
           n: t.trackNumber,
@@ -185,6 +187,7 @@ function mergeWithStatic(
           placeholder: t.placeholder,
           spotify: t.spotify,
           appleMusic: t.appleMusic,
+          isrc: t.isrc,
         }));
 
   const credits =
@@ -774,12 +777,8 @@ function JsonLd({ release }: { release: DisplayRelease }) {
     "@context": "https://schema.org",
     "@type": isAlbum ? "MusicAlbum" : "MusicRecording",
     name: release.title,
-    byArtist: {
-      "@type": "MusicGroup",
-      name: "Akilah Mali",
-      alternateName: "Akilah Mali",
-      url: "https://akilahmali.com",
-    },
+    // Resolves to the canonical Person+MusicGroup entity on / and /about.
+    byArtist: artistRef(),
     datePublished: release.releaseDate,
     inLanguage: "en",
     url: `https://akilahmali.com/music/${release.slug}`,
@@ -812,12 +811,16 @@ function JsonLd({ release }: { release: DisplayRelease }) {
           name: t.title,
           duration: durationToISO(t.duration),
           position: t.n,
-          byArtist: { "@type": "MusicGroup", name: "Akilah Mali" },
+          byArtist: artistRef(),
+          ...(t.isrc ? { isrcCode: t.isrc } : {}),
         })),
       }
     : {
         ...base,
         duration: durationToISO(release.tracks[0]?.duration ?? release.runtime),
+        ...(release.tracks[0]?.isrc
+          ? { isrcCode: release.tracks[0].isrc }
+          : {}),
       };
   return (
     <script
