@@ -1,12 +1,13 @@
 /**
- * Brand wordmark, rendered as inline SVG text in the display face (Fraunces
- * italic) with `fill="currentColor"` so it inherits the surrounding text color
- * — letting it ride the Nav's ink↔cream theme transition exactly like the old
- * text node did. `textLength` pins the horizontal size so the layout is stable
- * regardless of font-load timing or metric differences.
+ * Brand wordmark — "akilah mali" set upright in Libre Baskerville with an
+ * 8-point star standing in for the tittle of the final "i". Rendered as inline
+ * SVG text with `fill="currentColor"` so it inherits the surrounding text color
+ * and rides the Nav's ink↔cream theme transition. `textLength` pins the
+ * horizontal size so both the layout AND the star's alignment over the final
+ * letter stay stable regardless of font-load timing or metric differences.
  *
- * Size it by setting a font-size (height = 1em) on the element via `className`,
- * just like the text it replaces; the width derives from the aspect ratio.
+ * The final "i" uses the dotless glyph (ı, U+0131) so the star is the only mark
+ * above it. Size it by setting a font-size (height = 1em) via `className`.
  */
 export function Wordmark({
   className,
@@ -37,14 +38,25 @@ export function Wordmark({
         textLength="614"
         lengthAdjust="spacingAndGlyphs"
         fontFamily="var(--font-display), Georgia, serif"
-        fontStyle="italic"
         fontWeight={400}
         fontSize="116"
         fill="currentColor"
       >
-        akilah mali
+        akilah malı
       </text>
+      <BrandStar />
     </svg>
+  );
+}
+
+/** 8-point star tittle, positioned over the final "i" of the SVG wordmark. */
+function BrandStar() {
+  return (
+    <path
+      transform="translate(591 -2) scale(1.25)"
+      fill="currentColor"
+      d="M0,-16 1.72,-4.16 11.31,-11.31 4.16,-1.72 16,0 4.16,1.72 11.31,11.31 1.72,4.16 0,16 -1.72,4.16 -11.31,11.31 -4.16,1.72 -16,0 -4.16,-1.72 -11.31,-11.31 -1.72,-4.16 Z"
+    />
   );
 }
 

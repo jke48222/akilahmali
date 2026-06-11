@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Space_Grotesk, Space_Mono, Special_Elite, VT323 } from "next/font/google";
+import { Libre_Baskerville, Space_Mono, Special_Elite, VT323 } from "next/font/google";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -10,20 +10,13 @@ import { PlayerProvider } from "@/components/player/PlayerProvider";
 import { PersistentPlayer } from "@/components/player/PersistentPlayer";
 import "./globals.css";
 
-/* Editorial display serif (variable weight + optical sizing + soft/wonky axes). */
-const fraunces = Fraunces({
-  variable: "--font-display-src",
+/* Brand typeface — Libre Baskerville. Drives the wordmark, all display
+   headings, and body/UI text (see --font-sans / --font-display in globals.css). */
+const libreBaskerville = Libre_Baskerville({
+  variable: "--font-serif-src",
   subsets: ["latin"],
+  weight: ["400", "700"],
   style: ["normal", "italic"],
-  axes: ["opsz", "SOFT", "WONK"],
-  display: "swap",
-});
-
-/* Modern grotesque for UI + body. */
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-sans-src",
-  subsets: ["latin"],
-  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -105,7 +98,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#EDE8F2",
+  themeColor: "#1B1717",
   width: "device-width",
   initialScale: 1,
   // render edge-to-edge into the iOS safe areas (under the Dynamic Island / home
@@ -121,7 +114,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${spaceMono.variable} ${fraunces.variable} ${specialElite.variable} ${vt323.variable} antialiased`}
+      className={`${libreBaskerville.variable} ${spaceMono.variable} ${specialElite.variable} ${vt323.variable} antialiased`}
     >
       <body className="min-h-screen flex flex-col overflow-x-clip bg-bg text-ink font-sans">
         <script

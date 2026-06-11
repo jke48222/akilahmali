@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 /* =========================================================================
-   MALI — design tokens (Direction: "Soft Lavender")
+   MALI — design tokens (Direction: "Cotton / Cherry / Maroon / Noir")
    ========================================================================= */
 @theme {
-  --color-bg:        #EDE8F2;   /* soft lavender */
-  --color-bg-2:      #E0D9EC;   /* raised lavender surface */
-  --color-ink:       #1B1520;   /* near-black with violet undertone */
-  --color-ink-2:     #534B5E;   /* secondary text */
-  --color-ink-3:     #7D7589;   /* captions / labels */
-  --color-rule:      #D4CDE0;   /* lavender hairline */
-  --color-accent:    #7C5CBF;   /* soft violet signature */
-  --color-accent-2:  #9B7FD4;   /* lighter violet (hover) */
-  --color-cream:     #F3ECF6;   /* on-dark hero wordmark color */
+  --color-bg:        #1B1717;   /* noir black */
+  --color-bg-2:      #2E0A0A;   /* raised maroon surface */
+  --color-ink:       #EDEBDD;   /* cotton */
+  --color-ink-2:     #BCB3A4;   /* secondary text (dimmed cotton) */
+  --color-ink-3:     #8C8478;   /* captions / labels (taupe) */
+  --color-rule:      #3A2A2A;   /* warm dark hairline */
+  --color-accent:    #810100;   /* cherry red */
+  --color-accent-2:  #C21A18;   /* brighter cherry (hover) */
+  --color-cream:     #EDEBDD;   /* cotton — on-dark hero wordmark */
 
   --container-page: 1480px;
 
@@ -53,8 +53,9 @@
 }
 
 @theme inline {
-  --font-sans:    var(--font-sans-src), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-display-src), ui-serif, Georgia, serif;
+  /* Libre Baskerville is the brand face — body, UI, and display all share it. */
+  --font-sans:    var(--font-serif-src), ui-serif, Georgia, serif;
+  --font-display: var(--font-serif-src), ui-serif, Georgia, serif;
   --font-mono:    var(--font-mono-src), ui-monospace, SFMono-Regular, Menlo, monospace;
   /* /payphone only */
   --font-booth:   var(--font-booth-src), "Courier New", ui-monospace, monospace;
@@ -667,7 +668,7 @@ section {
 }
 
 /* =========================================================================
-   Custom cursor — crosshair style
+   Custom cursor — rose petal
    ========================================================================= */
 html.has-cursor,
 html.has-cursor * {
@@ -680,14 +681,24 @@ html.has-cursor * {
   pointer-events: none;
   z-index: 2147483647;
   will-change: transform;
-  opacity: 0.7;
+  opacity: 0.95;
   transition: opacity 200ms ease;
+}
+.cursor-cross svg {
+  transform: rotate(-18deg);
+  transition: transform 160ms ease;
 }
 .cursor-cross.is-hover {
   opacity: 1;
 }
+.cursor-cross.is-hover svg {
+  transform: rotate(-18deg) scale(1.25);
+}
 .cursor-cross.is-down {
-  opacity: 0.5;
+  opacity: 0.7;
+}
+.cursor-cross.is-down svg {
+  transform: rotate(-18deg) scale(0.85);
 }
 
 /* =========================================================================
@@ -782,7 +793,7 @@ body.booth-type .booth-lcd {
   transition: opacity 300ms ease;
   background: radial-gradient(
     220px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(124, 92, 191, 0.24),
+    rgba(194, 26, 24, 0.24),
     transparent 60%
   );
 }
@@ -803,7 +814,7 @@ body.booth-type .booth-lcd {
   pointer-events: none;
   background: radial-gradient(
     480px circle at var(--ax, 50%) var(--ay, 50%),
-    rgba(124, 92, 191, 0.14),
+    rgba(194, 26, 24, 0.14),
     transparent 65%
   );
   transition: background 120ms linear;
@@ -924,8 +935,8 @@ body.nav-on-dark .nav-link-active {
 body.nav-on-dark .nav-bg {
   background: linear-gradient(
     180deg,
-    rgba(20, 12, 16, 0.55),
-    rgba(20, 12, 16, 0)
+    rgba(27, 23, 23, 0.6),
+    rgba(27, 23, 23, 0)
   );
 }
 
