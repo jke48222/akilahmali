@@ -48,12 +48,12 @@ export function Nav() {
 
   return (
     <header className="fixed top-0 inset-x-0 z-50">
+      {/* Transparent by default — no white translucent/blur bar. The dark-section
+          override (body.nav-on-dark .nav-bg) still tints this for legibility. */}
       <div
         className="nav-bg absolute inset-0 -z-10 pointer-events-none"
         style={{
-          background:
-            "linear-gradient(180deg, color-mix(in oklab, var(--color-bg) 85%, transparent), color-mix(in oklab, var(--color-bg) 0%, transparent))",
-          backdropFilter: "blur(6px)",
+          background: "transparent",
           transition: "background 500ms ease",
         }}
       />

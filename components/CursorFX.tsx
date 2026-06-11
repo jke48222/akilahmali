@@ -71,10 +71,45 @@ export function CursorFX() {
 
   if (!enabled || suppressed) return null;
   return (
-    <div ref={el} className="cursor-cross" aria-hidden="true" style={{ marginLeft: -12, marginTop: -12 }}>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <line x1="12" y1="4" x2="12" y2="20" stroke="var(--color-accent)" strokeWidth="1" />
-        <line x1="4" y1="12" x2="20" y2="12" stroke="var(--color-accent)" strokeWidth="1" />
+    <div ref={el} className="cursor-cross" aria-hidden="true" style={{ marginLeft: -14, marginTop: -14 }}>
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <defs>
+          {/* deep red rose body — lit crown, shadowed base */}
+          <radialGradient id="rose-body" cx="0.42" cy="0.32" r="0.85">
+            <stop offset="0" stopColor="#C21A18" />
+            <stop offset="0.45" stopColor="#810100" />
+            <stop offset="1" stopColor="#630000" />
+          </radialGradient>
+          <linearGradient id="rose-fold" x1="14" y1="4" x2="14" y2="26" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#630000" />
+            <stop offset="1" stopColor="#3A0000" />
+          </linearGradient>
+        </defs>
+        {/* outer petal — rounded crown with a soft curl, tapering to the base */}
+        <path
+          d="M14 26.5C5.5 19.5 5 11 9.6 5.4 11.6 3 16.4 3 18.4 5.4 23 11 22.5 19.5 14 26.5Z"
+          fill="url(#rose-body)"
+          stroke="#5C0A1A"
+          strokeWidth="0.5"
+          strokeOpacity="0.55"
+        />
+        {/* inner folded petal — the rolled center of the rose */}
+        <path
+          d="M14 24.5C9.6 19.8 9.2 13 12 8.6 12.9 7.2 15.1 7.2 16 8.6 18.8 13 18.4 19.8 14 24.5Z"
+          fill="url(#rose-fold)"
+          fillOpacity="0.8"
+        />
+        {/* specular highlight on the upper-left lobe */}
+        <path
+          d="M11.4 6.6C9.6 8.6 8.8 12 9.8 15.4"
+          stroke="#E36A60"
+          strokeWidth="1.1"
+          strokeOpacity="0.5"
+          strokeLinecap="round"
+          fill="none"
+        />
+        {/* center crease */}
+        <path d="M14 23.5C13.4 17.5 13.4 12 14 8.5" stroke="#EDEBDD" strokeWidth="0.7" strokeOpacity="0.35" fill="none" />
       </svg>
     </div>
   );

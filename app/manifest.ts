@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "akilah mali writes songs about people she used to know, and the rooms she left them in. atlanta, ga · est. 2025.",
     start_url: "/",
     display: "standalone",
-    background_color: "#EDE8F2",
-    theme_color: "#1B1520",
+    background_color: "#1B1717",
+    theme_color: "#1B1717",
     categories: ["music", "entertainment"],
     icons: [
       { src: "/icon.svg", type: "image/svg+xml", sizes: "any" },

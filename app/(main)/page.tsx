@@ -15,7 +15,9 @@ import {
 } from "@/lib/queries";
 
 export const metadata: Metadata = {
-  title: "Akilah Mali",
+  // `absolute` opts out of the root layout's "%s · Akilah Mali" template so the
+  // home tab/search title is just "Akilah Mali", not "Akilah Mali · Akilah Mali".
+  title: { absolute: "Akilah Mali" },
   description:
     "akilah mali writes songs about people she used to know, and the rooms she left them in. atlanta, ga · est. 2025.",
   alternates: { canonical: "/" },
