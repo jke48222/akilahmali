@@ -4,6 +4,7 @@ import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Intro } from "@/components/Intro";
+import { ConsoleSignature } from "@/components/ConsoleSignature";
 import { CursorFX } from "@/components/CursorFX";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { PlayerProvider } from "@/components/player/PlayerProvider";
@@ -138,6 +139,7 @@ export default function RootLayout({
         </a>
         <ScrollProgress />
         <CursorFX />
+        <ConsoleSignature />
         <Intro />
         <PlayerProvider>
           {children}
