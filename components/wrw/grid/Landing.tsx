@@ -22,6 +22,7 @@
 import { useEffect, useRef, useState } from "react";
 import { wrwPhoto } from "@/lib/wrw/tracks";
 import { prefersReducedMotion } from "@/lib/device";
+import { SHOP_URL } from "@/lib/shop";
 import { WordmarkLogo } from "@/components/Logo";
 
 /* The handwritten "Who Really Won?" mark — one <path> per stroke. */
@@ -100,7 +101,7 @@ const NAV = [
   { label: "Videos", href: "/videos" },
   { label: "About", href: "/about" },
   { label: "Shows", href: "/shows" },
-  { label: "Shop", href: "https://shop.akilahmali.com", external: true },
+  ...(SHOP_URL ? [{ label: "Shop", href: SHOP_URL, external: true }] : []),
   { label: "Press", href: "/press" },
   { label: "Contact", href: "/contact" },
 ];

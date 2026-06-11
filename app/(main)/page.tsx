@@ -7,7 +7,7 @@ import { AboutSnippet } from "@/components/home/AboutSnippet";
 import { SocialFeed } from "@/components/home/SocialFeed";
 import { EmailCapture } from "@/components/home/EmailCapture";
 import { sanityFetch } from "@/lib/sanity";
-import { jsonLd } from "@/lib/structured-data";
+import { artistJsonLd, jsonLd } from "@/lib/structured-data";
 import {
   latestReleaseQuery,
   threeUpReleasesQuery,
@@ -55,28 +55,11 @@ export default async function Home() {
 }
 
 function HomeJsonLd() {
-  const payload = {
-    "@context": "https://schema.org",
-    "@type": "MusicGroup",
-    name: "Akilah Mali",
-    alternateName: "Akilah Brown-Pagan",
-    url: "https://akilahmali.com",
-    image: "https://akilahmali.com/images/mali-portrait.jpg",
-    genre: ["Pop", "Alternative R&B"],
-    foundingDate: "2025",
-    sameAs: [
-      "https://www.instagram.com/akilah.mali",
-      "https://www.tiktok.com/@malicantsing",
-      "https://www.youtube.com/@akilahmali",
-      "https://open.spotify.com/artist/13CrflPMkTb5mmizdGYL2i",
-      "https://music.apple.com/us/artist/mali/1815283080",
-    ],
-  };
   return (
     <script
       type="application/ld+json"
       // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: jsonLd(payload) }}
+      dangerouslySetInnerHTML={{ __html: jsonLd(artistJsonLd()) }}
     />
   );
 }

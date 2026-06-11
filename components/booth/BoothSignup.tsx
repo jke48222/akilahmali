@@ -9,6 +9,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useHoneypot } from "@/components/ui/useHoneypot";
+import { trackLead } from "@/lib/analytics";
 
 type Status = "idle" | "submitting" | "ok" | "error";
 
@@ -31,6 +32,7 @@ export function BoothSignup({ onClose }: { onClose: () => void }) {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(typeof data.error === "string" ? data.error : "Couldn't save your number. Try again.");
+      trackLead("payphone");
       setStatus("ok");
     } catch (err) {
       setStatus("error");

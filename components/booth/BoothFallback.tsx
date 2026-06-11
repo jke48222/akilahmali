@@ -34,10 +34,9 @@ export function BoothFallback() {
           the last working payphone in a dead, neon-crimson city. the new music reaches no one yet —
           coming soon.
         </p>
+        {/* "notify me" belongs to the mailing list, not the (unbuilt) shop. */}
         <a
-          href="https://shop.akilahmali.com"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/#next"
           className="mt-10 inline-block rounded-full bg-[#ff2b3e] px-7 py-3 text-[11px] uppercase tracking-[0.3em] text-[#0a0103] transition-colors hover:bg-[#ff4d5e]"
         >
           notify me

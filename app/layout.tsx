@@ -6,6 +6,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Intro } from "@/components/Intro";
 import { ConsoleSignature } from "@/components/ConsoleSignature";
 import { CursorFX } from "@/components/CursorFX";
+import { PixelRouteEvents } from "@/components/PixelRouteEvents";
+import { Tags, TagsNoScript } from "@/components/Tags";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { PlayerProvider } from "@/components/player/PlayerProvider";
 import { PersistentPlayer } from "@/components/player/PersistentPlayer";
@@ -54,7 +56,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: "Akilah Mali",
-    template: "%s · Akilah Mali",
+    // Lead with the artist name — disambiguates her in search results from
+    // "Mali Music" (Kortney Pollard) and the country of Mali.
+    template: "Akilah Mali · %s",
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
@@ -118,6 +122,7 @@ export default function RootLayout({
       className={`${libreBaskerville.variable} ${spaceMono.variable} ${specialElite.variable} ${vt323.variable} antialiased`}
     >
       <body className="min-h-screen flex flex-col overflow-x-clip bg-bg text-ink font-sans">
+        <TagsNoScript />
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
@@ -140,6 +145,9 @@ export default function RootLayout({
         <ScrollProgress />
         <CursorFX />
         <ConsoleSignature />
+        {/* GTM + Meta Pixel — render nothing until their env IDs are set. */}
+        <Tags />
+        <PixelRouteEvents />
         <Intro />
         <PlayerProvider>
           {children}

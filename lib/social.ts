@@ -8,7 +8,8 @@
  */
 export const SOCIAL_PROFILES = {
   instagram: "https://www.instagram.com/akilah.mali",
-  tiktok: "https://www.tiktok.com/@malicantsing",
+  // Standardized on @akilahmali — @malicantsing is being retired.
+  tiktok: "https://www.tiktok.com/@akilahmali",
   youtube: "https://www.youtube.com/@akilahmali",
   linkedin: "https://www.linkedin.com/in/akilah-brown-069b24341/",
 };

@@ -16,13 +16,14 @@
 import { useEffect, useRef, useState } from "react";
 import { WordmarkLogo } from "@/components/Logo";
 import { prefersReducedMotion as reduceMotion } from "@/lib/device";
+import { SHOP_URL } from "@/lib/shop";
 
 const NAV = [
   { label: "Music", href: "/music" },
   { label: "Videos", href: "/videos" },
   { label: "About", href: "/about" },
   { label: "Shows", href: "/shows" },
-  { label: "Shop", href: "https://shop.akilahmali.com", external: true },
+  ...(SHOP_URL ? [{ label: "Shop", href: SHOP_URL, external: true }] : []),
   { label: "Contact", href: "/contact" },
 ];
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { subscribeToList } from "@/lib/klaviyo";
+import { isMailerLiteConfigured, subscribeToMailerLite } from "@/lib/mailerlite";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 import { honeypotFields, isBotSubmission } from "@/lib/honeypot";
 
@@ -73,8 +74,11 @@ export async function POST(request: Request) {
 
   const { email, source, meta } = parsed.data;
 
-  // 3) Hand off to Klaviyo (or no-op fallback when unconfigured).
-  const result = await subscribeToList(email, source, meta);
+  // 3) Hand off to the ESP — MailerLite when configured (the active list),
+  //    else Klaviyo (legacy), else the no-op dev fallback inside either lib.
+  const result = isMailerLiteConfigured
+    ? await subscribeToMailerLite(email, source, meta)
+    : await subscribeToList(email, source, meta);
 
   switch (result.status) {
     case "ok":
@@ -84,9 +88,9 @@ export async function POST(request: Request) {
       // shows the success copy and we never reveal whether the email exists.
       return NextResponse.json({ ok: true, status: "already-subscribed" });
     case "skipped":
-      // Klaviyo unconfigured (dev / partial deploy). Don't log the email (PII);
+      // No ESP configured (dev / partial deploy). Don't log the email (PII);
       // record only a non-identifying breadcrumb with the form source.
-      console.log("[subscribe] (no Klaviyo) signup from source:", source);
+      console.log("[subscribe] (no ESP) signup from source:", source);
       return NextResponse.json({ ok: true, status: "subscribed-dev" });
     case "error":
     default:

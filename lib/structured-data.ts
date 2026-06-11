@@ -21,3 +21,61 @@ export function jsonLd(data: unknown): string {
     .replace(LS, "\\u2028")
     .replace(PS, "\\u2029");
 }
+
+/* =========================================================================
+   Canonical artist entity.
+
+   "Akilah Mali" collides in search with Mali Music (Kortney Pollard), the
+   Indian singer Mali, and the country. One @id-anchored entity, referenced by
+   every MusicAlbum/MusicRecording on the site, plus sameAs trust anchors, is
+   what disambiguates her for Google's Knowledge Graph.
+   ========================================================================= */
+export const SITE_URL = "https://akilahmali.com";
+export const ARTIST_ID = `${SITE_URL}/#artist`;
+
+export const ARTIST_SAME_AS = [
+  "https://open.spotify.com/artist/13CrflPMkTb5mmizdGYL2i",
+  "https://music.apple.com/us/artist/mali/1815283080",
+  "https://music.youtube.com/channel/UC_F92jN7yVa0CU_PbS3Db9g",
+  "https://www.youtube.com/@akilahmali",
+  "https://www.instagram.com/akilah.mali",
+  "https://www.tiktok.com/@akilahmali",
+  "https://tidal.com/browse/artist/5453",
+  // TODO(akilah): add these once the entries exist — they're the strongest
+  // trust anchors Google reads for Knowledge Panel disambiguation:
+  //   "https://musicbrainz.org/artist/<mbid>",
+  //   "https://www.discogs.com/artist/<discogs-id>",
+];
+
+/** Full Person+MusicGroup entity for the homepage and /about. */
+export function artistJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": ["Person", "MusicGroup"],
+    "@id": ARTIST_ID,
+    name: "Akilah Mali",
+    alternateName: ["MALI", "Akilah Brown-Pagan"],
+    url: SITE_URL,
+    image: `${SITE_URL}/images/mali-portrait.jpg`,
+    genre: ["Alternative R&B", "Bedroom Pop", "R&B"],
+    foundingDate: "2025",
+    foundingLocation: {
+      "@type": "Place",
+      name: "Atlanta, Georgia, United States",
+    },
+    homeLocation: {
+      "@type": "Place",
+      name: "Atlanta, Georgia, United States",
+    },
+    sameAs: ARTIST_SAME_AS,
+  };
+}
+
+/** Compact reference for byArtist fields — resolves to the entity above. */
+export function artistRef() {
+  return {
+    "@type": "MusicGroup",
+    "@id": ARTIST_ID,
+    name: "Akilah Mali",
+  };
+}
