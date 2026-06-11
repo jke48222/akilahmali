@@ -4,6 +4,7 @@ import { Reveal } from "@/components/Reveal";
 import { NavThemeSentinel } from "@/components/NavThemeSentinel";
 import { Wordmark } from "@/components/Logo";
 import { HeroVideo } from "./HeroVideo";
+import { SpinBadge } from "./SpinBadge";
 
 /**
  * Cinematic full-bleed hero. A muted, looped YouTube film (via the IFrame API,
@@ -28,6 +29,11 @@ export function Hero() {
           <span className="block">akilah mali</span>
           <span className="block mt-1">atlanta, ga</span>
         </p>
+      </div>
+
+      {/* Rotating "out now" badge — desktop only, off the video's focal centre */}
+      <div className="absolute top-1/2 -translate-y-1/2 right-gutter md:right-gutter-md lg:right-gutter-lg z-10 hidden lg:block">
+        <SpinBadge />
       </div>
 
       {/* Wordmark + listen */}

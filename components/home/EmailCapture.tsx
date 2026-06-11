@@ -97,17 +97,21 @@ export function EmailCapture() {
                 </div>
                 {status === "error" ? (
                   <p
-                    id="email-capture-caption"
-                    className="mt-3 font-mono text-mono-xs uppercase tracking-caps text-ink-3"
+                    className="mt-3 font-mono text-mono-xs uppercase tracking-caps text-accent-2"
                     role="alert"
                   >
                     {errorMsg}
                   </p>
-                ) : (
-                  <p id="email-capture-caption" className="sr-only">
-                    Join the mailing list
-                  </p>
-                )}
+                ) : null}
+                {/* Consent microcopy — the label-site tell (Lucky Daye, every
+                    UMG footer). Always visible, quiet, honest. */}
+                <p
+                  id="email-capture-caption"
+                  className="mt-3 font-mono text-mono-xs uppercase tracking-caps text-ink-3 max-w-[44ch]"
+                >
+                  by signing up, you agree to receive email updates from akilah
+                  mali. unsubscribe anytime.
+                </p>
               </form>
             ) : (
               <div className="md:pb-3" role="status" aria-live="polite">

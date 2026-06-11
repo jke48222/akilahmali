@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/home/Hero";
+import { Ticker } from "@/components/home/Ticker";
 import { LatestRelease } from "@/components/home/LatestRelease";
 import { ThreeUp } from "@/components/home/ThreeUp";
 import { AboutSnippet } from "@/components/home/AboutSnippet";
@@ -43,6 +44,7 @@ export default async function Home() {
     <>
       <HomeJsonLd />
       <Hero />
+      <Ticker />
       <LatestRelease release={latest} />
       <ThreeUp releases={threeUp} />
       <AboutSnippet />

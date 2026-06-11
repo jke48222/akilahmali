@@ -1,4 +1,5 @@
 import NextLink from "next/link";
+import { LocalClock } from "./LocalClock";
 import { Wordmark } from "./Logo";
 import {
   AppleIcon,
@@ -108,15 +109,36 @@ export function Footer() {
         </div>
 
         <div className="h-px w-full bg-rule" />
-        <div className="py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 font-mono text-mono-xs uppercase tracking-caps-md text-ink-3">
+        <div className="py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-mono text-mono-xs uppercase tracking-caps-md text-ink-3">
           <div>© {YEAR} akilah brown-pagan · all songs &amp; images</div>
-          <div>atlanta, ga</div>
+          <div>
+            atlanta, ga
+            <LocalClock />
+          </div>
           <div>
             press &amp; sync &nbsp;·&nbsp;{" "}
             <a className="ulink" href="mailto:realmalimusic@gmail.com">
               realmalimusic@gmail.com
             </a>
           </div>
+          {/* Icon-only social row — the quiet far-right strip every label
+              footer carries (Lucky Daye, Coco Jones). */}
+          <ul className="flex items-center gap-5" aria-label="Social links">
+            {[...FOLLOW.slice(0, 3), ...LISTEN.slice(0, 2)].map(
+              ({ label, href, Icon }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    rel="noopener"
+                    aria-label={label}
+                    className="block text-ink-3 hover:text-ink transition-colors"
+                  >
+                    <Icon width="16" height="16" />
+                  </a>
+                </li>
+              ),
+            )}
+          </ul>
         </div>
       </div>
     </footer>
