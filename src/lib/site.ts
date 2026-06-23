@@ -40,6 +40,7 @@ export const site = {
     wordmark: "/assets/wordmark.png", // black "akilah mali" logo (transparent)
     wordmarkWhite: "/assets/wordmark-white.png", // white version for dark headers
     heroVideo: "/assets/hero.mp4", // "Who Really Won?" music video (supplied)
+    heroPoster: "/assets/hero-poster.jpg",
     pixieMermaid: "/assets/pixie-mermaid.png", // abstract black silhouette decoration
     pix3: "/assets/pix3.png",
     pix4: "/assets/pix4.png",
