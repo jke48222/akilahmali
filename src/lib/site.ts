@@ -31,7 +31,7 @@ export const site = {
     { name: "youtube", href: "https://www.youtube.com/@akilahmali" },
     { name: "spotify", href: "https://open.spotify.com/artist/13CrflPMkTb5mmizdGYL2i" },
     { name: "applemusic", href: "https://music.apple.com/us/artist/mali/1815283080" },
-    { name: "tiktok", href: "https://www.tiktok.com/@akilahmali" },
+    { name: "tiktok", href: "https://www.tiktok.com/@akilah.mali" },
     { name: "linktree", href: "https://linktr.ee/akilahmali" },
   ],
 
