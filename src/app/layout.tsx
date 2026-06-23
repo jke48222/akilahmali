@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import SubscribeFooter from "@/components/SubscribeFooter";
 
 export const metadata: Metadata = {
-  title: "AKILAH MALI",
+  title: "Akilah Mali",
   description: "Official site of Akilah Mali — music, tour, and more.",
 };
 
