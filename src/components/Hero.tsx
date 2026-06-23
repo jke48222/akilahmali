@@ -12,6 +12,7 @@ export default function Hero() {
       <video
         className="absolute inset-0 h-full w-full object-cover"
         src={site.assets.heroVideo}
+        poster={site.assets.heroPoster}
         autoPlay
         muted
         loop
