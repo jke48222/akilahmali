@@ -40,7 +40,7 @@ export default function ListenNow() {
           </Reveal>
           <SiteImg
             src={site.assets.pixieMermaid}
-            className="pointer-events-none absolute -right-2 top-24 hidden w-44 opacity-95 lg:block xl:w-56"
+            className="pointer-events-none absolute -right-2 top-24 w-24 opacity-60 sm:right-2 sm:top-28 sm:w-32 sm:opacity-90 lg:w-44 xl:w-56"
           />
         </div>
       </div>
