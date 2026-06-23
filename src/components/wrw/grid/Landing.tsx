@@ -245,7 +245,18 @@ export function Landing({ onEnter, onDone }: { onEnter: () => void; onDone: () =
   const wipe = { width: go ? "100%" : "0%", transition: "width 0.5s ease-in-out" } as const;
 
   return (
-    <div ref={rootRef} className="absolute inset-0 z-40 overflow-hidden font-mono text-[#141210]">
+    <div
+      ref={rootRef}
+      className="absolute inset-0 z-40 overflow-hidden font-mono text-[#141210]"
+      // Force the whole cover onto its OWN compositing layer. The InkMark strokes
+      // self-promote (translateZ(0)) so they animate smoothly; without matching
+      // promotion here, iOS Safari composites the un-promoted cream paper BELOW
+      // the WebGL canvas layer (the room preloaded behind) while the promoted ink
+      // sits above it — so the live control room shows through as the cover's
+      // "background" before the tear. Promoting the root keeps the cream, ink and
+      // prompt together as one layer above the canvas until the paper tears.
+      style={{ transform: "translateZ(0)" }}
+    >
       {/* organic torn-fiber displacement filter (drives the deckled paper edge) */}
       <svg className="pointer-events-none absolute h-0 w-0" aria-hidden>
         <filter id="wrw-fray" primitiveUnits="userSpaceOnUse" x="-2%" y="-25%" width="104%" height="150%">
