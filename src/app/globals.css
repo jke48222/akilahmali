@@ -1,0 +1,217 @@
+@import "tailwindcss";
+
+/* ─── Self-hosted Nimbus Sans (GPL, from nimbus-sans-l) ───────────────── */
+@font-face {
+  font-family: "Nimbus Sans";
+  src: url("/fonts/NimbusSanL-Reg.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Nimbus Sans";
+  src: url("/fonts/NimbusSanL-Bol.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Brittany Signature";
+  src: url("/fonts/BrittanySignature.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Design tokens — RED theme (token names kept; values now red) ────── */
+@theme {
+  --color-lavender: #bb8388; /* primary accent / light section bg (red) */
+  --color-lavender-soft: #cb9a9e;
+  --color-lavender-deep: #a86a70;
+  --color-plum: #3e1b1e; /* dark section band (maroon) */
+  --color-plum-deep: #2a1012; /* deeper dark / hero base */
+  --color-ink: #160d0e; /* near-black w/ red tint */
+  --color-cream: #f7eeee;
+  --color-rouge: #d23b3b; /* vivid accent red */
+
+  --font-sans: "Nimbus Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-script: "Nimbus Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-signature: "Brittany Signature", cursive;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #1b1314;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Nimbus-Sans-style nav: tracked uppercase grotesque */
+.nav-label {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 400;
+}
+
+/* ─── Brittany Signature section titles, with subtle grain ────────────── */
+.sig-title {
+  font-family: var(--font-signature);
+  /* Brittany Signature has tall swashes + deep descenders + side flourishes;
+     pad the background-clip:text paint box so glyphs aren't cut off on any edge. */
+  line-height: 1.4;
+  padding-block: 0.18em;
+  padding-inline: 0.22em;
+  font-weight: 400;
+}
+/* grain is layered over a solid colour and clipped to the glyphs */
+.grain-text {
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-repeat: repeat;
+  background-size: 130px;
+}
+.grain-text-white {
+  background-image: url("/assets/grain-text.png"), linear-gradient(#fff, #fff);
+}
+.grain-text-plum {
+  background-image: url("/assets/grain-text.png"),
+    linear-gradient(var(--color-plum), var(--color-plum));
+}
+.grain-text-black {
+  background-image: url("/assets/grain-text.png"),
+    linear-gradient(#000, #000);
+}
+
+/* ─── Who Really Won? hero ink ────────────────────────────────────────── */
+.ink-path {
+  fill: transparent;
+  stroke: #ffffff;
+  stroke-width: 0.4px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ─── Spotify embeds: rounded dark cards ──────────────────────────────── */
+.spotify-embed {
+  border-radius: 12px;
+  width: 100%;
+  border: 0;
+  display: block;
+}
+
+/* ─── Seated tour-dates widget theming (widget injects this markup) ───── */
+#seated-widget .seated-events-table,
+.seated-events-table {
+  width: 100%;
+  color: #fff;
+}
+.seated-event-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  flex-wrap: wrap;
+}
+.seated-event-description-cells {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.seated-event-date-cell {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 0.95rem;
+}
+.seated-event-venue-cell,
+.seated-event-details-cell {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.9rem;
+}
+.seated-event-venue-name {
+  color: #fff;
+}
+.seated-event-link-cells {
+  display: flex;
+  gap: 0.5rem;
+}
+.seated-event-link-cells a,
+a.seated-event-link-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 2px;
+  color: #fff;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  transition: background 0.2s, color 0.2s;
+}
+.seated-event-link-cells a:hover,
+a.seated-event-link-cell:hover {
+  background: #fff;
+  color: var(--color-plum);
+}
+.seated-powered-by-cell,
+.seated-follow-cell {
+  width: 100%;
+  text-align: center;
+  margin-top: 1rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.72rem;
+}
+
+/* Rose-petal CSS cursor (desktop) */
+@media (pointer: fine) {
+  html, body {
+    cursor: url('/assets/cursor-src.svg') 16 20, auto;
+  }
+  
+  a,
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  select,
+  label,
+  summary,
+  .clickable,
+  .cursor-pointer {
+    cursor: url('/assets/cursor-hover.svg') 20 25, pointer;
+  }
+}
+
+
+/* =========================================================================
+   WRW control room — surveillance reticle cursor (/music/who-really-won).
+   !important + higher specificity overrides the site's rose-petal cursor
+   while the immersive experience is mounted (body.wrw-cursor).
+   ========================================================================= */
+body.wrw-cursor,
+body.wrw-cursor * {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%3E%3Cg%20fill='none'%20stroke='%23e9e9f0'%20stroke-width='1.5'%3E%3Ccircle%20cx='16'%20cy='16'%20r='7'/%3E%3Cpath%20d='M16%201v5M16%2026v5M1%2016h5M26%2016h5'/%3E%3C/g%3E%3Ccircle%20cx='16'%20cy='16'%20r='1.4'%20fill='%23e9e9f0'/%3E%3C/svg%3E") 16 16, crosshair !important;
+}
+/* hovering a clickable target (monitor, desk button, UI control) → locked-on */
+body.wrw-cursor.wrw-target,
+body.wrw-cursor.wrw-target *,
+body.wrw-cursor a:hover,
+body.wrw-cursor button:hover {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='36'%20height='36'%20viewBox='0%200%2036%2036'%3E%3Cg%20fill='none'%20stroke='%23ff2b2b'%20stroke-width='2'%3E%3Cpath%20d='M5%2011V5h6M25%205h6v6M31%2025v6h-6M11%2031H5v-6'/%3E%3Ccircle%20cx='18'%20cy='18'%20r='2.4'%20fill='%23ff2b2b'%20stroke='none'/%3E%3C/g%3E%3C/svg%3E") 18 18, pointer !important;
+}

@@ -1,37 +1,55 @@
-# MALI
+# Akilah Mali — official site
 
-Official website for the artist **mali** (Akilah Brown-Pagan) — music, videos,
-social feed, store, and editorial pages. Built with Next.js, dark-cinematic
-design, an interactive enter screen, a video hero, and a custom interactive UI
-layer.
+The official site for **Akilah Mali** (stage name **MALI**), an Atlanta-based
+singer, songwriter, and independent artist. Built as a clean **Next.js 16 +
+Tailwind v4 + Framer Motion** project. No environment variables or backend
+required — music, signups, and tour data are served through live third-party
+embeds.
 
-## Quick start
+## Run
 
 ```bash
 npm install
 npm run dev      # http://localhost:3000
+npm run build    # production build (all routes static)
 ```
 
-The site runs fully on the content baked into the code — **no API keys or
-accounts are required** to run or deploy it. Every integration (CMS, store,
-email, social feeds, analytics) is optional and enhances one feature.
+## Routes
 
-## Full setup
+| Route | Content |
+| --- | --- |
+| `/` | Hero video · Listen Now (Spotify top tracks + Laylo text chain) |
+| `/about` | Bio + press photo |
+| `/music` | Spotify embed grid (artist, EP, and singles) |
+| `/tour` | Press banner + tour-dates placeholder |
+| `/cart` | Redirects to the external shop at `shop.akilahmali.com/cart` |
 
-See **[SETUP.md](./SETUP.md)** for the complete end-to-end guide: local dev,
-deploying to Vercel, connecting the domain, and configuring each integration
-(Sanity CMS, Klaviyo, Upstash, social feeds, Shopify, analytics, Sentry).
+## Where to customize
 
-## Stack
+Nearly all content lives in **`src/lib/site.ts`** — artist name, contact email,
+nav, socials, bio, Spotify track/artist/album IDs, the Laylo drop, and the
+merch/cart links. Edit there to update the site or rebrand for another artist.
 
-- **Next.js** (App Router) on **Vercel** (auto-deploys from `main`)
-- **Sanity** for optional content management (`/studio`)
-- **Shopify** Storefront API for the store (`shop.akilahmali.com`)
-- **Klaviyo** for the mailing list, **Upstash Redis** for rate limiting
-- **Curator.io** widget for the live Instagram feed
-- Type: **Fraunces** + **Space Grotesk** + **Space Mono**
+- **Hero video** → `src/lib/site.ts` › `assets.heroVideo` (a file in `/public/assets`),
+  rendered by `src/components/Hero.tsx`.
+- **Photos / cover art** → real images live in `/public/assets`; the `<Placeholder>`
+  helper in `src/components/Media.tsx` renders any `src=` you pass it.
+- **Spotify embeds** → `homeListen` and `musicGrid` in `src/lib/site.ts`.
+- **Newsletter / text chain** → the Laylo embed (`site.laylo`) and the email
+  capture in `src/components/SubscribeFooter.tsx`.
 
-## Editing content
+## Design tokens (`src/app/globals.css`)
 
-Content lives in `lib/static-content.ts` (edit + push), or in Sanity once
-configured. Images are in `public/images/`. See SETUP.md §6 and §8.
+- Red/maroon palette: accent `#bb8388` · maroon band `#3e1b1e` · hero base `#2a1012`
+  · ink `#160d0e` · cream `#f7eeee` · rouge accent `#d23b3b`
+- Type: **Nimbus Sans** (self-hosted, body + nav) · **Brittany Signature**
+  (script section titles) — both in `/public/fonts`
+
+## Notes
+
+Media (the "Who Really Won?" hero video, press photos, wordmarks, cover art) are
+the artist's own assets and live in `/public/assets`. Music playback, the email
+text chain, and (when wired) tour dates are handled by live Spotify, Laylo, and
+Seated embeds rather than copied content. The `/tour` page currently shows a
+"tour dates coming soon" placeholder; Seated-widget styling is already present in
+`globals.css` for when dates are added.
