@@ -39,6 +39,7 @@ export default function Header() {
   const wordmarkSrc = onDark ? site.assets.wordmarkWhite : site.assets.wordmark;
 
   return (
+    <>
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${bar} ${text}`}
     >
@@ -124,10 +125,13 @@ export default function Header() {
           </a>
         </div>
       </div>
+    </header>
 
-      {/* Mobile overlay menu */}
+      {/* Mobile overlay menu — rendered OUTSIDE <header> so the header's
+          scrolled-state backdrop-filter (which makes it a containing block for
+          fixed descendants) can't trap this full-screen overlay inside the bar. */}
       {open && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-plum-deep text-white md:hidden">
+        <div className="fixed inset-0 z-[60] flex flex-col bg-plum-deep text-white md:hidden">
           <div className="flex h-20 items-center justify-between px-5">
             <SiteImg src={site.assets.wordmarkWhite} alt={site.artist} className="h-5 w-auto" />
             <div className="flex items-center gap-4">
@@ -192,6 +196,6 @@ export default function Header() {
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }
