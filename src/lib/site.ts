@@ -6,7 +6,7 @@
 
 export const site = {
   artist: "Akilah Mali",
-  contactEmail: "realmalimusic@gmail.com",
+  contactEmail: "akilahmalimusic@gmail.com",
   // Hero CTA → the "Who Really Won?" release page (on-site deep link)
   listenUrl: "/music/who-really-won",
 
