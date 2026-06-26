@@ -25,14 +25,14 @@
 
 /* ─── Design tokens — RED theme (token names kept; values now red) ────── */
 @theme {
-  --color-lavender: #bb8388; /* primary accent / light section bg (red) */
-  --color-lavender-soft: #cb9a9e;
-  --color-lavender-deep: #a86a70;
-  --color-plum: #3e1b1e; /* dark section band (maroon) */
-  --color-plum-deep: #2a1012; /* deeper dark / hero base */
-  --color-ink: #160d0e; /* near-black w/ red tint */
-  --color-cream: #f7eeee;
-  --color-rouge: #d23b3b; /* vivid accent red */
+  --color-lavender: #b0453c; /* primary accent / feature section bg (muted brick red) */
+  --color-lavender-soft: #cd766b;
+  --color-lavender-deep: #872e28;
+  --color-plum: #4a1715; /* dark section band (oxblood) */
+  --color-plum-deep: #2c0d0c; /* deeper dark / hero base */
+  --color-ink: #190a09; /* near-black w/ warm red tint */
+  --color-cream: #f6efe9; /* warm off-white */
+  --color-rouge: #bf3b32; /* refined accent red */
 
   --font-sans: "Nimbus Sans", "Helvetica Neue", Arial, sans-serif;
   --font-script: "Nimbus Sans", "Helvetica Neue", Arial, sans-serif;

@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Music — Akilah Mali" };
 export default function MusicPage() {
   return (
     <section
-      className="bg-lavender bg-repeat pt-28 pb-24 md:pt-36"
+      className="bg-lavender bg-repeat bg-blend-multiply pt-28 pb-24 md:pt-36"
       style={{ backgroundImage: `url(${site.assets.bgLavender})` }}
     >
       <div className="mx-auto max-w-[1380px] px-6 md:px-10">
@@ -23,7 +23,7 @@ export default function MusicPage() {
         <Reveal className="mt-3 text-center">
           <Link
             href="/music/who-really-won"
-            className="nav-label text-[0.7rem] text-plum/80 underline-offset-4 transition hover:text-plum hover:underline"
+            className="nav-label text-[0.7rem] text-cream/80 underline-offset-4 transition hover:text-cream hover:underline"
           >
             Explore the “Who Really Won?” EP →
           </Link>
