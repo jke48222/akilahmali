@@ -9,10 +9,12 @@ import { SOCIAL_ICONS, MenuIcon, CloseIcon, CartIcon } from "./icons";
 
 export default function Header() {
   const pathname = usePathname();
-  // Routes whose top section is a dark hero/banner → white header.
+  // Routes whose top section is a dark/deep-red band → white header.
   const darkTop =
     pathname === "/" ||
     pathname === "/tour" ||
+    pathname === "/about" ||
+    pathname === "/music" ||
     pathname?.startsWith("/music/who-really-won");
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);

@@ -8,7 +8,7 @@ import Reveal from "./Reveal";
 export default function ListenNow() {
   return (
     <section
-      className="relative overflow-hidden bg-lavender bg-repeat py-20 md:py-28"
+      className="relative overflow-hidden bg-lavender bg-repeat bg-blend-multiply py-20 md:py-28"
       style={{ backgroundImage: `url(${site.assets.bgLavender})` }}
     >
       <div className="mx-auto grid max-w-[1500px] grid-cols-1 gap-10 px-6 md:px-10 lg:grid-cols-[1fr_0.85fr]">

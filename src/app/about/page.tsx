@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "About — Akilah Mali" };
 export default function AboutPage() {
   return (
     <section
-      className="relative overflow-hidden bg-lavender bg-repeat pt-28 pb-24 md:pt-36"
+      className="relative overflow-hidden bg-lavender bg-repeat bg-blend-multiply pt-28 pb-24 md:pt-36"
       style={{ backgroundImage: `url(${site.assets.bgLavender})` }}
     >
       <SiteImg
@@ -22,13 +22,13 @@ export default function AboutPage() {
       />
       <div className="relative mx-auto max-w-[1300px] px-6 md:px-10">
         <Reveal>
-          <SigTitle tone="plum" as="h1" className="text-7xl md:text-8xl">
+          <SigTitle tone="white" as="h1" className="text-7xl md:text-8xl">
             About
           </SigTitle>
         </Reveal>
 
         <div className="mt-10 grid grid-cols-1 gap-12 lg:grid-cols-[1.2fr_1fr]">
-          <Reveal variant="stagger" className="space-y-5 text-[0.95rem] leading-relaxed text-plum/90">
+          <Reveal variant="stagger" className="space-y-5 text-[0.95rem] leading-relaxed text-cream/90">
             {site.bio.map((para, i) => (
               <Reveal as="div" key={i}>
                 <p>{para}</p>
