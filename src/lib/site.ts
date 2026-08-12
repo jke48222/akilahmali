@@ -7,8 +7,16 @@
 export const site = {
   artist: "Akilah Mali",
   contactEmail: "akilahmalimusic@gmail.com",
-  // Hero CTA → the "Who Really Won?" release page (on-site deep link)
-  listenUrl: "/music/who-really-won",
+
+  // Featured release — hero + lead embeds on / and /music read from this
+  // block. Point it at the next drop when it lands.
+  release: {
+    title: "Tower of Roses",
+    spotifyTrackId: "4X5LHZKHA7Vc91FkBypg2O",
+    spotifyAlbumId: "7Av3StrvipLGT4H7Ox19lT",
+    // Hero CTA → the release stub (on-site deep link, same as the WRW-era CTA)
+    listenUrl: "/music/tower-of-roses",
+  },
 
   // Laylo "text chain" drop (color matches the red theme: cb9a9e)
   laylo: {
@@ -39,8 +47,8 @@ export const site = {
   assets: {
     wordmark: "/assets/wordmark.png", // black "akilah mali" logo (transparent)
     wordmarkWhite: "/assets/wordmark-white.png", // white version for dark headers
-    heroVideo: "/assets/hero.mp4", // "Who Really Won?" music video (supplied)
-    heroPoster: "/assets/hero-poster.jpg",
+    heroVideo: "/assets/tower-of-roses.mp4", // "Tower of Roses" reel (supplied; audio stripped, plays muted)
+    heroPoster: "/assets/tower-poster.jpg",
     pixieMermaid: "/assets/pixie-mermaid.png", // abstract black silhouette decoration
     pix3: "/assets/pix3.png",
     pix4: "/assets/pix4.png",
@@ -48,15 +56,17 @@ export const site = {
     bgPlum: "/assets/grain-dark.png", // fine maroon grain tile (dark sections)
   },
 
-  // Homepage "Listen Now" — Akilah Mali's top tracks + artist player
+  // Homepage "Listen Now" — the new single first, then top tracks + artist player
   homeListen: [
+    { type: "track", id: "4X5LHZKHA7Vc91FkBypg2O", height: 152 }, // Tower of Roses (new single)
     { type: "track", id: "15gG3VoteXYpZaP6Ns9s5C", height: 152 }, // Gone Away (most streamed)
     { type: "track", id: "1jtebf1xPtxiwIlrlrbTi0", height: 152 }, // Strange
     { type: "artist", id: "13CrflPMkTb5mmizdGYL2i", height: 352 },
   ],
 
-  // /music grid — MALI top tracks + Strange + Who Really Won? EP catalog
+  // /music grid — Tower of Roses feature + MALI top tracks + Strange + Who Really Won? EP catalog
   musicGrid: [
+    { kind: "feature", type: "track", id: "4X5LHZKHA7Vc91FkBypg2O", height: 352 }, // Tower of Roses (new single, full-width)
     { kind: "single", type: "artist", id: "13CrflPMkTb5mmizdGYL2i", height: 352 }, // MALI — Top Tracks
     { kind: "single", type: "album", id: "1erR9OC9qZj0mbYH7STB6X", height: 352 }, // Who Really Won? (EP)
     { kind: "single", type: "track", id: "15gG3VoteXYpZaP6Ns9s5C", height: 152 }, // Gone Away
@@ -72,7 +82,7 @@ export const site = {
     "Last year, Atlanta-based singer, songwriter, and independent artist Akilah Mali stepped into the light with her debut EP, Who Really Won?, and her emotionally charged follow-up single, “Strange.” The intimately crafted projects showcase her strongest and most honest songwriting yet, presaging this chapter as her most authentic and assured to date.",
     "Writing, recording, and releasing all of her music entirely herself, Akilah Mali has built a growing catalog that continues to resonate with listeners. She first established her distinct, vulnerable sound with her early 2025 single “Last Year.” Just months later, she released her debut 5-track EP, Who Really Won?, a breakout project that showcased her complete creative control. Featuring standout tracks like “Gone Away” and “My Bed,” the 14-minute release further cemented her ability to craft records exploring the relatable, messy realities of relationships that just didn't last.",
     "In late 2025, Akilah’s standalone single “Strange” became another watershed moment in her early career. Tackling the painful realities of fading connections, including strangers who used to be friends and favors that never came back, the track paved the way for a deeper emotional resonance with her audience. Her trajectory has been defined by a fierce work ethic and an absolute dedication to her artistic vision as an independent creator.",
-    "This era represents a creative turning point in her career, setting the stage for what comes next. As she writes and produces her next wave of releases, her evolving sound continues to examine the growing pains of early adulthood, internal contradiction, and the old versions of ourselves that we shed with age.",
+    "That next chapter has now arrived with “Tower of Roses,” her latest single, released in August 2026. A creative turning point in her career, the record opens her next wave of releases, and her evolving sound continues to examine the growing pains of early adulthood, internal contradiction, and the old versions of ourselves that we shed with age.",
     "Guided by the same independence and artistic control that have defined her work from the beginning, Akilah Mali enters her next chapter with a clearer sense of purpose and a voice that continues to grow more distinct with each release.",
   ],
 

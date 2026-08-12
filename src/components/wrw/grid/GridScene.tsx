@@ -22,6 +22,8 @@ import { isCoarsePointer } from "@/lib/device";
 
 export type GridApi = {
   focus: (index: number, onArrive?: () => void) => void;
+  /** dive into the desk's blue button at the clicked world point, then arrive */
+  focusButton: (point: THREE.Vector3, onArrive?: () => void) => void;
   reset: (onHome?: () => void) => void;
 };
 
@@ -122,6 +124,20 @@ function CameraController({ apiRef }: { apiRef: RefObject<GridApi | null> }) {
         setTimeout(fire, 1050);
         setTimeout(fire, 1900); // fallback (rAF can be paused in a hidden tab)
       },
+      focusButton: (point, onArrive) => {
+        const fire = once(onArrive);
+        // Dive at the clicked point itself — the raycast hit is already the
+        // exact world spot on the button cap, so there's nothing to measure.
+        // Approach from the camera's side but lifted, so the move ends close
+        // above the cap looking down onto it. `dist` is always a fraction of
+        // the current camera distance, so the motion can only go INWARD.
+        const toCam = camera.position.clone().sub(point).normalize();
+        const dir = toCam.add(new THREE.Vector3(0, 0.9, 0)).normalize();
+        const dist = Math.min(0.22, camera.position.distanceTo(point) * 0.5);
+        tweenTo(point.clone().add(dir.multiplyScalar(dist)), point.clone(), 1.6);
+        setTimeout(fire, 1050);
+        setTimeout(fire, 1900);
+      },
       reset: (onHome) => {
         const fire = once(() => {
           locked.current = false;
@@ -164,7 +180,7 @@ export function GridScene({
       false while the paper cover or a blast fully occludes it */
   rendering: boolean;
   onSelect: (index: number) => void;
-  onButton?: () => void;
+  onButton?: (point: THREE.Vector3) => void;
 }) {
   // pick → zoom all the way into that monitor → open its blast
   const pick = (i: number) => apiRef.current?.focus(i, () => onSelect(i));

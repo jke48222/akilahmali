@@ -31,7 +31,7 @@ export default function MusicPage() {
 
         <Reveal variant="stagger" className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-2">
           {site.musicGrid.map((cell, i) => (
-            <Reveal as="div" key={i}>
+            <Reveal as="div" key={i} className={cell.kind === "feature" ? "lg:col-span-2" : undefined}>
               <SpotifyEmbed type={cell.type} id={cell.id} height={cell.height} />
             </Reveal>
           ))}

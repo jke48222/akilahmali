@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 
-/** Brittany Signature section title with subtle grain (white or plum). */
+/** Script section title (Golden Hopes) with subtle grain (white or plum).
+ *  Add `sig-title-brittany` via className to keep the original Brittany
+ *  Signature (the Who Really Won? page does this in SubscribeFooter). */
 export default function SigTitle({
   children,
   tone = "white",

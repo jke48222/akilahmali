@@ -5,7 +5,8 @@ import SubscribeFooter from "@/components/SubscribeFooter";
 
 export const metadata: Metadata = {
   title: "Akilah Mali",
-  description: "Official site of Akilah Mali — music, tour, and more.",
+  description:
+    "Official site of Akilah Mali — new single “Tower of Roses” out now. Music, tour, and more.",
 };
 
 export default function RootLayout({

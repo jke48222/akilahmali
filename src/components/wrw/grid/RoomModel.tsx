@@ -216,7 +216,7 @@ export function RoomModel({
 }: {
   onSelect: (i: number) => void;
   enabled: boolean;
-  onButton?: () => void;
+  onButton?: (point: THREE.Vector3) => void;
 }) {
   const { scene } = useGLTF(MODEL);
 
@@ -237,14 +237,16 @@ export function RoomModel({
   return (
     <group>
       {/* The desk's blue button: the hit area is the button mesh ITSELF (exact),
-         it stays static, and a click opens the vinyl loop page. */}
+         it stays static, and a click dives into it → the Tower of Roses blast.
+         The raycast hit point rides along so the camera dives at the exact
+         world spot that was pressed. */}
       <primitive
         object={scene}
         onClick={(e: ThreeEvent<MouseEvent>) => {
           if (!enabled || !isButton(e)) return;
           e.stopPropagation();
           document.body.classList.remove("wrw-target");
-          onButton?.();
+          onButton?.(e.point.clone());
         }}
         onPointerOver={(e: ThreeEvent<PointerEvent>) => {
           if (!enabled || !isButton(e)) return;

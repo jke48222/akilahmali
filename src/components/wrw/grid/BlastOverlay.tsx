@@ -29,8 +29,15 @@ export function BlastOverlay({
   const n = feeds.length;
   const wheelLock = useRef(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const activeChipRef = useRef<HTMLButtonElement>(null);
   const [muted, setMuted] = useState(false);
   const [shown, setShown] = useState(false); // fade-in for a seamless hand-off
+
+  // keep the active title visible in the (scrollable) feed strip — the later
+  // feeds sit past the fold on narrow screens
+  useEffect(() => {
+    activeChipRef.current?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }, [index]);
 
   const go = useCallback((dir: number) => onIndex((index + dir + n) % n), [index, n, onIndex]);
 
@@ -248,6 +255,7 @@ export function BlastOverlay({
           {feeds.map((f, i) => (
             <button
               key={f.n}
+              ref={i === index ? activeChipRef : undefined}
               onClick={() => onIndex(i)}
               className="shrink-0 transition-opacity"
               style={i === index ? { color: f.accent } : { color: "rgba(255,255,255,0.5)" }}
