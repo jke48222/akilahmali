@@ -17,13 +17,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import type { Vector3 } from "three";
 import type { GridApi } from "@/components/wrw/grid/GridScene";
 import { BlastOverlay } from "@/components/wrw/grid/BlastOverlay";
 import { GridHUD } from "@/components/wrw/grid/GridHUD";
 import { Landing, INK_DRAW_MS } from "@/components/wrw/grid/Landing";
 import { WrwCRT } from "@/components/wrw/WrwCRT";
-import { FEEDS, feedIndexForReleaseSlug } from "@/lib/wrw/grid";
+import { ALL_FEEDS, TOWER_FEED_INDEX, feedIndexForReleaseSlug } from "@/lib/wrw/grid";
 import { prefersReducedMotion } from "@/lib/device";
 
 // The WebGL room (three.js + drei + fiber + gsap, ~1.5MB) is split into its OWN
@@ -51,7 +51,6 @@ export function WhoReallyWon() {
   const [sceneReady, setSceneReady] = useState(false);
   const apiRef = useRef<GridApi | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     // Mount the WebGL scene only AFTER the ink finishes drawing. The draw-on
@@ -77,7 +76,7 @@ export function WhoReallyWon() {
     if (song) idx = feedIndexForReleaseSlug(song);
     else if (feedParam !== null) {
       const n = Number.parseInt(feedParam, 10);
-      if (Number.isInteger(n) && n >= 0 && n < FEEDS.length) idx = n;
+      if (Number.isInteger(n) && n >= 0 && n < ALL_FEEDS.length) idx = n;
     }
     bootFeedRef.current = idx;
   }, []);
@@ -114,9 +113,10 @@ export function WhoReallyWon() {
     };
   }, [showLanding]);
 
-  // the blue desk button → the bare vinyl loop page
-  function handleButton() {
-    router.push("/music/who-really-won/turntable");
+  // the blue desk button — the same treatment as the monitors: dive the camera
+  // into the clicked spot on the button, then open the hidden single's blast
+  function handleButton(point: Vector3) {
+    apiRef.current?.focusButton(point, () => setActive(TOWER_FEED_INDEX));
   }
 
   // called inside the ENTER click gesture: unlock audio + go live.
@@ -186,7 +186,7 @@ export function WhoReallyWon() {
       {showLanding && <Landing onEnter={handleEnter} onDone={() => setShowLanding(false)} />}
       {active !== null && (
         <BlastOverlay
-          feeds={FEEDS}
+          feeds={ALL_FEEDS}
           index={active}
           onIndex={setActive}
           audioRef={audioRef}

@@ -113,18 +113,37 @@ export const FEEDS: Feed[] = [
   },
 ];
 
+/* The desk's blue button is the 8th feed — "Tower of Roses", the hidden
+   single. It has no monitor: clicking the button dives the camera into the
+   button mesh itself (GridApi.focusButton measures it live off the GLB), then
+   the blast opens on this feed. pos/size/rotY are reference-only metadata. */
+export const TOWER_FEED: Feed = {
+  n: 8, title: "Tower of Roses", tag: "NEW SINGLE", kind: "video",
+  src: "/assets/tower-of-roses.mp4",
+  // the reel loops muted as the visual; the 1:38–2:15 cut loops via the <audio>
+  audio: "/wrw-assets/audio/previews/tower-of-roses.m4a", accent: "#ff4d6d",
+  spotify: sp("4X5LHZKHA7Vc91FkBypg2O"),
+  apple: am("tower-of-roses-single", "6797344451", "6797344452"),
+  pos: [3.1, 0.9, -3.4], size: [0.1, 0.1], rotY: -1.5, // approx. button spot on the desk
+};
+
+/** Every blast feed: the 7 monitors + the button's hidden single. */
+export const ALL_FEEDS: Feed[] = [...FEEDS, TOWER_FEED];
+export const TOWER_FEED_INDEX = ALL_FEEDS.indexOf(TOWER_FEED);
+
 /* Release pages that have a matching blast feed, so they can deep-link straight
    into it (e.g. /music/who-really-won?song=last-year). Mapped by title so the
-   index stays correct even if FEEDS is reordered. */
+   index stays correct even if the feeds are reordered. */
 const RELEASE_SLUG_TO_FEED_TITLE: Record<string, string> = {
   "last-year": "Last Year",
   strange: "Strange",
+  "tower-of-roses": "Tower of Roses",
 };
 
 /** Feed index for a release/song slug, or null when there's no matching blast. */
 export function feedIndexForReleaseSlug(slug: string): number | null {
   const title = RELEASE_SLUG_TO_FEED_TITLE[slug];
   if (!title) return null;
-  const i = FEEDS.findIndex((f) => f.title === title);
+  const i = ALL_FEEDS.findIndex((f) => f.title === title);
   return i >= 0 ? i : null;
 }

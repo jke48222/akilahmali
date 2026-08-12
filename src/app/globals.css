@@ -22,6 +22,16 @@
   font-style: normal;
   font-display: swap;
 }
+/* Golden Hopes — the "Tower of Roses" script (site-wide signature font;
+   Brittany Signature stays on the Who Really Won? page only) */
+@font-face {
+  font-family: "Golden Hopes";
+  src: url("/fonts/GoldenHopes.woff2") format("woff2"),
+    url("/fonts/GoldenHopes.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* ─── Design tokens — RED theme (token names kept; values now red) ────── */
 @theme {
@@ -36,7 +46,7 @@
 
   --font-sans: "Nimbus Sans", "Helvetica Neue", Arial, sans-serif;
   --font-script: "Nimbus Sans", "Helvetica Neue", Arial, sans-serif;
-  --font-signature: "Brittany Signature", cursive;
+  --font-signature: "Golden Hopes", cursive;
 }
 
 :root {
@@ -63,15 +73,19 @@ body {
   font-weight: 400;
 }
 
-/* ─── Brittany Signature section titles, with subtle grain ────────────── */
+/* ─── Script section titles (Golden Hopes), with subtle grain ─────────── */
 .sig-title {
   font-family: var(--font-signature);
-  /* Brittany Signature has tall swashes + deep descenders + side flourishes;
+  /* the script has tall swashes + deep descenders + side flourishes;
      pad the background-clip:text paint box so glyphs aren't cut off on any edge. */
   line-height: 1.4;
   padding-block: 0.18em;
   padding-inline: 0.22em;
   font-weight: 400;
+}
+/* the Who Really Won? page keeps its original Brittany Signature titles */
+.sig-title-brittany {
+  font-family: "Brittany Signature", cursive;
 }
 /* grain is layered over a solid colour and clipped to the glyphs */
 .grain-text {

@@ -59,7 +59,10 @@ export default function SubscribeFooter() {
     >
       <div className="mx-auto max-w-xl px-6">
         <Reveal>
-          <SigTitle tone={onWrw ? "black" : "white"} className="text-7xl md:text-8xl">
+          <SigTitle
+            tone={onWrw ? "black" : "white"}
+            className={`${onWrw ? "sig-title-brittany " : ""}text-7xl md:text-8xl`}
+          >
             Subscribe
           </SigTitle>
         </Reveal>
