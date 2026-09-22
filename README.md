@@ -1,5 +1,7 @@
 # Akilah Mali, official site
 
+![Top language](https://img.shields.io/github/languages/top/jke48222/akilahmali) ![framework](https://img.shields.io/badge/framework-Next.js-black) [![live](https://img.shields.io/badge/live-akilahmali.com-brightgreen)](https://www.akilahmali.com)
+
 The official website for Akilah Mali (stage name MALI), an independent Atlanta singer and
 songwriter. It is where someone who just heard a song goes to hear the rest, read who she is, and
 leave a way to be told about the next release.
@@ -12,6 +14,8 @@ leave a way to be told about the next release.
 > `.claude/worktrees/` and has an entirely different and much larger stack: Shopify, Sanity,
 > Klaviyo, Redis. **None of that runs on akilahmali.com.** It is documented in its own clearly
 > marked section at the bottom.
+
+![The live site at akilahmali.com](docs/readme/hero.png)
 
 ## What problem this solves
 
