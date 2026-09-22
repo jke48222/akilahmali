@@ -11,7 +11,7 @@ leave a way to be told about the next release.
 > **Read this first if you are auditing the stack.** This repository contains **two separate
 > projects**. The site described in the first half is the one that is live, and it is a static
 > site with one API route. A second, unshipped prototype named `malicantsing` is committed inside
-> `.claude/worktrees/` and has an entirely different and much larger stack: Shopify, Sanity,
+> `prototype/` and has an entirely different and much larger stack: Shopify, Sanity,
 > Klaviyo, Redis. **None of that runs on akilahmali.com.** It is documented in its own clearly
 > marked section at the bottom.
 
@@ -205,7 +205,7 @@ public/
 │                                       two GLB models for the control room
 └── fonts/                              Four self-hosted faces
 
-.claude/worktrees/                      The unshipped prototype. See below.
+prototype/                              The unshipped prototype. See below.
 ```
 
 To update the site for a new release, edit `release` in [`src/lib/site.ts`](src/lib/site.ts). The
@@ -237,7 +237,7 @@ this repository. It does not run on akilahmali.com. It has never been deployed a
 ## Where it lives
 
 ```
-.claude/worktrees/youthful-goldwasser-fff891/
+prototype/
 ```
 
 117 tracked files, added in a single commit `5e015a2` on 4 Jun 2026. Its `package.json` names it
@@ -246,7 +246,7 @@ this repository. It does not run on akilahmali.com. It has never been deployed a
 ## What it is
 
 A two-part build from a product brief at
-[`docs/prd.md`](.claude/worktrees/youthful-goldwasser-fff891/docs/prd.md): an artist site plus a
+[`docs/prd.md`](prototype/docs/prd.md): an artist site plus a
 companion drop-style merch store, described in the brief as one universe in two skins. The brief's
 header marks its status as "Brief v1, ready for design exploration" and lists its domains,
 `malicantsing.com` and `shop.malicantsing.com`, as proposed. `malicantsing.com` does not resolve.
